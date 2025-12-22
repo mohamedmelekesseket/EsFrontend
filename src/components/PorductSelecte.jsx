@@ -35,21 +35,20 @@ const ProductSelect = ({ setShowBag }) => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
-
   const formatImageUrl = (path) => {
     if (!path) return null;
 
-    // This gets the base domain (https://esseket.duckdns.org) 
-    // and removes the "/api" part entirely for images
-    const base = API_BASE_URL.replace(/\/api$/, '');
+    const isLocal = window.location.hostname === 'localhost';
+    const base = isLocal 
+      ? 'http://localhost:2025' 
+      : 'https://esseket.duckdns.org';
 
-    // Ensure the path looks like /uploads/image.png
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    // Extract only the filename (e.g., "1766...png")
+    // This removes any "/uploads/" or "C:\..." prefix coming from the DB
+    const fileName = path.split('/').pop().split('\\').pop();
 
-    return `${base}${cleanPath}`;
+    return `${base}/uploads/${fileName}`;
   };
-
-
 
 const fetchProducts = async () => {
   setLoading(true);
