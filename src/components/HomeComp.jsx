@@ -380,7 +380,6 @@ const sendMail = async () => {
 
       {showcontact && (
         <div className='divcontactHome' >
-        <Toaster/>
           <div style={{width:"100%",height:"100%",zIndex:"222",paddingBottom:'39%'}}>
           <ArrowRight size={30} id='ArrowContact' onClick={()=>setShowContact(false)} />
             <h1>Contact-<span style={{color:"#03F7EB"}}>us</span></h1>
@@ -501,7 +500,6 @@ const sendMail = async () => {
 
       {/* Subscribe Section */}
       <div className='Subscribe-section'>
-        <Toaster/>
         <div className="Subscribe-content">
           <h2>Subscribe to our newletter</h2>
           <p>Stay informed about Es Brand's news, special offers and trends!</p>

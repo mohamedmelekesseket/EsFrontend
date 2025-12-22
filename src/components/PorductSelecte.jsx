@@ -37,14 +37,17 @@ const ProductSelect = ({ setShowBag }) => {
   const navigate = useNavigate();
 
   const formatImageUrl = (path) => {
-  if (!path) return null;
+    if (!path) return null;
 
-  // remove trailing /api if exists
-  const base = API_BASE_URL.replace(/\/api$/, '');
+    // This gets the base domain (https://esseket.duckdns.org) 
+    // and removes the "/api" part entirely for images
+    const base = API_BASE_URL.replace(/\/api$/, '');
 
-  return `${base}${path}`;
-};
+    // Ensure the path looks like /uploads/image.png
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
+    return `${base}${cleanPath}`;
+  };
 
 
 
@@ -81,11 +84,30 @@ const fetchProducts = async () => {
     setColors(productColors);
 
     // SIZES
-    setSizes(
-      Array.isArray(selectedProduct.size)
-        ? selectedProduct.size
-        : []
-    );
+    // SIZES (FIX)
+    // SIZES — FULL FIX
+    let parsedSizes = [];
+
+      if (Array.isArray(selectedProduct.size)) {
+      if (
+        selectedProduct.size.length === 1 &&
+        typeof selectedProduct.size[0] === "string" &&
+        selectedProduct.size[0].startsWith("[")
+      ) {
+        // Case: ['["XS","S","M","L","XL"]']
+        try {
+          parsedSizes = JSON.parse(selectedProduct.size[0]);
+        } catch {
+          parsedSizes = [];
+        }
+      } else {
+        // Normal array case: ["XS", "S", "M"]
+        parsedSizes = selectedProduct.size;
+      }
+    }
+
+    setSizes(parsedSizes);
+
 
 
     // IMAGES
@@ -167,9 +189,9 @@ useEffect(() => {
   const scrollToTop = () => {
     window.scrollTo({ top: 100, behavior: 'smooth' });
   };
-useEffect(() => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}, []);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const handleNextImage = () => {
     const colorObj = images.find(img => img.color?.toLowerCase() === selectedColor?.toLowerCase());
@@ -191,11 +213,13 @@ useEffect(() => {
       return;
     }
     if (!selectedColor) {
-      toast.error("Please select a color");
+      toast.error("Please select a color", { id: "select-color" });
+
       return;
     }
     if (!selectedSize) {
-      toast.error("Please select a size");
+      toast.error("Please select a size", { id: "select-size" });
+
       return;
     }
 
@@ -213,7 +237,9 @@ useEffect(() => {
       });
 
       if (res.status === 200 || res.status === 201) {
-        toast.success("Product added to cart successfully!");
+        toast.success("Product added to cart successfully!", {
+          id: "add-to-cart-success",
+        });
       }
     } catch (error) {
       if (error.response?.status !== 200) {
@@ -266,6 +292,7 @@ useEffect(() => {
 
   return (
     <div className="ProductSelect">
+    
       <Loader isLoading={loading} />
       {product && (
         <div style={{ display: 'flex', justifyContent: "center", alignItems: "flex-end", width: "100%", gap: "48px" }}>
@@ -297,10 +324,10 @@ useEffect(() => {
 
           <div className="ProductSelect-details">
             <h1 className="name">{name}</h1>
-            <p className="price">{price} TND</p>
+            <p className="price">{price}.00 TND</p>
 
             <div className="colorSection">
-              <span>Couleur:</span>
+              <span>Couleur: <span style={{fontSize:"13px",color:"gray"}}> {selectedColor}</span></span>
               <div className="colorSwatches">
                 {colors.map((color, index) => {
                   const imgUrl = getImageByColor(product, color);
@@ -316,7 +343,7 @@ useEffect(() => {
                         margin: '5px',
                         borderRadius: '50%',
                         cursor: 'pointer',
-                        border: color === selectedColor ? '2px solid #7c2232' : '2px solid black',
+                        border: color === selectedColor ? `2px solid ${selectedColor}` : '2px solid black',
                         backgroundColor: color,
                         backgroundImage: safeImgUrl ? `url(${safeImgUrl})` : undefined,
                         backgroundPosition: 'center',
@@ -331,7 +358,6 @@ useEffect(() => {
             </div>
 
             <div className="sizeSection">
-              <span>Taille:</span>
               <div className="sizeOptions">
                 {sizes.map((size, idx) => (
                   <button

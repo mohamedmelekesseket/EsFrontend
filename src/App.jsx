@@ -19,6 +19,8 @@ import ResetPasword from './components/ResetPassword'
 import AboutComp from './components/AboutComp'
 import ChangeComp from './components/ChangeComp'
 import FinalePage from './components/FinalePage'
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   const [count, setCount] = useState(0)
   const [showBag, setShowBag] = useState(false); // LIFTED STATE
@@ -52,6 +54,29 @@ function App() {
           <Route path='AllProducts' element={<AllProducts/>}/>
         </Route>
       </Routes>
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          error: {
+            style: {
+              background: '#c0392b', // red
+              color: '#fff',
+              borderRadius: '0px', // ❌ no rounded corners
+            },
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#c0392b',
+            },
+          },
+          success: {
+            style: {
+              background: '#2ecc71',
+              color: '#fff',
+              borderRadius: '0px', // ❌ no rounded corners
+            },
+          },
+        }}
+      />
     </Router>
   )
 }

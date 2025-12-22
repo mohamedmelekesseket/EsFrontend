@@ -5363,12 +5363,14 @@ input::placeholder {
 }
 
 .colorSection {
-  display: flex;
   align-items: center;
   gap: 12px;
   font-size: 1.1rem;
 }
-
+.colorSection span{
+  font-size: 15px;
+  font-weight: 600;
+}
 .colorSwatches {
   display: flex;
   gap: 10px;
@@ -5400,11 +5402,10 @@ input::placeholder {
 }
 
 .sizeBtn {
-  padding: 7px 18px;
-  border-radius: 8px;
   border: 1.5px solid #bbb;
-  background: #f7f7f7;
-  font-size: 1rem;
+  background: transparent;
+  height: 40px;
+  width: 40px;
   font-weight: 500;
   cursor: pointer;
   transition:
