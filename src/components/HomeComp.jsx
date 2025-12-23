@@ -256,9 +256,10 @@ const sendMail = async () => {
       {/* Categories Section */}
       <div className='categories-section'>
         <div className="categories-header">
-          <h2>Collections</h2>
-          <p>Find your perfect style</p>
+          <ArrowRight strokeWidth={18} className="categories-arrow" />
+          <h2>GET THE LOOK</h2>
         </div>
+
         <div className="categories-grid">
           <div className="category-card"onClick={() => {
                     navigate(`/ProductU/Pontalon`, {

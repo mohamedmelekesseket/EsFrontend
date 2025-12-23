@@ -2016,22 +2016,35 @@ h3 {
 /* Categories Section */
 .categories-section {
   padding: 4rem 0;
-  background: white;
+  background: black;
+  
 }
 
 .categories-header {
-  text-align: center;
+  display: flex;
+  align-items: center;        /* vertical centering */
+  gap: 1.5rem;                /* space between arrow and text */
+  color: #ffffff;
   margin-bottom: 3rem;
 }
 
 .categories-header h2 {
-  font-size: 2.5rem;
-  color: #1a1a1a;
+  font-size: 4rem;            /* large, bold title like the image */
   font-family: "Playfair Display", serif;
-  font-weight: 400;
-  font-style: normal;
-  margin-bottom: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;     /* luxury spacing */
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1;
 }
+
+.categories-arrow {
+  width: 48px;
+  height: 48px;
+  margin-left: 2%;
+  stroke-width: 1.5;
+}
+
 
 .categories-header p {
   font-size: 1.1rem;
@@ -2052,7 +2065,7 @@ h3 {
   position: relative;
   overflow: hidden;
   width: 100%;
-  height: 600px;
+  height: 500px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
@@ -5269,7 +5282,7 @@ input::placeholder {
   width: 100%;
   min-height: 100vh;
   /* padding: 48px 0; */
-  background: #fafafd;
+  background: white;
 }
 
 .gallery {
@@ -5277,15 +5290,11 @@ input::placeholder {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 4%;
-  background: #ffffff;
   border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
   padding: 32px;
-  background-color: #ffffff13;
   position: relative;
   height: 500px;
-  max-width: 480px;
+  max-width: 45%
 }
 
 .image-wrapper {
@@ -5323,7 +5332,6 @@ input::placeholder {
   /* outline: none; */
   z-index: 2;
   color: rgb(0, 0, 0);
-  border-radius: 50%;
 }
 .Arrow-2 {
   padding: 11px;
@@ -5334,13 +5342,11 @@ input::placeholder {
   /* outline: none; */
   z-index: 2;
   color: rgb(0, 0, 0);
-  border-radius: 50%;
 }
 .ProductSelect-details {
   flex: 1 1 350px;
-  background: #fff;
+  background: transparent;
   border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
   padding: 40px 32px;
   display: flex;
   flex-direction: column;
@@ -5351,7 +5357,7 @@ input::placeholder {
 .name {
   font-size: 2.2rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 0px;
   color: #222;
 }
 
@@ -5359,7 +5365,7 @@ input::placeholder {
   font-size: 1.5rem;
   font-weight: 600;
   color: #000000;
-  margin-bottom: 16px;
+  margin-bottom: 1px;
 }
 
 .colorSection {
@@ -5373,7 +5379,7 @@ input::placeholder {
 }
 .colorSwatches {
   display: flex;
-  gap: 10px;
+  gap: 3px;
 }
 
 .colorSwatch {
@@ -5417,23 +5423,29 @@ input::placeholder {
   color: #fff;
   border: 1.5px solid #000000;
 }
-
+.PDH4{
+  margin: 0;
+  color: gray;
+  font-size: 13px;
+}
 .addToCartBtn {
   margin-top: 18px;
   padding: 14px 0;
   background: #000000;
   color: #fff;
-  font-size: 1.2rem;
-  font-weight: 700;
   border: none;
   display: flex;
   justify-content: center;
   gap: 10px;
   align-items: center;
-  border-radius: 10px;
   cursor: pointer;
+  width: 60%;
+  height: 50px;
+  margin-left: 20%;
   transition: background 0.2s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  font-size: 1rem;
+  font-weight: 100;
 }
 .addToCartBtn:hover {
   background: #000000;
@@ -5504,6 +5516,117 @@ input::placeholder {
 .mobile-view {
   display: none;
 }
+/* ===== Overlay (dark + blur) ===== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* ===== Modal Box ===== */
+.modal {
+  width: 370px;
+  background: #ffffff;
+  padding: 48px 40px 40px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Close Button ===== */
+.modal .close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: #777;
+  cursor: pointer;
+}
+
+/* ===== Lock Icon Box ===== */
+.modal .lock-box {
+  width: 56px;
+  height: 56px;
+  background: #f4f4f4;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+/* ===== Title ===== */
+.modal h1 {
+  font-family: "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #000;
+}
+
+/* ===== Description ===== */
+.modal p {
+  font-size: 16px;
+  color: #777;
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+
+/* ===== Primary Button ===== */
+.modal .btn-login {
+  width: 100%;
+  background: linear-gradient(to right, #000, #111);
+  color: #fff;
+  padding: 16px;
+  border: none;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+/* ===== Secondary Button ===== */
+.modal .btn-continue {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 16px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+/* ===== Bottom Text ===== */
+.modal .bottom-text {
+  margin-top: 28px;
+  font-size: 14px;
+  color: #777;
+}
+
+.modal .bottom-text span {
+  color: #000;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .modal {
+    width: 90%;
+    padding: 40px 24px;
+  }
+}
+
+
+
 @keyframes slideLeft {
   0% {
     transform: translateX(100%);

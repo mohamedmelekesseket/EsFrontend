@@ -19,7 +19,7 @@ const ProductSelect = ({ setShowBag }) => {
   const [colors, setColors] = useState([]);
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
-
+  const [showModal,setShowModal]=useState(false)
   const [images, setImages] = useState([]);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
@@ -33,6 +33,44 @@ const ProductSelect = ({ setShowBag }) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
+  const backdropVariants = {
+    hidden: {
+      opacity: 0,
+    },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.25,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      scale: 0.96,
+      y: 20,
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        duration: 0.35,
+        ease: [0.16, 1, 0.3, 1], // luxury easing
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.96,
+      y: 10,
+      transition: {
+        duration: 0.2,
+        ease: "easeIn",
+      },
+    },
+  };
 
   const navigate = useNavigate();
   const formatImageUrl = (path) => {
@@ -208,7 +246,8 @@ useEffect(() => {
 
   const handleAddToCart = async () => {
     if (!user) {
-      navigate('/SeConnect');
+      setShowModal(true)
+      
       return;
     }
     if (!selectedColor) {
@@ -294,8 +333,8 @@ useEffect(() => {
     
       <Loader isLoading={loading} />
       {product && (
-        <div style={{ display: 'flex', justifyContent: "center", alignItems: "flex-end", width: "100%", gap: "48px" }}>
-          <div className="gallery">
+        <div style={{ display: 'flex',  width: "100%" }}>
+          <div className="gallery" >
             <div className='Arrow-1' onClick={handlePrevImage}>
               <ArrowLeft style={{ cursor: "pointer", zIndex: '-1' }} />
             </div>
@@ -326,7 +365,7 @@ useEffect(() => {
             <p className="price">{price}.00 TND</p>
 
             <div className="colorSection">
-              <span>Couleur: <span style={{fontSize:"13px",color:"gray"}}> {selectedColor}</span></span>
+              <span style={{fontSize:"13px",color:"gray",fontWeight:"400"}}>Couleur: <span style={{fontSize:"13px",color:"black"}}> {selectedColor}</span></span>
               <div className="colorSwatches">
                 {colors.map((color, index) => {
                   const imgUrl = getImageByColor(product, color);
@@ -356,6 +395,7 @@ useEffect(() => {
               </div>
             </div>
 
+            <span style={{color:"gray"}}>Taille</span>
             <div className="sizeSection">
               <div className="sizeOptions">
                 {sizes.map((size, idx) => (
@@ -375,13 +415,12 @@ useEffect(() => {
             </div>
 
             <button className="addToCartBtn" onClick={handleAddToCart}>
-              AJOUTER AU PANIER <ShoppingBag />
+              AJOUTER AU PANIER <ShoppingBag size={18}/>
             </button>
 
-            <div className="description">
-              <h3>Description</h3>
-              <p>{description}</p>
-            </div>
+            <h4 className='PDH4'>✓ Livraison gratuite à partir de 200 TND</h4>
+            <h4 className='PDH4'>✓ Retours gratuits sous 14 jours</h4>
+            <h4 className='PDH4'>✓ Paiement sécurisé</h4>
           </div>
         </div>
       )}
@@ -532,6 +571,58 @@ useEffect(() => {
             </div>
           )}
         </div>
+      </div>
+      {showModal && (
+        <AnimatePresence>
+          {showModal && (
+            <motion.div
+              className="modal-backdrop"
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              onClick={() => setShowModal(false)}
+            >
+              <motion.div
+                className="modal"
+                variants={modalVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button className="close" onClick={() => setShowModal(false)}>
+                  ×
+                </button>
+
+                <div className="lock-box">🔒</div>
+
+                <h1>Connexion Requise</h1>
+
+                <p>
+                  Veuillez vous connecter pour ajouter des articles à votre panier
+                  et profiter d'une expérience personnalisée.
+                </p>
+
+                <button className="btn-login" onClick={()=>navigate('/SeConnect')}>SE CONNECTER</button>
+                {/* <button className="btn-continue">CONTINUER LES ACHATS</button> */}
+
+                <div className="bottom-text">
+                  Pas encore de compte ? <span onClick={()=>navigate('/SeConnect')}>Créer un compte</span>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+      )}
+
+
+
+
+
+      <div className='SignInpopup'>
+
       </div>
     <footer className="footer-2">
       <div className="footer-links">
