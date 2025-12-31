@@ -1,7 +1,7 @@
 /* ==========================================================================
    Base Styles
    ========================================================================== */
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap');
 body {
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
@@ -104,7 +104,11 @@ body {
 }
 .FeaturedProductCard h2,
 h3 {
-  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;      /* Semi-bold makes it look more "designed" */
+  letter-spacing: -0.01em; /* Tightens the text for a high-end look */
+  text-transform: capitalize; /* Optional: ensures titles are consistent */
 }
 /* Desktop search product grid - better layout for larger screens */
 @media (min-width: 769px) {
@@ -5745,7 +5749,7 @@ input::placeholder {
 
   .indicator-dot.active {
     background: #1a1a1a;
-    height: 24px;
+    width: 24px;
     border-radius: 4px;
   }
 

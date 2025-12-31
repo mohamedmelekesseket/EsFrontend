@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, ShoppingBag, Mail, Instagram, Heart } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ShoppingBag, Mail, Instagram,Twitter,Youtube, Heart } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from './Loader';
@@ -381,9 +381,8 @@ useEffect(() => {
                         margin: '5px',
                         borderRadius: '50%',
                         cursor: 'pointer',
-                        border: color === selectedColor ? `2px solid ${selectedColor}` : '2px solid black',
+                        border:  '2px solid black',
                         backgroundColor: color,
-                        backgroundImage: safeImgUrl ? `url(${safeImgUrl})` : undefined,
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
                         boxShadow: '0 0 0 2px #fff inset',
@@ -532,7 +531,6 @@ useEffect(() => {
                 {selectedSize ? `AJOUTER AU PANIER - ${selectedSize}` : 'SÉLECTIONNER UNE TAILLE'}
               </button>
 
-              {!selectedSize && (
                 <div className="mobile-size-selector">
                   <p className="size-label">Sélectionner une taille:</p>
                   <div className="mobile-size-grid">
@@ -547,7 +545,6 @@ useEffect(() => {
                     ))}
                   </div>
                 </div>
-              )}
             </div>
           </>
         )}
@@ -562,7 +559,7 @@ useEffect(() => {
                 }
               }), scrollToTop())}>
               {prod.images?.[0]?.urls?.[0] && (
-                <img src={formatImageUrl(prod.images[0].urls[0])} />
+                <img src={formatImageUrl(prod.images[0].urls[3])} />
               )}
 
 
@@ -621,10 +618,8 @@ useEffect(() => {
 
 
 
-      <div className='SignInpopup'>
-
-      </div>
-    <footer className="footer-2">
+     
+     <footer className="footer-2">
       <div className="footer-links">
         <a href="#">Conditions générales d'achat</a>
         <span>•</span>

@@ -1,6 +1,6 @@
 import React,{useState,useEffect,useMemo,useRef} from 'react'
 import * as LucideIcons from "lucide-react";
-import { Menu,Search,UserRound,Smartphone,Footprints ,Shirt ,X ,LogOut,User,Mail, CreditCard, ArrowLeft ,Truck, MapPin,ShoppingBag,ShieldUser,Edit2,Trash2 ,Dot,MoveRight,MoveLeft,Minus,Plus   } from 'lucide-react';
+import { Menu,Search,UserRound,Smartphone,Footprints,Twitter ,Shirt ,X ,LogOut,User,Mail, CreditCard, ArrowLeft ,Truck, MapPin,ShoppingBag,ShieldUser,Edit2,Trash2 ,Dot,MoveRight,MoveLeft,Minus,Plus   } from 'lucide-react';
 import { Link, useNavigate,useLocation  } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
@@ -505,7 +505,7 @@ const getImageByColor = (product, color) => {
                         genre: prod.genre,
                       }}),setSearchMobile(false))}>
                    <img
-                      src={formatImageUrl(prod.images?.[0]?.urls?.[0])}
+                      src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
                       alt={prod.name}
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/150?text=No+Image';
@@ -633,14 +633,14 @@ const getImageByColor = (product, color) => {
                         genre: prod.genre,
                       }}),setShowSearch (false))}>
                       <img
-                        src={formatImageUrl(prod.images?.[0]?.urls?.[0])}
+                        src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
                         alt={prod.name}
                         onError={(e) => {
                           e.target.src = 'https://via.placeholder.com/150?text=No+Image';
                         }}
                       />
                     <h2>{prod.name}</h2>
-                    <h3>{prod.price} TND</h3>
+                    <h3 style={{fontWeight:"700"}}>{prod.price}.00 TND</h3>
                   </div>
                 )
               })}
@@ -968,35 +968,38 @@ const getImageByColor = (product, color) => {
             setOriginalColor('');
           }} style={{display: showBagEdit ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
           <h3 style={{display: showBagEdit ?"":"none",position:"absolute"}}>{name}</h3>
-          {imageUrl && <img src={imageUrl} alt="Product" />}
-          <div className="colorSwatches">
-            {colors.map((color, index) => {
-              const imageUrl = getImageByColor(product.productId, product.color);
+          {image && (
+            <img
+              src={image}
+              alt={name}
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/300?text=No+Image';
+              }}
+            />
+          )}
 
-              return (
-                <div
-                  key={index}
-                  className='color'
-                  onClick={() => setSelectedColor(color)}
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    margin: '5px',
-                    display: showBagEdit ?"":"none",
-                    borderRadius: '50%',
-                    cursor: 'pointer',
-                    border: color === selectedColor ? '2px solid #303030ff' : '2px solid black',
-                    backgroundColor: color,
-                    backgroundImage: imgUrl ? `url(${imgUrl})` : undefined,
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    boxShadow: '0 0 0 2px #fff inset',
-                  }}
-                  title={color}
+          <div className="colorSwatches">
+            {colors.map((color, index) => (
+              <div
+                key={index}
+                className="color"
+                onClick={() => setSelectedColor(color)}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  margin: '5px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  border: color === selectedColor ? '2px solid #303030' : '2px solid black',
+                  backgroundColor: color,
+                  boxShadow: '0 0 0 2px #fff inset',
+                  display: showBagEdit ? '' : 'none'
+                }}
+                title={color}
               />
-              );
-            })}
-                </div>
+            ))}
+          </div>
+
           <div className="sizeOptions-ShopingBag">
             {sizes.map((size, idx) => (
               <button

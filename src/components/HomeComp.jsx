@@ -288,7 +288,7 @@ const HomeComp = () => {
               <img  src={Accessories} alt="Accessories" />
             </div>
             <div className="category-info">
-              <h3>Accessories</h3>
+              <h3>Sweats</h3>
               <p>Complete Your Look</p>
             </div>
           </div>
@@ -301,7 +301,7 @@ const HomeComp = () => {
           const imageUrl = rawUrl ? formatImageUrl(rawUrl) : null;
 
           return (
-      <div 
+            <div 
             key={prod._id}
             className="selectCard"
             style={{
