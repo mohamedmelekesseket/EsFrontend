@@ -99,11 +99,10 @@ const HomeComp = () => {
       });
 
       if (res.status === 200) {
-        toast.success("Message sent successfully ✅");
-        setShowContact(false)
+        toast.success("Message sent successfully ");
       }
     } catch (error) {
-      toast.error("Failed to send message ❌");
+      toast.error("Failed to send message ");
     }
   };
 
@@ -294,55 +293,61 @@ const HomeComp = () => {
           </div>
         </div>
       </div>
-     <div className="homediv-0">
-        {Products.slice(0,5).map((prod, index) => {
-          // Get the URL
-          const rawUrl = prod?.images?.[0]?.urls?.[0];
-          const imageUrl = rawUrl ? formatImageUrl(rawUrl) : null;
+        
+      <div className='HoverDivHome'>
+        <h1>Featured Collection</h1>
+        <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>       
+        <div className="homediv-0">
+            {Products.slice(0,5).map((prod, index) => {
+              // Get the URL
+              const rawUrl = prod?.images?.[0]?.urls?.[0];
+              const imageUrl = rawUrl ? formatImageUrl(rawUrl) : null;
 
-          return (
-            <div 
-            key={prod._id}
-            className="selectCard"
-            style={{
-              // Add a fallback background color so you can see the card if the image fails
-              backgroundColor: '#f3f3f3',
-              // CRITICAL: Ensure the URL is wrapped in double quotes
-              backgroundImage: imageUrl ? `url("${imageUrl}")` : "none",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              width: getCardWidth(index),
-              cursor: "pointer",
-              // CSS background-images need a height to be visible
-              minHeight: "450px", 
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-end"
-            }}
-              onClick={() => navigate(`/PorductSelecte/${prod._id}`, {
-                state: {
-                  parentCategoryId: prod.categoryId,
-                  subcategoryId: prod.subcategoryId,
-                  genre: prod.genre,
-                }
-              })}
-              onMouseEnter={() => handleCardClick(index)}
-              onMouseLeave={() => handleCardClick(null)}
-            >
-              <div className="card-info">
-                <div className="ci-row">
-                  <div className="ci-text">
-                    <h4 className="ci-title">{prod.name || 'Product'}</h4>
-                    {prod.price && <span className="ci-sep">•</span>}
-                    {prod.price && <span className="ci-price">{prod.price} DT</span>}
+              return (
+                <div 
+                key={prod._id}
+                className="selectCard"
+                style={{
+                  // Add a fallback background color so you can see the card if the image fails
+                  backgroundColor: '#f3f3f3',
+                  // CRITICAL: Ensure the URL is wrapped in double quotes
+                  backgroundImage: imageUrl ? `url("${imageUrl}")` : "none",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  width: getCardWidth(index),
+                  cursor: "pointer",
+                  // CSS background-images need a height to be visible
+                  minHeight: "450px", 
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end"
+                }}
+                  onClick={() => navigate(`/PorductSelecte/${prod._id}`, {
+                    state: {
+                      parentCategoryId: prod.categoryId,
+                      subcategoryId: prod.subcategoryId,
+                      genre: prod.genre,
+                    }
+                  })}
+                  onMouseEnter={() => handleCardClick(index)}
+                  onMouseLeave={() => handleCardClick(null)}
+                >
+                  <div className="card-info">
+                    <div className="ci-row">
+                      <div className="ci-text">
+                        <h4 className="ci-title">{prod.name || 'Product'}</h4>
+                        {prod.price && <span className="ci-sep">•</span>}
+                        {prod.price && <span className="ci-price">{prod.price} DT</span>}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+        </div>
+      </div>  
+
       <div className='Featured'>
         <h1>Featured Collection</h1>
         <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>
@@ -380,9 +385,9 @@ const HomeComp = () => {
 
       </div>
 
-      {/* About Section */}
+      <div className='someProductHome'>
 
-
+      </div>
 
       {showcontact && (
         <div className='divcontactHome' >

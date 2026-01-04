@@ -387,6 +387,8 @@ const getImageByColor = (product, color) => {
     { icon: <CreditCard size={18} style={{ marginRight: "6px" }} />, text: "Tous les paiements sont acceptés" },
     { icon: <Truck size={18} style={{ marginRight: "6px" }} />, text: "Livraison gratuite à partir de 120 DT" }
   ];
+
+
   return (
     <div>
       <AnimatePresence>
@@ -650,7 +652,6 @@ const getImageByColor = (product, color) => {
       </div>
 
       <div   className='HeaderBar slide-down'>
-        <Toaster/>
         <div className='HeaderBar-1'>
           <Menu className='IconMenuHead' onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={25} strokeWidth={3} style={{color:"white",cursor:"pointer",backgroundColor:"transparent"}}/>
           {/* <Menu className='IconMenuHead' onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={45} strokeWidth={3} style={{color:"white",cursor:"pointer"}}/> */}
@@ -823,228 +824,202 @@ const getImageByColor = (product, color) => {
           )}
         </AnimatePresence>
        
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {showBag && (
-          <motion.div
-            id="ShoppingBag"
-            className={`ShoppingBag ${showBag ? "open" : ""}`}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            transition={{
-              opacity: { duration: 0.3, ease: "easeOut" },
-              x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
-            }}
-            style={{ overflow: "hidden" }}
->
-
-          {productCart.cart?.products?.length === 0 || !user ?(          
-            <div>
-              <X className='XMobileBag' onClick={()=>setShowBag(false)} style={{display: showBag ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
-              <ArrowLeft className='IconMobileShoppingCard'  onClick={()=>setShowBag(false)} style={{display: showBag ?"initial":"none",cursor:"pointer", marginLeft:"2%"}}/>
-              <h3 style={{textAlign:"center",position:"relative",top:"-10px",display: showBag ?"":"none"}}>ShoppingBag</h3>
-              
-              {/* Empty Cart Message */}
-              <div className='EmptyBag' style={{ display: showBag ? "flex" : "none",}}>
-                <ShoppingBag size={60} style={{color: "#ccc", marginBottom: "15px"}}/>
-                <h4 style={{color: "#666", marginBottom: "10px", fontSize: "18px"}}>Your cart is empty</h4>
-                <p style={{color: "#999", fontSize: "14px", lineHeight: "1.4"}}>
-                  Looks like you haven't added any items to your cart yet. 
-                  Start shopping to see your items here!
-                </p>
-                <Link to="/" onClick={() => setShowBag(false)}>
-                  <button  onClick={()=>setShowMenu(true)}>Start Shopping</button>
-                </Link>
-              </div>
-              {/* <div className='MobileBagProduct'>
-                <h1>you might be interested in</h1>
-                <div id='FeaturedProductCards' className='FeaturedProductCards'>
-                  {Products.slice(0, 4).map((prod, index) => 
-                  <div key={prod._id || index} id='FeaturedProductCard' className='FeaturedProductCard'>
-                    <img src={`https://esseket.duckdns.org/${prod.images[0]?.urls[3]}`} alt="" />
-                    <h2>{prod.name}</h2>
-                    <h3>{prod.price} TND</h3>
-
-                  </div>
-                  )}
-                </div>
-              </div> */}
-            </div>
-          ):(
-            <div className='PdSb'>
-              <div className='PdSbHeader'>
-                <h3 style={{display: showBag ?"":"none"}}>Shopping Bag <ShoppingBag size={20} /> </h3>
-                <X onClick={() => {
-                  setShowBagEdit(false); // first
-                  setEditingCartItem(null);
-                  setOriginalSize('');
-                  setOriginalColor('');
-                  setTimeout(() => {
-                    setShowBag(false); // after 0.5s
-                  }, 400);
-                }} style={{display: showBag ?"":"none",marginRight:"2%",cursor:"pointer"}}/>
-              </div>
-              <div className='PdSb-1'>
-              {productCart?.cart?.products?.map((product, index) => {
-                // Use getImageByColor to get the correct image for the product's color
-                const imageUrl = getImageByColor(product.productId, product.color, 0);
-                
-                return (
-                  <motion.div
-                    className='PdSp-2'
-                    key={product._id || index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.3, ease: "easeOut" }}
+            <motion.div
+              id="ShoppingBag"
+              key="main-sidebar-container" // Key ensures the container stays stable
+              className={`ShoppingBag ${showBag ? "open" : ""}`}
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 100 }}
+              transition={{
+                opacity: { duration: 0.3, ease: "easeOut" },
+                x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+              }}
+              style={{ overflowY: "auto", overflowX: "hidden" }} // Allow vertical scroll, hide horizontal
+            >
+              {/* Inside the sidebar, we switch content based on showBagEdit.
+                We use another AnimatePresence for a smooth internal transition.
+              */}
+              <AnimatePresence mode="wait">
+                {!showBagEdit ? (
+                  /* VIEW 1: THE CART LIST */
+                  <motion.div 
+                    key="cart-list-view"
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
                   >
-                    {imageUrl && <img src={imageUrl} alt="Product" onError={(e) => {
-                      console.log('Image failed to load:', imageUrl);
-                      e.target.style.display = 'none';
-                    }} />}
-                    <div className='PdSp-3'>
-                      <div className='PdSp-4'>
-                        <h4>{ product.productId?.price}TND</h4>
-                        <Edit2 size={19} onClick={() => {
-                          setEditingCartItem(product);
-                          setShowBagEdit(true);
-                          setquantity(product.quantity);
-                          setSelectedSize(product.size);
-                          setSelectedColor(product.color);
-                          setOriginalSize(product.size); // Store original size
-                          setOriginalColor(product.color); // Store original color
-                          GetPById(product.productId._id);
-                        }} style={{cursor:"pointer"}} />
-                        <Trash2 size={19} style={{cursor:"pointer",color:"red"}} onClick={() => DeletePrdCart(product)} />
+                    {productCart.cart?.products?.length === 0 || !user ? (
+                      <div>
+                        <X className='XMobileBag' onClick={() => setShowBag(false)} style={{ cursor: "pointer", marginLeft: "90%" }} />
+                        <ArrowLeft className='IconMobileShoppingCard' onClick={() => setShowBag(false)} style={{ cursor: "pointer", marginLeft: "2%" }} />
+                        <h3 style={{ textAlign: "center", position: "relative", top: "-10px" }}>ShoppingBag</h3>
+                        <div className='EmptyBag' style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                          <ShoppingBag size={60} style={{ color: "#ccc", marginBottom: "15px" }} />
+                          <h4 style={{ color: "#666", marginBottom: "10px", fontSize: "18px" }}>Your cart is empty</h4>
+                          <Link to="/" onClick={() => setShowBag(false)}>
+                            <button onClick={() => setShowMenu(true)}>Start Shopping</button>
+                          </Link>
+                          <div className='ShoppingBagProducts'>
+                          <h2>You should like this</h2>
+                          <div className='ShoppingBagProducts-cards'>
+                            {AllProducts.map((prod, index) => {
+                              return (
+                                <div key={prod._id || index}  className='ShoppingBagProducts-card'
+                                  onClick={()=>(navigate(`/PorductSelecte/${prod._id}`, {
+                                    state: {
+                                      parentCategoryId: prod.categoryId,
+                                      subcategoryId: prod.subcategoryId,
+                                      genre: prod.genre,
+                                    }}),setSearchMobile(false))}>
+                                <img
+                                    src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
+                                    alt={prod.name}
+                                    onError={(e) => {
+                                      e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                                    }}
+                                  />
+                                  <h2>{prod.name?.substring(0, 9)}...</h2>
+                                  <h3>{prod.price}.00 TND</h3>
+                                </div>
+                              )
+                            })}
+
+                          </div>
+                          </div>
+                        </div>
                       </div>
-                      <p>{product.productId?.name}</p>
-                      <p>Size: {product.size}</p>
-                      <p>Color: {product.color}</p>
-                      <p>Quantity: {product.quantity}</p>
+                    ) : (
+                      <div className='PdSb'>
+                        <div className='PdSbHeader'>
+                          <h3>Shopping Bag <span className='conteurBag'>{productCart.cart?.products?.length}</span> </h3>
+                          <X onClick={() => setShowBag(false)} style={{ marginRight: "5%", cursor: "pointer", color: "gray" }} />
+                        </div>
+                        <div className='PdSb-1'>
+                          {productCart?.cart?.products?.map((product, index) => {
+                            const imageUrl = getImageByColor(product.productId, product.color, 0);
+                            return (
+                              <div className='PdSp-2' key={product._id || index}>
+                                {imageUrl && <img src={imageUrl} alt="Product" />}
+                                <div className='PdSp-3'>
+                                  <div className='PdSp-4'>
+                                    <h4>{product.productId?.price}TND</h4>
+                                    <Edit2 size={19} onClick={() => {
+                                      setEditingCartItem(product);
+                                      setquantity(product.quantity);
+                                      setSelectedSize(product.size);
+                                      setSelectedColor(product.color);
+                                      GetPById(product.productId._id);
+                                      setShowBagEdit(true); // Switches to Edit view
+                                    }} style={{ cursor: "pointer" }} />
+                                    <Trash2 size={19} style={{ cursor: "pointer", color: "red" }} onClick={() => DeletePrdCart(product)} />
+                                  </div>
+                                  <p>{product.productId?.name}</p>
+                                  <p style={{color:"gray",fontSize:"12px"}} ><span style={{color:"black",fontSize:"14px",fontWeight:"600"}}> Size:</span> {product.size} |<span style={{color:"black",fontWeight:"600"}}>Color:</span> {product.color}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          <div className='ShoppingBagProducts'>
+                          <h2>You should like this</h2>
+                          <div className='ShoppingBagProducts-cards'>
+                            {AllProducts.map((prod, index) => {
+                              return (
+                                <div key={prod._id || index}  className='ShoppingBagProducts-card'
+                                  onClick={()=>(navigate(`/PorductSelecte/${prod._id}`, {
+                                    state: {
+                                      parentCategoryId: prod.categoryId,
+                                      subcategoryId: prod.subcategoryId,
+                                      genre: prod.genre,
+                                    }}),setSearchMobile(false))}>
+                                <img
+                                    src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
+                                    alt={prod.name}
+                                    onError={(e) => {
+                                      e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                                    }}
+                                  />
+                                  <h2>{prod.name?.substring(0, 9)}...</h2>
+                                  <h3>{prod.price}.00 TND</h3>
+                                </div>
+                              )
+                            })}
+
+                          </div>
+                          </div>
+                        </div>
+                        <div className='detailsTotal'>
+                          <div className='total'>
+                            <h2 style={{ color: "black", fontWeight: "500",fontSize:"15px" }}>Total <span style={{color:"gray",fontSize:"11px"}}>TVA comprise </span></h2>
+                            <h2 style={{ fontWeight: "600", color: "black" }}>{total + 9.9} TND</h2>
+                          </div>
+                          <button className='PdSb-bt' onClick={() => (navigate('/Commande'), setShowBag(false))}>Passer Commande</button>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                ) : (
+                  /* VIEW 2: THE EDIT FORM */
+                  <motion.div  key="edit-product-view"
+                    initial={{ opacity: 0, x: 50 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    exit={{ opacity: 0, x: 50 }}
+                    className="ShoppingBag-Edit" 
+                  >
+                    {/* Back Button to go back to list */}
+                    <div style={{ padding: "10px", display: "flex", alignItems: "center" }}>
+                      <ArrowLeft onClick={() => setShowBagEdit(false)} style={{ cursor: "pointer" }} />
+                      <h3 style={{ marginLeft: "10px" }}>Modify Item</h3>
+                    </div>
+
+                    {image && <img src={image} alt={name}  />}
+
+                    <div className="colorSwatches">
+                      {colors.map((color, index) => (
+                        <div
+                          key={index}
+                          onClick={() => setSelectedColor(color)}
+                          style={{
+                            width: '19px', height: '19px', margin: '5px',  cursor: 'pointer',
+                            border: color === selectedColor ? '2px solid #303030' : '2px solid black',
+                            backgroundColor: color
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="sizeSection">
+                      <div className="sizeOptions">
+                        {sizes.map((size, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setSelectedSize(size)}
+                            style={{ backgroundColor: selectedSize === size ? 'black' : '',width:"30px",height:"30px", color: selectedSize === size ? 'white' : '' }}
+                            className="sizeBtn"
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="quantitySelector">
+                      <h4>Quantity</h4>
+                      <div className="controls">
+                        <button onClick={() => quantity > 1 && setquantity(quantity - 1)}><Minus size={18} /></button>
+                        <span className="value">{quantity}</span>
+                        <button onClick={() => setquantity(quantity + 1)}><Plus size={18} /></button>
+                      </div>
+                    </div>
+
+                    <div className='EditShopBorder'>
+                      <button className='Update' onClick={updateCartItem}>Update</button>
                     </div>
                   </motion.div>
-                );
-              })}
-              </div>
-              <div className='detailsTotal'>
-                <div className='total' style={{display: showBag ?"":"none"}}>
-                  <h2>Subtotal</h2>
-                  <h2 style={{fontWeight:"600",color:"black"}}>{total}.00 TND</h2>
-                </div>
-                <div className='total' style={{display: showBag ?"":"none"}}>
-                  <h2>Shipping</h2>
-                  <h2 style={{fontWeight:"600",color:"black"}}>9.9 TND</h2>
-                </div>
-                <div className='TotlaPDSBborder'></div>
-                <div className='total' style={{display: showBag ?"":"none"}}>
-                  <h2 style={{color:"black",fontSize:"16px"}}>Total</h2>
-                  <h2 style={{fontWeight:"600",color:"black"}}>{total+9.9} TND</h2>
-                </div>
-                <button style={{display: showBag ?"":"none"}} className='PdSb-bt' onClick={()=>(navigate('/Commande'),setShowBag(false))}>Passer Commande</button>
-              </div>
-
-            </div>
-          )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-        {showBagEdit && (
-          <motion.div
-            className={`ShoppingBag-Edit ${showBagEdit ? 'open' : ''}`}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            transition={{
-              opacity: { duration: 0.3, ease: "easeOut" },
-              x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
-            }}
-            style={{ overflow: "hidden" }}
-          >
-
-          <X onClick={() => {
-            setShowBagEdit(false);
-            setEditingCartItem(null);
-            setOriginalSize('');
-            setOriginalColor('');
-          }} style={{display: showBagEdit ?"":"none",cursor:"pointer", marginLeft:"90%"}}/>
-          <h3 style={{display: showBagEdit ?"":"none",position:"absolute"}}>{name}</h3>
-          {image && (
-            <img
-              src={image}
-              alt={name}
-              onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/300?text=No+Image';
-              }}
-            />
-          )}
-
-          <div className="colorSwatches">
-            {colors.map((color, index) => (
-              <div
-                key={index}
-                className="color"
-                onClick={() => setSelectedColor(color)}
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  margin: '5px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  border: color === selectedColor ? '2px solid #303030' : '2px solid black',
-                  backgroundColor: color,
-                  boxShadow: '0 0 0 2px #fff inset',
-                  display: showBagEdit ? '' : 'none'
-                }}
-                title={color}
-              />
-            ))}
-          </div>
-
-          <div className="sizeOptions-ShopingBag">
-            {sizes.map((size, idx) => (
-              <button
-                key={idx}
-                onClick={() => setSelectedSize(size)}
-                style={{
-                  backgroundColor: selectedSize === size ? 'black' : '',
-                  display: showBagEdit ?"":"none",
-                  color: selectedSize === size ? 'white' : ''
-                }}
-                className="sizeBtn-ShopingBag"
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-          <div className="quantitySelector" style={{ display: showBagEdit ? "" : "none" }}>
-            <h4 >Quantity</h4>
-
-            <div className="controls">
-              <button
-                onClick={() => {
-                  if (quantity > 1) setquantity(quantity - 1);
-                }}
-                disabled={quantity <= 1}
-                className={`btn ${quantity <= 1 ? "disabled" : ""}`}
-              >
-                <Minus size={18} />
-              </button>
-
-              <span className="value">{quantity}</span>
-
-              <button
-                onClick={() => {
-                  setquantity(quantity + 1);
-                }}
-                className="btn"
-              >
-                <Plus size={18} />
-              </button>
-            </div>
-          </div>
-          <div className='EditShopBorder' style={{display: showBagEdit ?"":"none"}}>
-            <button className='Update' onClick={updateCartItem} >Update</button>
-          </div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>

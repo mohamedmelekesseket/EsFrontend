@@ -88,93 +88,93 @@ const ProductSelect = ({ setShowBag }) => {
     return `${base}/uploads/${fileName}`;
   };
 
-const fetchProducts = async () => {
-  setLoading(true);
+  const fetchProducts = async () => {
+    setLoading(true);
 
-  try {
-    const { data } = await axios.get(`${API_BASE_URL}/Admin/Get-products`);
+    try {
+      const { data } = await axios.get(`${API_BASE_URL}/Admin/Get-products`);
 
-    // Filter products by subcategory & genre
-    const filtered = data.filter(
-      p => p.subcategoryId === subcategoryId && p.genre === genre
-    );
+      // Filter products by subcategory & genre
+      const filtered = data.filter(
+        p => p.subcategoryId === subcategoryId && p.genre === genre
+      );
 
-    setAllProducts(filtered);
-    setRelatedProducts(filtered.filter(p => p._id !== id));
+      setAllProducts(filtered);
+      setRelatedProducts(filtered.filter(p => p._id !== id));
 
 
-    // Find selected product
-    const selectedProduct = filtered.find(p => p._id === id);
-    if (!selectedProduct) return;
-    console.log(selectedProduct.images);
-    
-    // BASIC INFO
-    setProduct(selectedProduct);
-    setName(selectedProduct.name || '');
-    setPrice(selectedProduct.price || '');
-    setDescription(selectedProduct.description || '');
+      // Find selected product
+      const selectedProduct = filtered.find(p => p._id === id);
+      if (!selectedProduct) return;
+      console.log(selectedProduct.images);
+      
+      // BASIC INFO
+      setProduct(selectedProduct);
+      setName(selectedProduct.name || '');
+      setPrice(selectedProduct.price || '');
+      setDescription(selectedProduct.description || '');
 
-    // COLORS
-    const productColors = Array.isArray(selectedProduct.color)
-      ? selectedProduct.color
-      : [];
-    setColors(productColors);
+      // COLORS
+      const productColors = Array.isArray(selectedProduct.color)
+        ? selectedProduct.color
+        : [];
+      setColors(productColors);
 
-    // SIZES
-    // SIZES (FIX)
-    // SIZES — FULL FIX
-    let parsedSizes = [];
+      // SIZES
+      // SIZES (FIX)
+      // SIZES — FULL FIX
+      let parsedSizes = [];
 
-      if (Array.isArray(selectedProduct.size)) {
-      if (
-        selectedProduct.size.length === 1 &&
-        typeof selectedProduct.size[0] === "string" &&
-        selectedProduct.size[0].startsWith("[")
-      ) {
-        // Case: ['["XS","S","M","L","XL"]']
-        try {
-          parsedSizes = JSON.parse(selectedProduct.size[0]);
-        } catch {
-          parsedSizes = [];
+        if (Array.isArray(selectedProduct.size)) {
+        if (
+          selectedProduct.size.length === 1 &&
+          typeof selectedProduct.size[0] === "string" &&
+          selectedProduct.size[0].startsWith("[")
+        ) {
+          // Case: ['["XS","S","M","L","XL"]']
+          try {
+            parsedSizes = JSON.parse(selectedProduct.size[0]);
+          } catch {
+            parsedSizes = [];
+          }
+        } else {
+          // Normal array case: ["XS", "S", "M"]
+          parsedSizes = selectedProduct.size;
         }
-      } else {
-        // Normal array case: ["XS", "S", "M"]
-        parsedSizes = selectedProduct.size;
       }
+
+      setSizes(parsedSizes);
+
+
+
+      // IMAGES
+      const productImages = Array.isArray(selectedProduct.images)
+        ? selectedProduct.images
+        : [];
+      setImages(productImages);
+      // DEFAULT COLOR
+      if (productColors.length > 0) {
+        setSelectedColor(productColors[0]);
+      }
+
+      const firstColorImages = productImages.find(
+        img => img.color?.toLowerCase() === productColors[0]?.toLowerCase()
+      );
+
+      if (firstColorImages?.urls?.length > 0) {
+        setImage(formatImageUrl(firstColorImages.urls[0]));
+      }
+
+
+      // RESET SLIDER
+      setCurrentImageIndex(0);
+
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setTimeout(() => setLoading(false), 300);
     }
-
-    setSizes(parsedSizes);
-
-
-
-    // IMAGES
-    const productImages = Array.isArray(selectedProduct.images)
-      ? selectedProduct.images
-      : [];
-    setImages(productImages);
-    // DEFAULT COLOR
-    if (productColors.length > 0) {
-      setSelectedColor(productColors[0]);
-    }
-
-    const firstColorImages = productImages.find(
-      img => img.color?.toLowerCase() === productColors[0]?.toLowerCase()
-    );
-
-    if (firstColorImages?.urls?.length > 0) {
-      setImage(formatImageUrl(firstColorImages.urls[0]));
-    }
-
-
-    // RESET SLIDER
-    setCurrentImageIndex(0);
-
-  } catch (error) {
-    console.error('Failed to fetch products:', error);
-  } finally {
-    setTimeout(() => setLoading(false), 300);
-  }
-};
+  };
 
 
 
@@ -184,33 +184,33 @@ const fetchProducts = async () => {
     }
   }, [subcategoryId, genre, id]);
 
-const getImageByColor = (product, color) => {
-  if (!product?.images?.length) return null;
-  const match = product.images.find(
-    img => img.color?.toLowerCase() === color?.toLowerCase()
-  );
+  const getImageByColor = (product, color) => {
+    if (!product?.images?.length) return null;
+    const match = product.images.find(
+      img => img.color?.toLowerCase() === color?.toLowerCase()
+    );
 
-  return match?.urls?.[0]
-    ? formatImageUrl(match.urls[0])
-    : null;
+    return match?.urls?.[0]
+      ? formatImageUrl(match.urls[0])
+      : null;
 
-};
-
-
+  };
 
 
-useEffect(() => {
-  if (!selectedColor || !images.length) return;
 
-  const colorObj = images.find(
-    img => img.color?.toLowerCase() === selectedColor?.toLowerCase()
-  );
 
-  if (colorObj?.urls?.length > 0) {
-    const idx = Math.max(0, Math.min(currentImageIndex, colorObj.urls.length - 1));
-    setImage(formatImageUrl(colorObj.urls[idx]));
-  }
-}, [selectedColor, images, currentImageIndex]);
+  useEffect(() => {
+    if (!selectedColor || !images.length) return;
+
+    const colorObj = images.find(
+      img => img.color?.toLowerCase() === selectedColor?.toLowerCase()
+    );
+
+    if (colorObj?.urls?.length > 0) {
+      const idx = Math.max(0, Math.min(currentImageIndex, colorObj.urls.length - 1));
+      setImage(formatImageUrl(colorObj.urls[idx]));
+    }
+  }, [selectedColor, images, currentImageIndex]);
 
   useEffect(() => {
     setCurrentImageIndex(0);
@@ -256,7 +256,7 @@ useEffect(() => {
       return;
     }
     if (!selectedSize) {
-      toast.error("Please select a size", { id: "select-size" });
+      toast.error("You need to select a size", { id: "select-size" });
 
       return;
     }
