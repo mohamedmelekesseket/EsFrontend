@@ -287,8 +287,7 @@ const total = useMemo(() => {
     <Link className="h1" to="/" style={{ textDecoration: "none", color: "black" }}>
       <MoveRight  style={{position:"absolute",right:"10px",cursor:"pointer"}}/>
     </Link>
-    <Toaster/>
-      <h1>Finaliser votre commande</h1>
+    <h1>Finaliser votre commande</h1>
     <h4>Quelques étapes simples pour recevoir vos produits</h4>
 
     <div className="facturation">

@@ -390,7 +390,7 @@ const getImageByColor = (product, color) => {
 
 
   return (
-    <div>
+    <div >
       <AnimatePresence>
         {showBag && (
           <motion.div
@@ -651,7 +651,7 @@ const getImageByColor = (product, color) => {
         )}
       </div>
 
-      <div   className='HeaderBar slide-down'>
+      <div    className='HeaderBar slide-down'>
         <div className='HeaderBar-1'>
           <Menu className='IconMenuHead' onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={25} strokeWidth={3} style={{color:"white",cursor:"pointer",backgroundColor:"transparent"}}/>
           {/* <Menu className='IconMenuHead' onClick={()=>(setShowMenu(!showMenu),setShowUser(false),setShowBag(false))} size={45} strokeWidth={3} style={{color:"white",cursor:"pointer"}}/> */}
@@ -853,14 +853,16 @@ const getImageByColor = (product, color) => {
                   >
                     {productCart.cart?.products?.length === 0 || !user ? (
                       <div>
-                        <X className='XMobileBag' onClick={() => setShowBag(false)} style={{ cursor: "pointer", marginLeft: "90%" }} />
+                        <X className='XMobileBag' onClick={() => setShowBag(false)} style={{ cursor: "pointer",color:"gray", marginLeft: "90%",marginTop:"4%" }} />
                         <ArrowLeft className='IconMobileShoppingCard' onClick={() => setShowBag(false)} style={{ cursor: "pointer", marginLeft: "2%" }} />
                         <h3 style={{ textAlign: "center", position: "relative", top: "-10px" }}>ShoppingBag</h3>
                         <div className='EmptyBag' style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                           <ShoppingBag size={60} style={{ color: "#ccc", marginBottom: "15px" }} />
-                          <h4 style={{ color: "#666", marginBottom: "10px", fontSize: "18px" }}>Your cart is empty</h4>
+                          <h4 style={{ color: "#000000ff", marginBottom: "10px", fontSize: "18px" }}>Your cart is empty</h4>
+                          <p style={{color:"gray",fontSize:"12px"}}>Why not try it with one of our suggestions?</p>
+                          <div className='Line'></div>
                           <Link to="/" onClick={() => setShowBag(false)}>
-                            <button onClick={() => setShowMenu(true)}>Start Shopping</button>
+                            {/* <button onClick={() => setShowMenu(true)}>Start Shopping</button> */}
                           </Link>
                           <div className='ShoppingBagProducts'>
                           <h2>You should like this</h2>
@@ -897,6 +899,7 @@ const getImageByColor = (product, color) => {
                           <h3>Shopping Bag <span className='conteurBag'>{productCart.cart?.products?.length}</span> </h3>
                           <X onClick={() => setShowBag(false)} style={{ marginRight: "5%", cursor: "pointer", color: "gray" }} />
                         </div>
+
                         <div className='PdSb-1'>
                           {productCart?.cart?.products?.map((product, index) => {
                             const imageUrl = getImageByColor(product.productId, product.color, 0);
@@ -904,8 +907,11 @@ const getImageByColor = (product, color) => {
                               <div className='PdSp-2' key={product._id || index}>
                                 {imageUrl && <img src={imageUrl} alt="Product" />}
                                 <div className='PdSp-3'>
+                                  
+                                  <p>{product.productId?.name}</p>
+                                  <h4>{product.productId?.price}.00 TND</h4>
+                                  <p style={{color:"gray",fontSize:"14px"}} ><span style={{color:"black",fontSize:"14px",fontWeight:"600"}}> </span> {product.size} |<span style={{color:"black",fontWeight:"600"}}></span> {product.color} |<span style={{color:"black",fontWeight:"600"}}></span> {product.quantity} unit</p>
                                   <div className='PdSp-4'>
-                                    <h4>{product.productId?.price}TND</h4>
                                     <Edit2 size={19} onClick={() => {
                                       setEditingCartItem(product);
                                       setquantity(product.quantity);
@@ -914,14 +920,13 @@ const getImageByColor = (product, color) => {
                                       GetPById(product.productId._id);
                                       setShowBagEdit(true); // Switches to Edit view
                                     }} style={{ cursor: "pointer" }} />
-                                    <Trash2 size={19} style={{ cursor: "pointer", color: "red" }} onClick={() => DeletePrdCart(product)} />
+                                    <Trash2 size={19} style={{ cursor: "pointer"}} onClick={() => DeletePrdCart(product)} />
                                   </div>
-                                  <p>{product.productId?.name}</p>
-                                  <p style={{color:"gray",fontSize:"12px"}} ><span style={{color:"black",fontSize:"14px",fontWeight:"600"}}> Size:</span> {product.size} |<span style={{color:"black",fontWeight:"600"}}>Color:</span> {product.color}</p>
                                 </div>
                               </div>
                             );
                           })}
+                          <div className='Line' style={{marginTop:"6%",borderTop:"1px solid gray"}}></div>
                           <div className='ShoppingBagProducts'>
                           <h2>You should like this</h2>
                           <div className='ShoppingBagProducts-cards'>
@@ -976,7 +981,7 @@ const getImageByColor = (product, color) => {
 
                     {image && <img src={image} alt={name}  />}
 
-                    <div className="colorSwatches">
+                    <div className="colorSwatches" style={{margin:"0"}}>
                       {colors.map((color, index) => (
                         <div
                           key={index}
@@ -990,7 +995,7 @@ const getImageByColor = (product, color) => {
                       ))}
                     </div>
 
-                    <div className="sizeSection">
+                    <div className="sizeSection" style={{margin:"0"}}>
                       <div className="sizeOptions">
                         {sizes.map((size, idx) => (
                           <button
@@ -1005,7 +1010,7 @@ const getImageByColor = (product, color) => {
                       </div>
                     </div>
 
-                    <div className="quantitySelector">
+                    <div className="quantitySelector" style={{margin:"0"}}>
                       <h4>Quantity</h4>
                       <div className="controls">
                         <button onClick={() => quantity > 1 && setquantity(quantity - 1)}><Minus size={18} /></button>

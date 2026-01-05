@@ -182,6 +182,7 @@ const ProductSelect = ({ setShowBag }) => {
     if (subcategoryId && genre) {
       fetchProducts();
     }
+    setSelectedSize('')
   }, [subcategoryId, genre, id]);
 
   const getImageByColor = (product, color) => {
@@ -333,7 +334,7 @@ const ProductSelect = ({ setShowBag }) => {
     
       <Loader isLoading={loading} />
       {product && (
-        <div style={{ display: 'flex',  width: "100%" }}>
+        <div style={{ display: 'flex',  width: "100%",overflowX:"hidden" }}>
           <div className="gallery" >
             <div className='Arrow-1' onClick={handlePrevImage}>
               <ArrowLeft style={{ cursor: "pointer", zIndex: '-1' }} />
@@ -424,6 +425,7 @@ const ProductSelect = ({ setShowBag }) => {
         </div>
       )}
 
+      <h5 style={{marginLeft:"6%",marginTop:"10%",fontSize:"16px"}}>Complete your look</h5>
       <div className='SubcategoryProduct' style={{ display: 'flex', alignItems: 'center', marginTop: 32 }}>
         <div className='Arrow' onClick={() => scrollSubcategories('left')}>
           <ArrowLeft size={30} style={{ cursor: 'pointer' }} />
@@ -441,8 +443,8 @@ const ProductSelect = ({ setShowBag }) => {
                 });
                 scrollToTop();
               }} className='PS'>
-                <img   src={formatImageUrl(prod.images[0]?.urls[0])}  alt={prod.name} style={{ width: "100%", height: '80%', objectFit: 'cover', borderRadius: 8 }} />
-                <div style={{ fontSize: 12, marginTop: '8%' }}>{prod.name}</div>
+                <img   src={formatImageUrl(prod.images[0]?.urls[0])}  alt={prod.name} style={{ width: "100%", height: '95%', objectFit: 'cover'}} />
+                <div style={{ fontSize: 12, marginTop: '1%' }}>{prod.name}</div>
               </div>
             );
           })}

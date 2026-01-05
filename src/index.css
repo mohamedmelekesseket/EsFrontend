@@ -23,7 +23,13 @@ body {
     opacity: 1;
   }
 }
-
+.Line{
+  width: 100%;
+  height: 1px;
+  margin-top: 2%;
+  margin-bottom: 2%;
+  border-top: 1px solid black;
+}
 /* ==========================================================================
    Header Bar
    ========================================================================== */
@@ -491,11 +497,20 @@ body {
   margin-top: 3%;
   margin-left: 6%;
 }
+.PdSp-3 h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 3%;
+  margin-left: 6%;
+}
 .PdSp-4 {
-  width: 100%;
+  width: 90%;
+  margin-top: 5%;
   display: flex;
-  align-items: center;
-  justify-content: space-around;
+  gap: 7%;
+  color: gray;
+  justify-content: flex-end;
 }
 .PdSb-1::-webkit-scrollbar-thumb {
   background-color: rgb(0, 0, 0); /* Light transparent thumb */
@@ -509,6 +524,8 @@ body {
   margin: 0;
   width: 90%;
   margin-left: 5%;
+  margin-top: 3%;
+  margin-bottom: 3%;
   height: 25px;
   display: flex;
   align-items: center;
@@ -541,7 +558,7 @@ body {
   height: 90vh;
   background-color: rgb(255, 255, 255);
   position: absolute;
-  gap: 20px;
+  gap: 10px;
   width: 100%;
   padding-bottom: 10px;
   display: flex;
@@ -553,7 +570,6 @@ body {
   -moz-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
   z-index: 100;
   overflow: hidden;
-  overflow-y: scroll;
   transition:
     width 0.5s ease,
     padding 0.5s ease;
@@ -561,6 +577,9 @@ body {
 .ShoppingBag-Edit img {
   width: 55%;
   height: 49%;
+  margin: 0;
+  position: relative;
+  background-color: yellowgreen;
   object-fit: cover;
 }
 .sizeOptions-ShopingBag {
@@ -5592,7 +5611,7 @@ input::placeholder {
   height: 100%;
   align-items: center;
   justify-content: flex-start;
-  gap: 5%;
+  gap: 1%;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-behavior: smooth;
