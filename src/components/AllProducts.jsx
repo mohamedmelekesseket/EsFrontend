@@ -24,7 +24,7 @@ const AllProducts = () => {
   const getCategory = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`, {
-        headers: { 'Authorization': `Bearer ${user.token}` }
+        withCredentials: true
       });
       setCategorys(res.data);
     } catch (error) {
@@ -35,7 +35,7 @@ const AllProducts = () => {
   const getSubCategory = async (id) => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${id}`, {
-        headers: { 'Authorization': `Bearer ${user.token}` }
+        withCredentials: true
       });
       setSubCategorys(res.data);
     } catch (error) {
@@ -46,7 +46,7 @@ const AllProducts = () => {
   const getProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-products`, {
-        headers: { 'Authorization': `Bearer ${user.token}` }
+        withCredentials: true
       });
       setProducts(res.data);
       setFilteredProducts(res.data);

@@ -29,6 +29,7 @@ const ModifyProduct = ({id,setModify}) => {
   const [colorImages, setColorImages] = useState({}); // { Red: [File, File], Blue: [File] }
   const [existingColorImages, setExistingColorImages] = useState({}); // For existing images
   const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fileInputRef = useRef(null);
   const user = JSON.parse(localStorage.getItem("user"));
@@ -48,9 +49,7 @@ const ModifyProduct = ({id,setModify}) => {
   const getCategory = async () => {  
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setCategories(res.data);     
        
@@ -66,9 +65,7 @@ const ModifyProduct = ({id,setModify}) => {
   const getSubCategory = async (id) => {  
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${id}`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setSubcategories(res.data);      
       setLoading(false);
@@ -152,9 +149,7 @@ const ModifyProduct = ({id,setModify}) => {
   const GetProduct = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-product/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
+        withCredentials: true
       });
       const product = res.data;
       
@@ -237,11 +232,14 @@ const ModifyProduct = ({id,setModify}) => {
       console.log(key, ":", value);
     }
     
+    if (loading) return; // Prevent spam clicks
+    setLoading(true);
+    
     try {
       const res = await axios.put(`${API_BASE_URL}/Admin/UpdateProduct/${id}`, formData, {
+        withCredentials: true,
         headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${user.token}`
+          'Content-Type': 'multipart/form-data'
         }
       });
       
@@ -258,20 +256,21 @@ const ModifyProduct = ({id,setModify}) => {
     }
   };
   const DeleteProduct = async () => {
+    if (isDeleting) return; // Prevent spam clicks
+    setIsDeleting(true);
     try {
       const res = await axios.delete(`${API_BASE_URL}/Admin/Delete-Product/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
+        withCredentials: true
       });
       if (res.status === 200) {
         setModify(false)
         window.location.reload();
       }
     } catch (err) {
-      console.error('Error fetching product:', err);
-      toast.error('Erreur lors du chargement du produit');
-      setLoading(false);
+      console.error('Error deleting product:', err);
+      toast.error('Erreur lors de la suppression du produit');
+    } finally {
+      setIsDeleting(false);
     }
   };
   if (loading) {

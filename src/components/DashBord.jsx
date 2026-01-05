@@ -23,9 +23,7 @@ const DashBord = () => {
     const getMessage = async () => {  
     try {
       const res = await axios.get(`${API_BASE_URL}/Owner/getMessage`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setMessage(res.data);
       // }, 3000);
@@ -46,9 +44,7 @@ const DashBord = () => {
     try {
       // TODO: Replace hardcoded API URL with environment variable for production
       const res = await axios.get(`${API_BASE_URL}/Owner/getUser  `,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setUsers(res.data);      
 
@@ -62,9 +58,7 @@ const DashBord = () => {
     const getCategory = async () => {  
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setCategorys(res.data);      
     } catch (error) {
@@ -78,7 +72,7 @@ const DashBord = () => {
   const getProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-products`, {
-        headers: { 'Authorization': `Bearer ${user.token}` }
+        withCredentials: true
       });
       setProducts(res.data);
     } catch (error) {

@@ -58,6 +58,8 @@ const [user, setUser] = useState(() => {
 })
 const [confirmDelete, setConfirmDelete] = useState(null);
 const commandeRef = useRef(null);
+const [isDeleting, setIsDeleting] = useState(false);
+const [isOrdering, setIsOrdering] = useState(false);
 const filteredProvinces = provinces.filter((prov) =>
   prov.toLowerCase().includes(province.toLowerCase())
 );
@@ -111,7 +113,8 @@ const handleGoToProduct = (item) => {
   });
 };
 const DeletePrdCart = async (productToDelete) => {
-  if (!user?.id) return;
+  if (!user?.id || isDeleting) return;
+  setIsDeleting(true);
   try {
     const res = await axios.delete(`${API_BASE_URL}/DeletePrdCart`, {
       data: {
@@ -120,8 +123,8 @@ const DeletePrdCart = async (productToDelete) => {
         size: productToDelete.size,
         color: productToDelete.color
       },
+      withCredentials: true,
       headers: {
-        'Authorization': `Bearer ${user.token}`,
         'Content-Type': 'application/json'
       }
     });
@@ -132,6 +135,8 @@ const DeletePrdCart = async (productToDelete) => {
   } catch (error) {
     console.log(error);
     toast.error('Suppression impossible');
+  } finally {
+    setIsDeleting(false);
   }
 };
 const confirmDeleteItem = async () => {
@@ -143,8 +148,8 @@ const getProductCart = async () => {
   if (!user?.id) return;
   try {
     const res = await axios.get(`${API_BASE_URL}/GetProductCart/${user.id}`, {
+      withCredentials: true,
       headers: {
-        'Authorization': `Bearer ${user.token}`,
         'Content-Type': 'application/json'
       }
     });
@@ -157,9 +162,13 @@ const getProductCart = async () => {
   }
 };
 const handleOrder = async () => {
+  if (isOrdering) return; // Prevent spam clicks
+  
   if (!nom || !prenom || !email || !telephone || !rue || !complement || !ville || !province || !postal) {
-    return     toast.error('Information non complet');
+    return toast.error('Information non complet');
   }  
+  
+  setIsOrdering(true);
   try {
     const res = await axios.post(
       `${API_BASE_URL}/create-order/${user.id}`,
@@ -175,7 +184,7 @@ const handleOrder = async () => {
         postal
       },
       {
-        headers: { Authorization: `Bearer ${user.token}` }
+        withCredentials: true
       }
     );
 
@@ -184,6 +193,8 @@ const handleOrder = async () => {
   } catch (err) {
     console.error(err);
     toast.error(err.response?.data?.message || 'Erreur lors de la commande');
+  } finally {
+    setIsOrdering(false);
   }
 };
 

@@ -22,6 +22,9 @@ const CategroiesBord = () => {
   const [showSub,SetShowSub]=useState(false)
   const fileInputRef = useRef(null); 
   const [genre, setGenre] = useState('');
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [isAddingSubCategory, setIsAddingSubCategory] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
 
 
@@ -35,10 +38,12 @@ const CategroiesBord = () => {
     fileInputRef.current.click(); // 👈 Trigger file picker
   };
   const AddCategory = async()=>{
+    if (isAddingCategory) return; // Prevent spam clicks
     if (!name) {
       toast.error("Category Name required")
       return
     }
+    setIsAddingCategory(true);
     const formadata= new FormData()
     formadata.append('name',name)
     formadata.append('icon',icon)
@@ -48,9 +53,7 @@ const CategroiesBord = () => {
     try {
       
         const res = await axios.post(`${API_BASE_URL}/Admin/Add-Category`, formadata, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
+          withCredentials: true
         });
 
       if (res.status === 200) {
@@ -67,13 +70,17 @@ const CategroiesBord = () => {
         toast.error(error.response?.data?.message)
       }
       
+    } finally {
+      setIsAddingCategory(false);
     }
   }
   const AddSubCategory = async()=>{
+    if (isAddingSubCategory) return; // Prevent spam clicks
     if (!subCategoryName || !genre) {
       toast.error("SubCategory Name required")
       return
     }
+    setIsAddingSubCategory(true);
     const formadata= new FormData()
       formadata.append('name',subCategoryName)
       formadata.append('genre',genre)
@@ -87,9 +94,7 @@ const CategroiesBord = () => {
       const res= await axios.post(`${API_BASE_URL}/Admin/Add-CategorySub`,
         formadata,
         {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
+          withCredentials: true
         }
       )
       if (res.status === 201) {
@@ -106,14 +111,14 @@ const CategroiesBord = () => {
         toast.error(error.response?.data?.message)
       }
       
+    } finally {
+      setIsAddingSubCategory(false);
     }
   }
     const getCategory = async () => {  
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setCategorys(res.data);      
       setLoading(false);
@@ -128,9 +133,7 @@ const CategroiesBord = () => {
     const getSubCategory = async (id) => {  
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${id}`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setSubCategorys(res.data);      
       setLoading(false);
@@ -168,10 +171,12 @@ const CategroiesBord = () => {
   };
 
   const confirmDelete = async (id, toastId) => {
+    if (isDeleting) return;
+    setIsDeleting(true);
     try {
       const res = await axios.delete(
         `${API_BASE_URL}/Admin/Delete-SubCategory/${id}`,
-        { headers: { 'Authorization': `Bearer ${user.token}` } }
+        { withCredentials: true }
       );
 
       if (res.status === 200) {
@@ -185,6 +190,8 @@ const CategroiesBord = () => {
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || 'Server error occurred');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -217,11 +224,11 @@ const CategroiesBord = () => {
 
 
   const confirmDeleteCategory = async (id, toastId) => {
-
-
+    if (isDeleting) return;
+    setIsDeleting(true);
     try {
       const res = await axios.delete(`${API_BASE_URL}/Admin/Delete-category/${id}`,
-        { headers: { 'Authorization': `Bearer ${user.token}` } }
+        { withCredentials: true }
       );
       if (res.status === 200) {
         toast.dismiss(toastId);
@@ -232,6 +239,8 @@ const CategroiesBord = () => {
       console.error(error);
       toast.dismiss(toastId);
       toast.error(error.response?.data?.message || 'Server error occurred');
+    } finally {
+      setIsDeleting(false);
     }
   };
 

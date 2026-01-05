@@ -15,15 +15,15 @@ const UserBord = () => {
   const [loading, setLoading] = useState(true); // State for loading
   const [updatedName, setUpdatedName] = useState(''); // Added missing state
   const [Users, setUsers] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
 
     const getUser = async () => {  
     try {
       // TODO: Replace hardcoded API URL with environment variable for production
       const res = await axios.get(`${API_BASE_URL}/Owner/getUser`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setUsers(res.data);      
       setTimeout(() => {
@@ -39,17 +39,17 @@ const UserBord = () => {
 
   // Function to update a user
   const updateUser = async(id) => {
+    if (isUpdating) return; // Prevent spam clicks
     try {
         if (role == '') {
           return toast.error('select new role or close')
         }
+      setIsUpdating(true);
       // TODO: Replace hardcoded API URL with environment variable for production
       const res = await axios.put(`${API_BASE_URL}/Owner/Update-User/${id}` ,{
         role
       },{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       if(res.status === 200) {
         toast.success('User Updated');
@@ -62,6 +62,8 @@ const UserBord = () => {
       if (error.response?.status !== 200) {
         toast.error(error.response?.data?.message || 'Server error occurred');
       }
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -89,12 +91,12 @@ const UserBord = () => {
   };
 
   const confirmDelete = async (id, toastId) => {
+    if (isDeleting) return; // Prevent spam clicks
+    setIsDeleting(true);
     try {
       // TODO: Replace hardcoded API URL with environment variable for production
       const res = await axios.delete(`${API_BASE_URL}/Owner/DeleteUser/${id}`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       if (res.status === 200) {
         toast.dismiss(toastId);
@@ -106,6 +108,8 @@ const UserBord = () => {
       if (error.response?.status !== 200) {
         toast.error(error.response?.data?.message || 'Server error occurred');
       }
+    } finally {
+      setIsDeleting(false);
     }
   };
   const displayForm = (user) => {

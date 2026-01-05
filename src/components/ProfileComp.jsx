@@ -13,6 +13,8 @@ const ProfileComp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -53,11 +55,14 @@ const ProfileComp = () => {
   };
 
   const handleSaveProfile = async () => {
+    if (isSavingProfile) return; // Prevent spam clicks
+    
     try {
       if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim()) {
         return toast.error('Please fill in all required fields');
       }
 
+      setIsSavingProfile(true);
       const res = await axios.put(`${API_BASE_URL}/UpdateProfile/${user.id}`, {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -65,8 +70,8 @@ const ProfileComp = () => {
         phoneNumber: formData.phoneNumber,
         address: formData.address
       }, {
+        withCredentials: true,
         headers: {
-          'Authorization': `Bearer ${user.token}`,
           'Content-Type': 'application/json'
         }
       });
@@ -81,10 +86,14 @@ const ProfileComp = () => {
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
   const handleChangePassword = async () => {
+    if (isChangingPassword) return; // Prevent spam clicks
+    
     try {
       if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
         return toast.error('Please fill in all password fields');
@@ -98,12 +107,13 @@ const ProfileComp = () => {
         return toast.error('Password must be at least 6 characters long');
       }
 
+      setIsChangingPassword(true);
       const res = await axios.put(`${API_BASE_URL}/ChangePassword/${user.id}`, {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword
       }, {
+        withCredentials: true,
         headers: {
-          'Authorization': `Bearer ${user.token}`,
           'Content-Type': 'application/json'
         }
       });
@@ -120,6 +130,8 @@ const ProfileComp = () => {
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || 'Failed to change password');
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -170,9 +182,31 @@ const ProfileComp = () => {
                 </button>
               ) : (
                 <div className="edit-actions">
-                  <button className="save-btn" onClick={handleSaveProfile}>
-                    <Save size={16} />
-                    Save
+                  <button 
+                    className="save-btn" 
+                    onClick={handleSaveProfile}
+                    disabled={isSavingProfile}
+                    style={{ opacity: isSavingProfile ? 0.7 : 1, cursor: isSavingProfile ? 'not-allowed' : 'pointer' }}
+                  >
+                    {isSavingProfile ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ 
+                          width: '14px', 
+                          height: '14px', 
+                          border: '2px solid currentColor', 
+                          borderTop: '2px solid transparent',
+                          borderRadius: '50%',
+                          animation: 'spin 0.8s linear infinite',
+                          display: 'inline-block'
+                        }}></span>
+                        Saving...
+                      </span>
+                    ) : (
+                      <>
+                        <Save size={16} />
+                        Save
+                      </>
+                    )}
                   </button>
                   <button className="cancel-btn" onClick={() => {
                     setEditMode(false);
@@ -339,8 +373,28 @@ const ProfileComp = () => {
                 </div>
               </div>
 
-              <button className="change-password-btn" onClick={handleChangePassword}>
-                Change Password
+              <button 
+                className="change-password-btn" 
+                onClick={handleChangePassword}
+                disabled={isChangingPassword}
+                style={{ opacity: isChangingPassword ? 0.7 : 1, cursor: isChangingPassword ? 'not-allowed' : 'pointer' }}
+              >
+                {isChangingPassword ? (
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <span style={{ 
+                      width: '16px', 
+                      height: '16px', 
+                      border: '2px solid currentColor', 
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 0.8s linear infinite',
+                      display: 'inline-block'
+                    }}></span>
+                    Changing...
+                  </span>
+                ) : (
+                  'Change Password'
+                )}
               </button>
             </div>
           </div>

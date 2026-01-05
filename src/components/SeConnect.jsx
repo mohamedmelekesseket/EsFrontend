@@ -21,7 +21,8 @@ const Login = () => {
     const [showpassword, setShowPassword] = useState(false)
     const [passwordError, setPasswordError] = useState('')
     const navigate = useNavigate()
-const [isSubmitted, setIsSubmitted] = useState(false); // Track attempt to submit
+    const [isSubmitted, setIsSubmitted] = useState(false); // Track attempt to submit
+    const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
 
     // Helper to determine border color
     const getBorderStyle = (value, error) => ({
@@ -40,114 +41,104 @@ const [isSubmitted, setIsSubmitted] = useState(false); // Track attempt to submi
     }
 
     const SignUP = async () => {
+        if (isLoading) return; // Prevent spam clicks
         
-        var checkPhone = isNumber(phoneNumber)
-        console.log(email);
-        console.log(phoneNumber);
-        console.log(password);
         setIsSubmitted(true);
+        
+        // Reset errors
+        setEmailError('');
+        setphoneNumberError('');
+        setPasswordError('');
+
+        // 1. Validation with proper RETURNS
         if (!email || !phoneNumber || !password) {
-            return toast.error("All fields are required")
+            return toast.error("All fields are required");
         }
+
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            return setEmailError(<>Invalid Email <CircleX size={15} style={{ position: 'relative', top: "5px" }} /></>)
+            return setEmailError(<>Invalid Email <CircleX size={15} /></>);
         }
-        if (!checkPhone) {
-            setphoneNumberError(<>Invalid Phone Number <CircleX size={15} style={{ position: 'relative', top: "5px" }} /></>)
+
+        if (!isNumber(phoneNumber)) {
+            return setphoneNumberError(<>Invalid Phone Number <CircleX size={15} /></>);
         }
+
         if (password.length < 6) {
-            setPasswordError(<>Invalid password <CircleX size={15} style={{ position: 'relative', top: "5px" }} /></>)
-            return
+            return setPasswordError(<>Password too short <CircleX size={15} /></>);
         }
+
+        setIsLoading(true);
         try {
-            const res = await axios.post(`${API_BASE_URL}/SignUp`, {
-                email,
-                phoneNumber,
-                password
-            })
-            console.log(res)
+            // 2. Send request with Credentials
+            const res = await axios.post(
+                `${API_BASE_URL}/SignUp`, 
+                { email, phoneNumber, password },
+                { withCredentials: true }
+            );
 
             if (res.status === 201) {
-                console.log(res.data);
-                toast.success('Welcome Account created')
-                localStorage.setItem('user', JSON.stringify(res.data))
-                setTimeout(() => {
-                    navigate("/", { replace: true });
-                    window.location.reload();
-                }, 1000);
-                setEmail('')
-                setPassword('')
-                setphoneNumber('')
-                setEmailError('')
-                setphoneNumberError('')
-                setPasswordError('')
+                toast.success('Account created!');
+                localStorage.setItem('user', JSON.stringify(res.data));
+                
+                navigate("/", { replace: true });
+                // Clean up fields
+                setEmail('');
+                setPassword('');
+                setphoneNumber('');
             }
         } catch (error) {
-            console.error(error);
-            toast.error(error.response?.data?.message || 'Server error occurred');
+            toast.error(error.response?.data?.message || 'Signup failed');
+        } finally {
+            setIsLoading(false);
         }
     }
 
-    const SignIn  = async () => {
-        setIsSubmitted(true); // Trigger red borders for empty fields
+    const SignIn = async () => {
+        if (isLoading) return; // Prevent spam clicks
+        
+        setIsSubmitted(true);
         setEmailError('');
         setPasswordError('');
 
+        // 1. Validation logic (Keep your existing regex check)
         if (!email || !password) {
             toast.error("Please fill in all required fields.");
             return;
         }
-        // 1. Client-side Validation
-        if (!email || !password) {
-            toast.error("Please fill in all required fields.");
-            return;
-        }
 
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setEmailError(
-                <span className="flex items-center gap-1">
-                    Invalid email format <CircleX size={14} />
-                </span>
-            );
-            return;
-        }
-
-        if (password.length < 6) {
-            setPasswordError(
-                <span className="flex items-center gap-1">
-                    Password must be at least 6 characters <CircleX size={14} />
-                </span>
-            );
-            return;
-        }
-
-        // 2. API Call
+        setIsLoading(true);
         try {
-            const res = await axios.post(`${API_BASE_URL}/SignIn`, { email, password });
+            // 2. Added withCredentials so the browser accepts the cookie
+            const res = await axios.post(
+                `${API_BASE_URL}/SignIn`, 
+                { email, password },
+                { withCredentials: true } 
+            );
 
             if (res.status === 200) {
-                toast.success('Welcome back! Redirecting...');
+                toast.success('Welcome back!');
                 
-                // Securely store user data
-                localStorage.setItem('user', JSON.stringify(res.data));
+                // 3. Store ONLY profile info, NOT the token
+                // signIn returns { user: { id, fullName, role } }
+                const userData = res.data.user || res.data;
+                localStorage.setItem('user', JSON.stringify(userData));
 
-                // Smooth navigation
+                // 4. Update state globally (if using Context) instead of reload
+                // setUser(res.data); 
+
                 setTimeout(() => {
                     navigate("/", { replace: true });
-                    // Note: Consider using a Global State (Context/Redux) 
-                    // instead of window.location.reload() for a better SPA experience
-                    window.location.reload(); 
-                }, 1500);
+                    // window.location.reload(); <-- REMOVE THIS
+                }, 1000);
             }
         } catch (error) {
-            const errorMsg = error.response?.data?.message || "Connection lost. Please check your internet.";
+            const errorMsg = error.response?.data?.message || "Login failed";
             toast.error(errorMsg);
-            
-            // Clear password field on failed attempt for security
             setPassword(''); 
+        } finally {
+            setIsLoading(false);
         }
     };
-
     const DisplayForm = () => {
         const isSignUp = !from;
 
@@ -250,12 +241,29 @@ const [isSubmitted, setIsSubmitted] = useState(false); // Track attempt to submi
                     )}
                     
                     <motion.button 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                        whileTap={{ scale: isLoading ? 1 : 0.98 }}
                         className='seconnectBt' 
                         onClick={isSignUp ? SignUP : SignIn}
+                        disabled={isLoading}
+                        style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer' }}
                     >
-                        {isSignUp ? "Sign Up" : "Sign In"}
+                        {isLoading ? (
+                            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <span style={{ 
+                                    width: '16px', 
+                                    height: '16px', 
+                                    border: '2px solid #ffffff', 
+                                    borderTop: '2px solid transparent',
+                                    borderRadius: '50%',
+                                    animation: 'spin 0.8s linear infinite',
+                                    display: 'inline-block'
+                                }}></span>
+                                {isSignUp ? "Signing Up..." : "Signing In..."}
+                            </span>
+                        ) : (
+                            isSignUp ? "Sign Up" : "Sign In"
+                        )}
                     </motion.button>
 
                     <h5 className="toggle-text">

@@ -34,9 +34,7 @@ const AddProduct = () => {
   const getCategory = async () => {  
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setCategories(res.data);     
       console.log(res.data);
@@ -53,9 +51,7 @@ const AddProduct = () => {
   const getSubCategory = async (id) => {  
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${id}`,{
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-          }
+        withCredentials: true
       });
       setSubcategories(res.data);      
       setLoading(false);
@@ -123,6 +119,8 @@ const removeColorImage = (colorKey, idx) => {
   const AddProduct = async (e) => {
     e.preventDefault();
 
+    if (loading) return; // Prevent spam clicks
+
     if (!name || !price || !categoryId || !genre) {
       toast.error("Please fill in all required fields");
       return;
@@ -134,7 +132,6 @@ const removeColorImage = (colorKey, idx) => {
       return;
     }
   }
-
 
     setLoading(true);
     const formData = new FormData();
@@ -169,9 +166,9 @@ const removeColorImage = (colorKey, idx) => {
     
     try {
       const res= await axios.post(`${API_BASE_URL}/Admin/Add-Product`, formData, {
+        withCredentials: true,
         headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${user.token}`
+          'Content-Type': 'multipart/form-data'
         }
       });
       if (res.status === 200) {
@@ -195,7 +192,9 @@ const removeColorImage = (colorKey, idx) => {
       console.log("Frontend error:", error);
       console.log("Error response:", error.response?.data);
         toast.error(error.response?.data?.message || 'Server error');
-    } 
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -33,6 +33,7 @@ const ProductSelect = ({ setShowBag }) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState(false);
   const backdropVariants = {
     hidden: {
       opacity: 0,
@@ -246,22 +247,22 @@ const ProductSelect = ({ setShowBag }) => {
   };
 
   const handleAddToCart = async () => {
+    if (addingToCart) return; // Prevent spam clicks
+    
     if (!user) {
       setShowModal(true)
-      
       return;
     }
     if (!selectedColor) {
       toast.error("Please select a color", { id: "select-color" });
-
       return;
     }
     if (!selectedSize) {
       toast.error("You need to select a size", { id: "select-size" });
-
       return;
     }
 
+    setAddingToCart(true);
     try {
       const cartData = {
         userId: user.id || user._id,
@@ -269,8 +270,8 @@ const ProductSelect = ({ setShowBag }) => {
       };
 
       const res = await axios.post(`${API_BASE_URL}/AddToCart`, cartData, {
+        withCredentials: true,
         headers: {
-          'Authorization': `Bearer ${user.token}`,
           'Content-Type': 'application/json'
         }
       });
@@ -285,6 +286,8 @@ const ProductSelect = ({ setShowBag }) => {
         toast.error(error.response?.data?.message || "Failed to add product to cart");
       }
       console.error("Error adding to cart:", error);
+    } finally {
+      setAddingToCart(false);
     }
   };
 
@@ -414,8 +417,28 @@ const ProductSelect = ({ setShowBag }) => {
               </div>
             </div>
 
-            <button className="addToCartBtn" onClick={handleAddToCart}>
-              AJOUTER AU PANIER <ShoppingBag size={18}/>
+            <button 
+              className="addToCartBtn" 
+              onClick={handleAddToCart}
+              disabled={addingToCart}
+              style={{ opacity: addingToCart ? 0.7 : 1, cursor: addingToCart ? 'not-allowed' : 'pointer' }}
+            >
+              {addingToCart ? (
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <span style={{ 
+                    width: '16px', 
+                    height: '16px', 
+                    border: '2px solid #ffffff', 
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    display: 'inline-block'
+                  }}></span>
+                  Ajout en cours...
+                </span>
+              ) : (
+                <>AJOUTER AU PANIER <ShoppingBag size={18}/></>
+              )}
             </button>
 
             <h4 className='PDH4'>✓ Livraison gratuite à partir de 200 TND</h4>
@@ -529,8 +552,25 @@ const ProductSelect = ({ setShowBag }) => {
               <button
                 className="mobile-select-size-btn"
                 onClick={()=>(scrollToTop(),handleAddToCart())}
+                disabled={addingToCart}
+                style={{ opacity: addingToCart ? 0.7 : 1, cursor: addingToCart ? 'not-allowed' : 'pointer' }}
               >
-                {selectedSize ? `AJOUTER AU PANIER - ${selectedSize}` : 'SÉLECTIONNER UNE TAILLE'}
+                {addingToCart ? (
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <span style={{ 
+                      width: '14px', 
+                      height: '14px', 
+                      border: '2px solid #ffffff', 
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 0.8s linear infinite',
+                      display: 'inline-block'
+                    }}></span>
+                    Ajout...
+                  </span>
+                ) : (
+                  selectedSize ? `AJOUTER AU PANIER - ${selectedSize}` : 'SÉLECTIONNER UNE TAILLE'
+                )}
               </button>
 
                 <div className="mobile-size-selector">

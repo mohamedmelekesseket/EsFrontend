@@ -928,6 +928,8 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     position: fixed;
+    top: 0;
+    right: 0;
     bottom: 0px;
   }
   .ShoppingBag-Edit.open {
@@ -1014,7 +1016,6 @@ body {
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
     -webkit-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
-    top: 1%;
     z-index: 1200;
     overflow: hidden;
     overflow-y: scroll;

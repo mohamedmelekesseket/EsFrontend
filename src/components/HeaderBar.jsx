@@ -53,6 +53,8 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const subcategoriesScrollRef = useRef(null);
+  const [isDeletingCart, setIsDeletingCart] = useState(false);
+  const [isUpdatingCart, setIsUpdatingCart] = useState(false);
 
 
   const icons = {
@@ -122,24 +124,35 @@ function HeaderBar({showBag,setShowBag}   ) {
       }
     }
   };
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call logout endpoint to clear server-side cookie
+      await axios.post(`${API_BASE_URL}/logout`, {}, { withCredentials: true });
+    } catch (error) {
+      // Continue with logout even if endpoint doesn't exist or fails
+      console.log('Logout endpoint not available or failed:', error);
+    }
+    // Clear client-side storage
     localStorage.clear();
     setIsDropdownOpen(false);
     setIsMobileMenuOpen(false);
     navigate('/');
   };
-  const getProductCart = async () => {  
-    if (!user?.id) return;
+  const getProductCart = async () => {   
+    // We still check for user.id to make sure someone is "logged in" 
+    // but we don't need the token here anymore.
+    if (!user?.id) return; 
+
     try {
       const res = await axios.get(`${API_BASE_URL}/GetProductCart/${user.id}`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-          'Content-Type': 'application/json'
-        }
+        withCredentials: true 
       });
       setProductCart(res.data);
-             
     } catch (error) {
+      // If the backend returns 401, it means the cookie is expired or missing
+      if (error.response?.status === 401) {
+        handleLogout(); // Force logout if session is dead
+      }
       console.log(error);
     }
   };
@@ -321,7 +334,8 @@ const getImageByColor = (product, color) => {
   }, [user])
 
   const DeletePrdCart = async (productToDelete) => {
-    if (!user?.id) return;
+    if (!user?.id || isDeletingCart) return;
+    setIsDeletingCart(true);
     try {
       const res = await axios.delete(`${API_BASE_URL}/DeletePrdCart`, {
         data: {
@@ -330,10 +344,7 @@ const getImageByColor = (product, color) => {
           size: productToDelete.size,
           color: productToDelete.color
         },
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-          'Content-Type': 'application/json'
-        }
+       withCredentials: true
       });
 
       if (res.status === 200) {
@@ -341,10 +352,13 @@ const getImageByColor = (product, color) => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsDeletingCart(false);
     }
   };
   const updateCartItem = async () => {
-    if (!user?.id || !editingCartItem) return;
+    if (!user?.id || !editingCartItem || isUpdatingCart) return;
+    setIsUpdatingCart(true);
     try {
       const res = await axios.put(`${API_BASE_URL}/cart-update`, {
           userId: user.id,
@@ -356,10 +370,7 @@ const getImageByColor = (product, color) => {
           originalSize: originalSize, // Original size to find item if cartItemId fails
           originalColor: originalColor // Original color to find item if cartItemId fails
       }, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-          'Content-Type': 'application/json'
-        }
+       withCredentials: true
       });
 
       if (res.status === 200) {
@@ -372,6 +383,8 @@ const getImageByColor = (product, color) => {
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Failed to update cart item");
+    } finally {
+      setIsUpdatingCart(false);
     }
   };
   const filteredProducts = AllProducts.filter(product =>
