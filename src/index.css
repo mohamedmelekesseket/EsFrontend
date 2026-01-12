@@ -5829,6 +5829,18 @@ input::placeholder {
   margin-top:6%;
   border: 0;
 }
+@media (max-width: 480px){
+.connectDiv{
+  position: absolute;
+  right: 2%;
+  top: 13%;
+  height: 480px;
+  width:95%;
+  background-color:white;
+}
+}
+
+
 
 @keyframes slideLeft {
   0% {

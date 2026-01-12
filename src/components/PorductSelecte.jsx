@@ -304,19 +304,19 @@ const ProductSelect = ({ setShowBag }) => {
 
   const handleAddToCart = async () => {
     if (addingToCart) return; // Prevent spam clicks
-    
+    if (!selectedSize) {
+      toast.error("You need to select a size", { id: "select-size" });
+      return;
+    }
     if (!user) {
-      setShowModal(true)
+      navigate('/Seconnect')
       return;
     }
     if (!selectedColor) {
       toast.error("Please select a color", { id: "select-color" });
       return;
     }
-    if (!selectedSize) {
-      toast.error("You need to select a size", { id: "select-size" });
-      return;
-    }
+    
 
     setAddingToCart(true);
     try {
@@ -608,7 +608,7 @@ const ProductSelect = ({ setShowBag }) => {
 
               <button
                 className="mobile-select-size-btn"
-                onClick={()=>(scrollToTop(),handleAddToCart())}
+                onClick={()=>(handleAddToCart())}
                 disabled={addingToCart}
                 style={{ opacity: addingToCart ? 0.7 : 1, cursor: addingToCart ? 'not-allowed' : 'pointer' }}
               >
