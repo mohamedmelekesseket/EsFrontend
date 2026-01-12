@@ -10,6 +10,12 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ProductSelect = ({ setShowBag }) => {
   const location = useLocation();
+  const [email, setEmail] = useState('')
+  const [emailerror, setEmailError] = useState('')
+  const [password, setPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  
+  const [showpassword, setShowPassword] = useState(false)
   const { parentCategoryId, subcategoryId, genre } = location.state || {};
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -25,7 +31,8 @@ const ProductSelect = ({ setShowBag }) => {
   const [selectedSize, setSelectedSize] = useState('');
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
+  const [isSubmitted, setIsSubmitted] = useState(false); // Track attempt to submit
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const subcategoriesScrollRef = useRef(null);
   const [touchStart, setTouchStart] = useState(null);
@@ -176,7 +183,56 @@ const ProductSelect = ({ setShowBag }) => {
       setTimeout(() => setLoading(false), 300);
     }
   };
+  const SignIn = async () => {
+      if (isLoading) return; // Prevent spam clicks
+      
+      setIsSubmitted(true);
+      setEmailError('');
+      setPasswordError('');
 
+      // 1. Validation logic (Keep your existing regex check)
+      if (!email) {
+        setEmailError("Please fill in  required field.")
+      }
+      if (!password) {
+        setPasswordError("Please fill in  required field.")
+        return;
+      }
+      console.log(email,password);
+      
+      setIsLoading(true);
+      try {
+          // 2. Added withCredentials so the browser accepts the cookie
+          const res = await axios.post(
+              `${API_BASE_URL}/SignIn`, 
+              { email, password },
+              { withCredentials: true } 
+          );
+
+          if (res.status === 200) {
+              toast.success('Welcome back!', { id: "productselect-signin-success" });
+              
+              // 3. Store ONLY profile info, NOT the token
+              // signIn returns { user: { id, fullName, role } }
+              const userData = res.data.user || res.data;
+              localStorage.setItem('user', JSON.stringify(userData));
+              setShowModal(false)
+              // 4. Update state globally (if using Context) instead of reload
+              // setUser(res.data); 
+
+              // setTimeout(() => {
+              //     navigate("/", { replace: true });
+              //     // window.location.reload(); <-- REMOVE THIS
+              // }, 1000);
+          }
+      } catch (error) {
+          const errorMsg = error.response?.data?.message || "Login failed";
+          toast.error(errorMsg, { id: "productselect-signin-error" });
+          setPassword(''); 
+      } finally {
+          setIsLoading(false);
+      }
+  };
 
 
   useEffect(() => {
@@ -280,10 +336,11 @@ const ProductSelect = ({ setShowBag }) => {
         toast.success("Product added to cart successfully!", {
           id: "add-to-cart-success",
         });
+        setShowBag(true); // Open the shopping bag after adding to cart
       }
     } catch (error) {
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message || "Failed to add product to cart");
+        toast.error(error.response?.data?.message || "Failed to add product to cart", { id: "productselect-add-cart-error" });
       }
       console.error("Error adding to cart:", error);
     } finally {
@@ -466,7 +523,7 @@ const ProductSelect = ({ setShowBag }) => {
                 });
                 scrollToTop();
               }} className='PS'>
-                <img   src={formatImageUrl(prod.images[0]?.urls[0])}  alt={prod.name} style={{ width: "100%", height: '95%', objectFit: 'cover'}} />
+                <img   src={formatImageUrl(prod.images[0]?.urls[3])}  alt={prod.name} style={{ width: "100%", height: '95%', objectFit: 'cover'}} />
                 <div style={{ fontSize: 12, marginTop: '1%' }}>{prod.name}</div>
               </div>
             );
@@ -611,7 +668,7 @@ const ProductSelect = ({ setShowBag }) => {
           )}
         </div>
       </div>
-      {showModal && (
+      {/* {showModal && (
         <AnimatePresence>
           {showModal && (
             <motion.div
@@ -623,12 +680,12 @@ const ProductSelect = ({ setShowBag }) => {
               onClick={() => setShowModal(false)}
             >
               <motion.div
-                className="modal"
-                variants={modalVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                onClick={(e) => e.stopPropagation()}
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+              className="modal"
               >
                 <button className="close" onClick={() => setShowModal(false)}>
                   ×
@@ -644,7 +701,6 @@ const ProductSelect = ({ setShowBag }) => {
                 </p>
 
                 <button className="btn-login" onClick={()=>navigate('/SeConnect')}>SE CONNECTER</button>
-                {/* <button className="btn-continue">CONTINUER LES ACHATS</button> */}
 
                 <div className="bottom-text">
                   Pas encore de compte ? <span onClick={()=>navigate('/SeConnect')}>Créer un compte</span>
@@ -654,12 +710,78 @@ const ProductSelect = ({ setShowBag }) => {
           )}
         </AnimatePresence>
 
+      )} */}
+      {showModal && (
+        <motion.div
+          className="modal-backdropV2"
+          variants={backdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          onClick={() => setShowModal(false)}
+        >
+          <motion.div
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+              className='connectDiv'>
+            <h3>Connexion / Inscription </h3>
+            <div className='Line'></div>
+            <h2>Saisis ton adresse e-mail</h2>
+            <input 
+              type="text" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)} 
+              placeholder="E-mail" 
+              id="" 
+            />
+            {emailerror && <p className="error-text">{emailerror}</p>}
+            <input 
+              type="password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)} 
+              placeholder="Password" 
+              style={{marginTop:"7%"}} 
+              id="" 
+            />
+            {passwordError && <p className="error-text">{passwordError}</p>}
+             <Link to='/ResetPassword' style={{ textDecoration: "none", color: "black" }}>
+                <h4 style={{marginLeft:"15%",fontSize:"11px"}}>Have you forgotten your password?</h4>
+            </Link>
+            <motion.button 
+                whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                className='seconnectBt' 
+                onClick={SignIn}
+                disabled={isLoading}
+                style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer' }}
+            >
+                {isLoading ? (
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        <span style={{ 
+                            width: '16px', 
+                            height: '16px', 
+                            border: '2px solid #ffffff', 
+                            borderTop: '2px solid transparent',
+                            borderRadius: '50%',
+                            animation: 'spin 0.8s linear infinite',
+                            display: 'inline-block'
+                        }}></span>
+                        Signing In...
+                    </span>
+                ) : (
+                   "Sign In"
+                )}
+            </motion.button>
+             <Link to='/Seconnect' style={{ textDecoration: "none", color: "black" }}>
+                <h4>You don't have Account? Sign Up</h4>
+            </Link>
+          </motion.div>  
+        </motion.div>
       )}
-
-
-
-
-
+      
      
      <footer className="footer-2">
       <div className="footer-links">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import ChangeComp from './ChangeComp'
-import { Instagram,Shirt,X ,Smartphone,CircleCheckBig ,Youtube,Twitter,BookOpen,Trophy,Mail,MapPin,Phone,Clock ,ArrowRight} from 'lucide-react';
+import { Instagram,Shirt,X ,Smartphone,CircleCheckBig ,Linkedin ,Github ,BookOpen,Trophy,Mail,MapPin,Phone,Clock ,ArrowRight} from 'lucide-react';
 import product2 from '../images/chaus.png'
 import Accessories from '../images/hoodie-1-2.png'
 import veste from '../images/vest.png'
@@ -33,6 +33,7 @@ const HomeComp = () => {
   const initial = DROP_DATE.getTime() - Date.now()
     return getCountdownObject(initial)
   })
+  const [isSendingMail, setIsSendingMail] = useState(false);
 
   const navigate = useNavigate();
 
@@ -66,29 +67,31 @@ const HomeComp = () => {
   const isNumber = (value) => /^\d+(\.\d+)?$/.test(value); // Optional decimal
 
   const sendMail = async () => {
+    if (isSendingMail) return;
 
     if (!isValid()) {
-      toast.error("All fields are required");
+      toast.error("All fields are required", { id: "contact-required-fields" });
       return;
     }
 
     if (!isNumber(phone)) {
-      toast.error("Invalid phone number");
+      toast.error("Invalid phone number", { id: "contact-invalid-phone" });
       return;
     }
 
     if (phone.length !== 8) {
-      toast.error("Phone number must be 8 digits long");
+      toast.error("Phone number must be 8 digits long", { id: "contact-phone-length" });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Invalid email address");
+      toast.error("Invalid email address", { id: "contact-invalid-email" });
       return;
     }
     
     // API call
+    setIsSendingMail(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/Contactez-nous`, {
         name,
@@ -99,10 +102,12 @@ const HomeComp = () => {
       });
 
       if (res.status === 200) {
-        toast.success("Message sent successfully ");
+        toast.success("Message sent successfully ", { id: "contact-success" });
       }
     } catch (error) {
-      toast.error("Failed to send message ");
+      toast.error("Failed to send message ", { id: "contact-error" });
+    } finally {
+      setIsSendingMail(false);
     }
   };
 
@@ -121,17 +126,17 @@ const HomeComp = () => {
     } catch (error) {
       console.log(error);
       
-      toast.error(error.response?.data?.message || "Failed to fetch products");
+      toast.error(error.response?.data?.message || "Failed to fetch products", { id: "home-fetch-products-error" });
     }
   };
 
   const Subscribe = async () => {
     if (!email) {
-      return toast.error("Email field is required")
+      return toast.error("Email field is required", { id: "subscribe-email-required" })
     }
     
     if (!validateEmail(email)) {
-      return toast.error("Please enter a valid email address")
+      return toast.error("Please enter a valid email address", { id: "subscribe-invalid-email" })
     }
 
     setIsSubscribing(true)
@@ -142,11 +147,11 @@ const HomeComp = () => {
       
       if (res.status === 201) {                
         setEmail('')
-        toast.success('Successfully Subscribed!')
+        toast.success('Successfully Subscribed!', { id: "subscribe-success" })
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || 'Server error occurred');
+      toast.error(error.response?.data?.message || 'Server error occurred', { id: "subscribe-error" });
     } finally {
       setIsSubscribing(false)
     }
@@ -392,7 +397,7 @@ const HomeComp = () => {
       {showcontact && (
         <div className='divcontactHome' >
           <div style={{width:"100%",height:"100%",zIndex:"222",paddingBottom:'39%'}}>
-          <ArrowRight size={30} id='ArrowContact' onClick={()=>setShowContact(false)} />
+          <ArrowRight size={30} id='ArrowContact' style={{cursor:"pointer"}} onClick={()=>setShowContact(false)} />
             <h1>Contact-<span style={{color:"#03F7EB"}}>us</span></h1>
             <p>Join our Sport Booking partner network and make your pitch easily accessible – we’d love to hear from you!</p>
             <div style={{display:"flex",justifyContent:"center",gap:"5%"}}>
@@ -438,7 +443,24 @@ const HomeComp = () => {
                     <textarea name="" onChange={(e)=>setMessage(e.target.value)} placeholder="Message..."></textarea>
                   </div>
                 </div>
-                <button onClick={sendMail}><Mail size={17}/> Send Message</button>
+          <button onClick={sendMail} disabled={isSendingMail} style={{ opacity: isSendingMail ? 0.7 : 1, cursor: isSendingMail ? 'not-allowed' : 'pointer' }}>
+            {isSendingMail ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid currentColor',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  display: 'inline-block'
+                }}></span>
+                Sending...
+              </span>
+            ) : (
+              <><Mail size={17}/> Send Message</>
+            )}
+          </button>
               </div>
             </div>
             <div className='rejoindre'>
@@ -527,8 +549,22 @@ const HomeComp = () => {
               type="submit" 
               onClick={Subscribe}
               disabled={isSubscribing}
+              style={{ opacity: isSubscribing ? 0.7 : 1, cursor: isSubscribing ? 'not-allowed' : 'pointer' }}
             >
-              {isSubscribing ? 'Subscribing...' : 'Subscribe'}
+              {isSubscribing ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid currentColor',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    display: 'inline-block'
+                  }}></span>
+                  Subscribing...
+                </span>
+              ) : 'Subscribe'}
             </button>
           </form>
         </div>
@@ -594,10 +630,16 @@ const HomeComp = () => {
               <h4>Stay Connected</h4>
 
               <div className="social-icons">
-                <Mail />
-                <Instagram />
-                <Twitter />
-                <Youtube />
+                  <Mail />
+                <a href="https://www.instagram.com/esseketmelek/"   target="_blank" rel="noopener noreferrer">
+                  <Instagram />
+                </a>
+                <a href="https://github.com/mohamedmelekesseket"  target="_blank"  rel="noopener noreferrer">
+                  <Github  />
+                </a>
+                <a href="https://www.linkedin.com/in/melek-esseket-186701348/"  target="_blank" rel="noopener noreferrer">
+                  <Linkedin  />
+                </a>
               </div>
             </div>
           </div>

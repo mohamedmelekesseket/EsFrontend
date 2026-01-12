@@ -5,6 +5,8 @@ import { Link, useNavigate,useLocation  } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
 import EsL from '../images/Es4.png'
+import Es1 from '../images/Es1.png'
+import LogContainer from '../../Es1.png'
 
 import axios from 'axios'
 
@@ -55,6 +57,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const subcategoriesScrollRef = useRef(null);
   const [isDeletingCart, setIsDeletingCart] = useState(false);
   const [isUpdatingCart, setIsUpdatingCart] = useState(false);
+  const [bagLoading, setBagLoading] = useState(false);
 
 
   const icons = {
@@ -110,7 +113,7 @@ function HeaderBar({showBag,setShowBag}   ) {
     } catch (error) {
       console.log(error);
       
-      toast.error(error.response?.data?.message || "Failed to fetch products");
+      toast.error(error.response?.data?.message || "Failed to fetch products", { id: "headerbar-fetch-products-error" });
     }
   };
   const getCategory = async () => {  
@@ -120,7 +123,7 @@ function HeaderBar({showBag,setShowBag}   ) {
       setCategories(res.data);            
     } catch (error) {
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" })
       }
     }
   };
@@ -164,7 +167,7 @@ function HeaderBar({showBag,setShowBag}   ) {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" })
       }
     }
   };
@@ -176,7 +179,7 @@ function HeaderBar({showBag,setShowBag}   ) {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" })
       }
     }
   };
@@ -218,7 +221,7 @@ function HeaderBar({showBag,setShowBag}   ) {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" })
       }
     }
   };
@@ -266,6 +269,21 @@ const getImageByColor = (product, color) => {
     getProductCart();
     
   }, [showBag, user?.id]);
+
+  // Handle loader when ShoppingBag opens
+  useEffect(() => {
+    if (showBag) {
+      setBagLoading(true);
+      const timer = setTimeout(() => {
+        setBagLoading(false);
+      }, 1000); // 5 seconds
+
+      return () => clearTimeout(timer);
+    } else {
+      setBagLoading(false);
+    }
+  }, [showBag]);
+
   useEffect(() => {
     getProducts()
   }, []);
@@ -382,7 +400,7 @@ const getImageByColor = (product, color) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Failed to update cart item");
+      toast.error(error.response?.data?.message || "Failed to update cart item", { id: "headerbar-update-cart-error" });
     } finally {
       setIsUpdatingCart(false);
     }
@@ -419,7 +437,257 @@ const getImageByColor = (product, color) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-          />
+          >
+            <AnimatePresence mode="wait">
+              {showBag && (
+                <motion.div
+                  id="ShoppingBag"
+                  key="main-sidebar-container" // Key ensures the container stays stable
+                  className={`ShoppingBag ${showBag ? "open" : ""}`}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 100 }}
+                  transition={{
+                    opacity: { duration: 0.3, ease: "easeOut" },
+                    x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+                  }}
+                  style={{ overflowY: "auto", overflowX: "hidden" }} // Allow vertical scroll, hide horizontal
+                  onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside the bag
+                >
+                  {/* Show loader for 5 seconds when bag opens */}
+                  {bagLoading ? (
+                    <div className='container'>
+                      {/* Central Logo */}
+                      <img src={LogContainer} className='containerlogo' alt="" />
+
+                      {/* Animated Ring */}
+                      <motion.div
+                        className='Ringcontainer'
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 1,
+                          ease: "linear"
+                        }}
+                      />
+                    </div>
+                  ) : (
+                  /* Inside the sidebar, we switch content based on showBagEdit.
+                    We use another AnimatePresence for a smooth internal transition.
+                  */
+                  <AnimatePresence mode="wait">
+                    {!showBagEdit ? (
+                      /* VIEW 1: THE CART LIST */
+                      <motion.div 
+                        key="cart-list-view"
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }}
+                      >
+                        {productCart.cart?.products?.length === 0 || !user ? (
+                          <div>
+                            <X className='XMobileBag' onClick={() => setShowBag(false)} style={{ cursor: "pointer",color:"gray", marginLeft: "90%",marginTop:"4%" }} />
+                            <ArrowLeft className='IconMobileShoppingCard' onClick={() => setShowBag(false)} style={{ cursor: "pointer", marginLeft: "2%" }} />
+                            <h3 style={{ textAlign: "center", position: "relative", top: "-10px" }}>ShoppingBag</h3>
+                            <div className='EmptyBag' style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                              <ShoppingBag size={60} style={{ color: "#ccc", marginBottom: "15px" }} />
+                              <h4 style={{ color: "#000000ff", marginBottom: "10px", fontSize: "18px" }}>Your cart is empty</h4>
+                              <p style={{color:"gray",fontSize:"12px"}}>Why not try it with one of our suggestions?</p>
+                              <div className='Line'></div>
+                              <Link to="/" onClick={() => setShowBag(false)}>
+                                {/* <button onClick={() => setShowMenu(true)}>Start Shopping</button> */}
+                              </Link>
+                              <div className='ShoppingBagProducts'>
+                              <h2>You should like this</h2>
+                              <div className='ShoppingBagProducts-cards'>
+                                {AllProducts.map((prod, index) => {
+                                  return (
+                                    <div key={prod._id || index}  className='ShoppingBagProducts-card'
+                                      onClick={()=>(navigate(`/PorductSelecte/${prod._id}`, {
+                                        state: {
+                                          parentCategoryId: prod.categoryId,
+                                          subcategoryId: prod.subcategoryId,
+                                          genre: prod.genre,
+                                        }}),setSearchMobile(false))}>
+                                    <img
+                                        src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
+                                        alt={prod.name}
+                                        onError={(e) => {
+                                          e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                                        }}
+                                      />
+                                      <h2>{prod.name?.substring(0, 9)}...</h2>
+                                      <h3>{prod.price}.00 TND</h3>
+                                    </div>
+                                  )
+                                })}
+
+                              </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className='PdSb'>
+                            <div className='PdSbHeader'>
+                              <h3>Shopping Bag{<span className='conteurBag'>{productCart.cart?.products?.length}</span>}  </h3>
+                              <X onClick={() => setShowBag(false)} style={{ marginRight: "5%", cursor: "pointer", color: "gray" }} />
+                            </div>
+
+                            <div className='PdSb-1'>
+                              <AnimatePresence>
+                                {productCart?.cart?.products?.map((product, index) => {
+                                  const imageUrl = getImageByColor(product.productId, product.color, 0);
+                                  return (
+                                    <motion.div 
+                                      className='PdSp-2' 
+                                      key={product._id || `${product.productId?._id}-${product.size}-${product.color}`}
+                                      initial={{ opacity: 0, y: -20, height: "auto" }}
+                                      animate={{ 
+                                        opacity: 1, 
+                                        y: 0,
+                                        height: "auto",
+                                        transition: { duration: 0.2 }
+                                      }}
+                                      exit={{ 
+                                        opacity: 0, 
+                                        x: -300,
+                                        height: 0,
+                                        marginBottom: 0,
+                                        paddingTop: 0,
+                                        paddingBottom: 0,
+                                        transition: { 
+                                          duration: 0.4, 
+                                          ease: [0.4, 0, 0.2, 1]
+                                        } 
+                                      }}
+                                      transition={{ duration: 0.2 }}
+                                    >
+                                      {imageUrl && <img src={imageUrl} alt="Product" />}
+                                      <div className='PdSp-3'>
+                                        
+                                        <p>{product.productId?.name}</p>
+                                        <h4>{product.productId?.price}.00 TND</h4>
+                                        <p style={{color:"gray",fontSize:"14px"}} ><span style={{color:"black",fontSize:"14px",fontWeight:"600"}}> </span> {product.size} |<span style={{color:"black",fontWeight:"600"}}></span> {product.color} |<span style={{color:"black",fontWeight:"600"}}></span> {product.quantity} unit</p>
+                                        <div className='PdSp-4'>
+                                          <Edit2 size={19} onClick={() => {
+                                            setEditingCartItem(product);
+                                            setquantity(product.quantity);
+                                            setSelectedSize(product.size);
+                                            setSelectedColor(product.color);
+                                            GetPById(product.productId._id);
+                                            setShowBagEdit(true); // Switches to Edit view
+                                          }} style={{ cursor: "pointer" }} />
+                                          <Trash2 size={19} style={{ cursor: "pointer"}} onClick={() => DeletePrdCart(product)} />
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  );
+                                })}
+                              </AnimatePresence>
+                              <div className='Line' style={{marginTop:"6%",borderTop:"1px solid gray"}}></div>
+                              <div className='ShoppingBagProducts'>
+                              <h2>You should like this</h2>
+                              <div className='ShoppingBagProducts-cards'>
+                                {AllProducts.map((prod, index) => {
+                                  return (
+                                    <div key={prod._id || index}  className='ShoppingBagProducts-card'
+                                      onClick={()=>(navigate(`/PorductSelecte/${prod._id}`, {
+                                        state: {
+                                          parentCategoryId: prod.categoryId,
+                                          subcategoryId: prod.subcategoryId,
+                                          genre: prod.genre,
+                                        }}),setShowBag(false))}>
+                                    <img
+                                        src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
+                                        alt={prod.name}
+                                        onError={(e) => {
+                                          e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                                        }}
+                                      />
+                                      <h2>{prod.name?.substring(0, 9)}...</h2>
+                                      <h3>{prod.price}.00 TND</h3>
+                                    </div>
+                                  )
+                                })}
+
+                              </div>
+                              </div>
+                            </div>
+                            <div className='detailsTotal'>
+                              <div className='total'>
+                                <h2 style={{ color: "black", fontWeight: "500",fontSize:"15px" }}>Total <span style={{color:"gray",fontSize:"11px"}}>TVA comprise </span></h2>
+                                <h2 style={{ fontWeight: "600", color: "black" }}>{total + 9.9} TND</h2>
+                              </div>
+                              <button className='PdSb-bt' onClick={() => (navigate('/Commande'), setShowBag(false))}>Passer Commande</button>
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    ) : (
+                      /* VIEW 2: THE EDIT FORM */
+                      <motion.div  key="edit-product-view"
+                        initial={{ opacity: 0, x: 50 }} 
+                        animate={{ opacity: 1, x: 0 }} 
+                        exit={{ opacity: 0, x: 50 }}
+                        className="ShoppingBag-Edit" 
+                      >
+                        {/* Back Button to go back to list */}
+                        <div style={{ padding: "10px", display: "flex", alignItems: "center" }}>
+                          <ArrowLeft onClick={() => setShowBagEdit(false)} style={{ cursor: "pointer" }} />
+                          <h3 style={{ marginLeft: "10px" }}>Modify Item</h3>
+                        </div>
+
+                        {image && <img src={image} alt={name}  />}
+
+                        <div className="colorSwatches" style={{margin:"0"}}>
+                          {colors.map((color, index) => (
+                            <div
+                              key={index}
+                              onClick={() => setSelectedColor(color)}
+                              style={{
+                                width: '19px', height: '19px', margin: '5px',  cursor: 'pointer',
+                                border: color === selectedColor ? '2px solid #303030' : '2px solid black',
+                                backgroundColor: color
+                              }}
+                            />
+                          ))}
+                        </div>
+
+                        <div className="sizeSection" style={{margin:"0"}}>
+                          <div className="sizeOptions">
+                            {sizes.map((size, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => setSelectedSize(size)}
+                                style={{ backgroundColor: selectedSize === size ? 'black' : '',width:"30px",height:"30px", color: selectedSize === size ? 'white' : '' }}
+                                className="sizeBtn"
+                              >
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="quantitySelector" style={{margin:"0"}}>
+                          <h4>Quantity</h4>
+                          <div className="controls">
+                            <button onClick={() => quantity > 1 && setquantity(quantity - 1)}><Minus size={18} /></button>
+                            <span className="value">{quantity}</span>
+                            <button onClick={() => setquantity(quantity + 1)}><Plus size={18} /></button>
+                          </div>
+                        </div>
+
+                        <div className='EditShopBorder'>
+                          <button className='Update' onClick={updateCartItem}>Update</button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence> 
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -837,210 +1105,7 @@ const getImageByColor = (product, color) => {
           )}
         </AnimatePresence>
        
-        <AnimatePresence mode="wait">
-          {showBag && (
-            <motion.div
-              id="ShoppingBag"
-              key="main-sidebar-container" // Key ensures the container stays stable
-              className={`ShoppingBag ${showBag ? "open" : ""}`}
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 100 }}
-              transition={{
-                opacity: { duration: 0.3, ease: "easeOut" },
-                x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
-              }}
-              style={{ overflowY: "auto", overflowX: "hidden" }} // Allow vertical scroll, hide horizontal
-            >
-              {/* Inside the sidebar, we switch content based on showBagEdit.
-                We use another AnimatePresence for a smooth internal transition.
-              */}
-              <AnimatePresence mode="wait">
-                {!showBagEdit ? (
-                  /* VIEW 1: THE CART LIST */
-                  <motion.div 
-                    key="cart-list-view"
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    exit={{ opacity: 0 }}
-                  >
-                    {productCart.cart?.products?.length === 0 || !user ? (
-                      <div>
-                        <X className='XMobileBag' onClick={() => setShowBag(false)} style={{ cursor: "pointer",color:"gray", marginLeft: "90%",marginTop:"4%" }} />
-                        <ArrowLeft className='IconMobileShoppingCard' onClick={() => setShowBag(false)} style={{ cursor: "pointer", marginLeft: "2%" }} />
-                        <h3 style={{ textAlign: "center", position: "relative", top: "-10px" }}>ShoppingBag</h3>
-                        <div className='EmptyBag' style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                          <ShoppingBag size={60} style={{ color: "#ccc", marginBottom: "15px" }} />
-                          <h4 style={{ color: "#000000ff", marginBottom: "10px", fontSize: "18px" }}>Your cart is empty</h4>
-                          <p style={{color:"gray",fontSize:"12px"}}>Why not try it with one of our suggestions?</p>
-                          <div className='Line'></div>
-                          <Link to="/" onClick={() => setShowBag(false)}>
-                            {/* <button onClick={() => setShowMenu(true)}>Start Shopping</button> */}
-                          </Link>
-                          <div className='ShoppingBagProducts'>
-                          <h2>You should like this</h2>
-                          <div className='ShoppingBagProducts-cards'>
-                            {AllProducts.map((prod, index) => {
-                              return (
-                                <div key={prod._id || index}  className='ShoppingBagProducts-card'
-                                  onClick={()=>(navigate(`/PorductSelecte/${prod._id}`, {
-                                    state: {
-                                      parentCategoryId: prod.categoryId,
-                                      subcategoryId: prod.subcategoryId,
-                                      genre: prod.genre,
-                                    }}),setSearchMobile(false))}>
-                                <img
-                                    src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
-                                    alt={prod.name}
-                                    onError={(e) => {
-                                      e.target.src = 'https://via.placeholder.com/150?text=No+Image';
-                                    }}
-                                  />
-                                  <h2>{prod.name?.substring(0, 9)}...</h2>
-                                  <h3>{prod.price}.00 TND</h3>
-                                </div>
-                              )
-                            })}
-
-                          </div>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className='PdSb'>
-                        <div className='PdSbHeader'>
-                          <h3>Shopping Bag <span className='conteurBag'>{productCart.cart?.products?.length}</span> </h3>
-                          <X onClick={() => setShowBag(false)} style={{ marginRight: "5%", cursor: "pointer", color: "gray" }} />
-                        </div>
-
-                        <div className='PdSb-1'>
-                          {productCart?.cart?.products?.map((product, index) => {
-                            const imageUrl = getImageByColor(product.productId, product.color, 0);
-                            return (
-                              <div className='PdSp-2' key={product._id || index}>
-                                {imageUrl && <img src={imageUrl} alt="Product" />}
-                                <div className='PdSp-3'>
-                                  
-                                  <p>{product.productId?.name}</p>
-                                  <h4>{product.productId?.price}.00 TND</h4>
-                                  <p style={{color:"gray",fontSize:"14px"}} ><span style={{color:"black",fontSize:"14px",fontWeight:"600"}}> </span> {product.size} |<span style={{color:"black",fontWeight:"600"}}></span> {product.color} |<span style={{color:"black",fontWeight:"600"}}></span> {product.quantity} unit</p>
-                                  <div className='PdSp-4'>
-                                    <Edit2 size={19} onClick={() => {
-                                      setEditingCartItem(product);
-                                      setquantity(product.quantity);
-                                      setSelectedSize(product.size);
-                                      setSelectedColor(product.color);
-                                      GetPById(product.productId._id);
-                                      setShowBagEdit(true); // Switches to Edit view
-                                    }} style={{ cursor: "pointer" }} />
-                                    <Trash2 size={19} style={{ cursor: "pointer"}} onClick={() => DeletePrdCart(product)} />
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                          <div className='Line' style={{marginTop:"6%",borderTop:"1px solid gray"}}></div>
-                          <div className='ShoppingBagProducts'>
-                          <h2>You should like this</h2>
-                          <div className='ShoppingBagProducts-cards'>
-                            {AllProducts.map((prod, index) => {
-                              return (
-                                <div key={prod._id || index}  className='ShoppingBagProducts-card'
-                                  onClick={()=>(navigate(`/PorductSelecte/${prod._id}`, {
-                                    state: {
-                                      parentCategoryId: prod.categoryId,
-                                      subcategoryId: prod.subcategoryId,
-                                      genre: prod.genre,
-                                    }}),setSearchMobile(false))}>
-                                <img
-                                    src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
-                                    alt={prod.name}
-                                    onError={(e) => {
-                                      e.target.src = 'https://via.placeholder.com/150?text=No+Image';
-                                    }}
-                                  />
-                                  <h2>{prod.name?.substring(0, 9)}...</h2>
-                                  <h3>{prod.price}.00 TND</h3>
-                                </div>
-                              )
-                            })}
-
-                          </div>
-                          </div>
-                        </div>
-                        <div className='detailsTotal'>
-                          <div className='total'>
-                            <h2 style={{ color: "black", fontWeight: "500",fontSize:"15px" }}>Total <span style={{color:"gray",fontSize:"11px"}}>TVA comprise </span></h2>
-                            <h2 style={{ fontWeight: "600", color: "black" }}>{total + 9.9} TND</h2>
-                          </div>
-                          <button className='PdSb-bt' onClick={() => (navigate('/Commande'), setShowBag(false))}>Passer Commande</button>
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                ) : (
-                  /* VIEW 2: THE EDIT FORM */
-                  <motion.div  key="edit-product-view"
-                    initial={{ opacity: 0, x: 50 }} 
-                    animate={{ opacity: 1, x: 0 }} 
-                    exit={{ opacity: 0, x: 50 }}
-                    className="ShoppingBag-Edit" 
-                  >
-                    {/* Back Button to go back to list */}
-                    <div style={{ padding: "10px", display: "flex", alignItems: "center" }}>
-                      <ArrowLeft onClick={() => setShowBagEdit(false)} style={{ cursor: "pointer" }} />
-                      <h3 style={{ marginLeft: "10px" }}>Modify Item</h3>
-                    </div>
-
-                    {image && <img src={image} alt={name}  />}
-
-                    <div className="colorSwatches" style={{margin:"0"}}>
-                      {colors.map((color, index) => (
-                        <div
-                          key={index}
-                          onClick={() => setSelectedColor(color)}
-                          style={{
-                            width: '19px', height: '19px', margin: '5px',  cursor: 'pointer',
-                            border: color === selectedColor ? '2px solid #303030' : '2px solid black',
-                            backgroundColor: color
-                          }}
-                        />
-                      ))}
-                    </div>
-
-                    <div className="sizeSection" style={{margin:"0"}}>
-                      <div className="sizeOptions">
-                        {sizes.map((size, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setSelectedSize(size)}
-                            style={{ backgroundColor: selectedSize === size ? 'black' : '',width:"30px",height:"30px", color: selectedSize === size ? 'white' : '' }}
-                            className="sizeBtn"
-                          >
-                            {size}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="quantitySelector" style={{margin:"0"}}>
-                      <h4>Quantity</h4>
-                      <div className="controls">
-                        <button onClick={() => quantity > 1 && setquantity(quantity - 1)}><Minus size={18} /></button>
-                        <span className="value">{quantity}</span>
-                        <button onClick={() => setquantity(quantity + 1)}><Plus size={18} /></button>
-                      </div>
-                    </div>
-
-                    <div className='EditShopBorder'>
-                      <button className='Update' onClick={updateCartItem}>Update</button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        
 
 
         {user && ShowUser && (

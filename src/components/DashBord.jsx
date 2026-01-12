@@ -4,6 +4,7 @@ import userI from '../images/user.png'
 import { Link, Outlet } from 'react-router-dom';
 import axios from "axios";
 import {BeatLoader } from 'react-spinner'
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -51,7 +52,7 @@ const DashBord = () => {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "dashboard-fetch-user-error" })
       }
     }
   };
@@ -64,7 +65,7 @@ const DashBord = () => {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "dashboard-fetch-user-error" })
       }
       setLoading(false);
     }
@@ -76,7 +77,7 @@ const DashBord = () => {
       });
       setProducts(res.data);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch products");
+      toast.error(error.response?.data?.message || "Failed to fetch products", { id: "dashboard-fetch-products-error" });
     }
   };
   useEffect(() => {

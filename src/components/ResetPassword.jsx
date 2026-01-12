@@ -16,6 +16,9 @@ const ResetPasword = () => {
   const [serverCode, setServerCode] = useState('') // backend code
   const inputsRef = useRef([])
   const navigate = useNavigate()
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false)
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
 
   // ✅ handle typing in code inputs
   const handleChange = (value, index) => {
@@ -40,11 +43,13 @@ const ResetPasword = () => {
 
   // ✅ send email with reset code
   const ResetEmail = async () => {
-    if (!email) return toast.error('Email Required !!')
+    if (isSendingEmail) return
+    if (!email) return toast.error('Email Required !!', { id: "reset-email-required" })
 
     const find = await axios.post(`${API_BASE_URL}/CheckEmail`, { email })
-    if (find.status === 204) return toast.error('Email Not exist !!')
+    if (find.status === 204) return toast.error('Email Not exist !!', { id: "reset-email-not-exist" })
 
+    setIsSendingEmail(true)
     try {
       const res = await axios.post(`${API_BASE_URL}/ResetEmail`, { email })
       const { code } = res.data
@@ -54,36 +59,45 @@ const ResetPasword = () => {
       }
     } catch (error) {
       console.error("Error sending reset email:", error)
-      toast.error("❌ Erreur lors de l’envoi du code")
+      toast.error("❌ Erreur lors de l'envoi du code", { id: "reset-send-code-error" })
+    } finally {
+      setIsSendingEmail(false)
     }
   }
 
   // ✅ verify entered code
   const handleVerify = () => {
+    if (isVerifyingCode) return;
+    setIsVerifyingCode(true);
     const enteredCode = code.join('')
     if (enteredCode === serverCode) {
-      toast.success("🔓 Code vérifié avec succès, créez un nouveau mot de passe.")
+      toast.success("🔓 Code vérifié avec succès, créez un nouveau mot de passe.", { id: "reset-code-verified" })
       setReset('Rest3')
     } else {
-      toast.error("❌ Code incorrect !")
+      toast.error("❌ Code incorrect !", { id: "reset-code-incorrect" })
     }
+    setIsVerifyingCode(false);
   }
 
   // ✅ set new password
   const NewPassword = async () => {
-    if (password !== ConfPassword) return toast.error('❌ Password not matched')
+    if (isChangingPassword) return;
+    if (password !== ConfPassword) return toast.error('❌ Password not matched', { id: "reset-password-mismatch" })
 
+    setIsChangingPassword(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/NewPassword`, { password, email })
       if (res.status === 200) {
-        toast.success("✅ Password changed successfully")
+        toast.success("✅ Password changed successfully", { id: "reset-password-success" })
         setTimeout(() => navigate("/"), 1000)
       } else if (res.status === 204) {
-        toast.error("❌ Email Not Found")
+        toast.error("❌ Email Not Found", { id: "reset-email-not-found" })
       }
     } catch (error) {
       console.error("Error updating password:", error)
-      toast.error("❌ Erreur lors du changement du mot de passe")
+      toast.error("❌ Erreur lors du changement du mot de passe", { id: "reset-password-error" })
+    } finally {
+      setIsChangingPassword(false);
     }
   }
 
@@ -101,7 +115,26 @@ const ResetPasword = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder='votreEmail@example.com'
           />
-          <button onClick={ResetEmail}>Send the reset code</button>
+          <button 
+            onClick={ResetEmail} 
+            disabled={isSendingEmail}
+            style={{ opacity: isSendingEmail ? 0.7 : 1, cursor: isSendingEmail ? 'not-allowed' : 'pointer' }}
+          >
+            {isSendingEmail ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                <span style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid currentColor',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  display: 'inline-block'
+                }}></span>
+                Sending...
+              </span>
+            ) : 'Send the reset code'}
+          </button>
           <Link to='/Seconnect' style={{ textDecoration: "none" }}>
             <p id='Retour'><ArrowLeft /> Return to login</p>
           </Link>
@@ -134,11 +167,24 @@ const ResetPasword = () => {
           </div>
 
           <div className="BtnGroup">
-            <button onClick={() => (setReset('Rest1'), setEmail(''))} className="BackBtn">
+            <button onClick={() => (setReset('Rest1'), setEmail(''))} className="BackBtn" disabled={isVerifyingCode} style={{ opacity: isVerifyingCode ? 0.7 : 1, cursor: isVerifyingCode ? 'not-allowed' : 'pointer' }}>
               Retour
             </button>
-            <button onClick={handleVerify} className="VerifyBtn">
-              Vérifier
+            <button onClick={handleVerify} className="VerifyBtn" disabled={isVerifyingCode} style={{ opacity: isVerifyingCode ? 0.7 : 1, cursor: isVerifyingCode ? 'not-allowed' : 'pointer' }}>
+              {isVerifyingCode ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid currentColor',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    display: 'inline-block'
+                  }}></span>
+                  Vérification...
+                </span>
+              ) : 'Vérifier'}
             </button>
           </div>
         </div>
@@ -162,11 +208,25 @@ const ResetPasword = () => {
             placeholder="Confirmer le mot de passe"
           />
           <button
-            style={{ marginTop: "20px" }}
+            style={{ marginTop: "20px", opacity: isChangingPassword ? 0.7 : 1, cursor: isChangingPassword ? 'not-allowed' : 'pointer' }}
             className="VerifyBtn"
             onClick={NewPassword}
+            disabled={isChangingPassword}
           >
-            Enregistrer
+            {isChangingPassword ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                <span style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid currentColor',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  display: 'inline-block'
+                }}></span>
+                Saving...
+              </span>
+            ) : 'Enregistrer'}
           </button>
         </div>
       )
@@ -175,7 +235,6 @@ const ResetPasword = () => {
 
   return (
     <div className='ResetPasword'>
-      <Toaster />
       <img src={EsL} width={'70px'} height={'70px'} alt="" />
       {displayForm()}
     </div>

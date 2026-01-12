@@ -28,7 +28,7 @@ const AllProducts = () => {
       });
       setCategorys(res.data);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch categories");
+      toast.error(error.response?.data?.message || "Failed to fetch categories", { id: "allproducts-fetch-categories-error" });
     }
   };
 
@@ -39,7 +39,7 @@ const AllProducts = () => {
       });
       setSubCategorys(res.data);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch subcategories");
+      toast.error(error.response?.data?.message || "Failed to fetch subcategories", { id: "allproducts-fetch-subcategories-error" });
     }
   };
 
@@ -57,7 +57,7 @@ const AllProducts = () => {
       });
       setSelectedColors(initialColors);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch products");
+      toast.error(error.response?.data?.message || "Failed to fetch products", { id: "allproducts-fetch-products-error" });
     }
   };
 

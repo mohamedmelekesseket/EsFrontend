@@ -70,7 +70,7 @@ function App() {
           },
           success: {
             style: {
-              background: '#2ecc71',
+              background: '#000000',
               color: '#fff',
               borderRadius: '0px', // ❌ no rounded corners
             },

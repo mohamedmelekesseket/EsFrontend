@@ -59,7 +59,7 @@ const ProfileComp = () => {
     
     try {
       if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim()) {
-        return toast.error('Please fill in all required fields');
+        return toast.error('Please fill in all required fields', { id: "profile-required-fields" });
       }
 
       setIsSavingProfile(true);
@@ -81,11 +81,11 @@ const ProfileComp = () => {
         localStorage.setItem('user', JSON.stringify(updatedUser));
         setUser(updatedUser);
         setEditMode(false);
-        toast.success('Profile updated successfully!');
+        toast.success('Profile updated successfully!', { id: "profile-update-success" });
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      toast.error(error.response?.data?.message || 'Failed to update profile', { id: "profile-update-error" });
     } finally {
       setIsSavingProfile(false);
     }
@@ -96,15 +96,15 @@ const ProfileComp = () => {
     
     try {
       if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
-        return toast.error('Please fill in all password fields');
+        return toast.error('Please fill in all password fields', { id: "profile-password-required" });
       }
 
       if (formData.newPassword !== formData.confirmPassword) {
-        return toast.error('New passwords do not match');
+        return toast.error('New passwords do not match', { id: "profile-password-mismatch" });
       }
 
       if (formData.newPassword.length < 6) {
-        return toast.error('Password must be at least 6 characters long');
+        return toast.error('Password must be at least 6 characters long', { id: "profile-password-length" });
       }
 
       setIsChangingPassword(true);
@@ -125,11 +125,11 @@ const ProfileComp = () => {
           newPassword: '',
           confirmPassword: ''
         }));
-        toast.success('Password changed successfully!');
+        toast.success('Password changed successfully!', { id: "profile-password-success" });
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || 'Failed to change password');
+      toast.error(error.response?.data?.message || 'Failed to change password', { id: "profile-password-error" });
     } finally {
       setIsChangingPassword(false);
     }

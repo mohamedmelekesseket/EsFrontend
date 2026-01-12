@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { CircleX, Mail, House, Shirt, Lock, Phone, Eye } from 'lucide-react';
+import { CircleX, Mail, House, Shirt, Lock, Phone, Eye,EyeOff  } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast'
 
 import mobile1 from '../images/vetment/pontalon-6-0.png'
@@ -12,13 +12,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Login = () => {
-    const [from, setForm] = useState(true)
+    const [from, setForm] = useState(false)
     const [email, setEmail] = useState('')
     const [emailerror, setEmailError] = useState('')
-    const [phoneNumber, setphoneNumber] = useState('')
-    const [phoneError, setphoneNumberError] = useState('')
     const [password, setPassword] = useState('')
     const [showpassword, setShowPassword] = useState(false)
+    const [phoneNumber, setphoneNumber] = useState('')
+    const [phoneError, setphoneNumberError] = useState('')
     const [passwordError, setPasswordError] = useState('')
     const navigate = useNavigate()
     const [isSubmitted, setIsSubmitted] = useState(false); // Track attempt to submit
@@ -52,7 +52,7 @@ const Login = () => {
 
         // 1. Validation with proper RETURNS
         if (!email || !phoneNumber || !password) {
-            return toast.error("All fields are required");
+            return toast.error("All fields are required", { id: "signup-required-fields" });
         }
 
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -77,7 +77,7 @@ const Login = () => {
             );
 
             if (res.status === 201) {
-                toast.success('Account created!');
+                toast.success('Account created!', { id: "signup-success" });
                 localStorage.setItem('user', JSON.stringify(res.data));
                 
                 navigate("/", { replace: true });
@@ -87,7 +87,7 @@ const Login = () => {
                 setphoneNumber('');
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Signup failed');
+            toast.error(error.response?.data?.message || 'Signup failed', { id: "signup-error" });
         } finally {
             setIsLoading(false);
         }
@@ -102,7 +102,7 @@ const Login = () => {
 
         // 1. Validation logic (Keep your existing regex check)
         if (!email || !password) {
-            toast.error("Please fill in all required fields.");
+            toast.error("Please fill in all required fields.", { id: "signin-required-fields" });
             return;
         }
 
@@ -116,7 +116,7 @@ const Login = () => {
             );
 
             if (res.status === 200) {
-                toast.success('Welcome back!');
+                toast.success('Welcome back!', { id: "signin-success" });
                 
                 // 3. Store ONLY profile info, NOT the token
                 // signIn returns { user: { id, fullName, role } }
@@ -133,7 +133,7 @@ const Login = () => {
             }
         } catch (error) {
             const errorMsg = error.response?.data?.message || "Login failed";
-            toast.error(errorMsg);
+            toast.error(errorMsg, { id: "signin-error" });
             setPassword(''); 
         } finally {
             setIsLoading(false);
@@ -222,12 +222,20 @@ const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             style={getBorderStyle(password, passwordError)}
                         />
+                        {showpassword
+                        ?
+                        <EyeOff  id='MobileIC1' 
+                        onClick={() => setShowPassword(!showpassword)} 
+                        size={19} 
+                        className="eye-icon" />
+                        :
                         <Eye 
-                            id='MobileIC1' 
-                            onClick={() => setShowPassword(!showpassword)} 
-                            size={19} 
-                            className="eye-icon" 
+                        id='MobileIC1' 
+                        onClick={() => setShowPassword(!showpassword)} 
+                        size={19} 
+                        className="eye-icon" 
                         />
+                        }
                     </div>
                     {passwordError && <p className="error-text">{passwordError}</p>}
                 </motion.div>

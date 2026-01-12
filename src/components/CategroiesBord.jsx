@@ -40,7 +40,7 @@ const CategroiesBord = () => {
   const AddCategory = async()=>{
     if (isAddingCategory) return; // Prevent spam clicks
     if (!name) {
-      toast.error("Category Name required")
+      toast.error("Category Name required", { id: "categories-name-required" })
       return
     }
     setIsAddingCategory(true);
@@ -57,7 +57,7 @@ const CategroiesBord = () => {
         });
 
       if (res.status === 200) {
-        toast.success("Category Created successfully")
+        toast.success("Category Created successfully", { id: "categories-create-success" })
         SetShowModal(false)
         setImages([])
         setImagePreviews([])
@@ -67,7 +67,7 @@ const CategroiesBord = () => {
     } catch (error) {
       console.log(error);
       if (error.response?.status != 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "categories-create-error" })
       }
       
     } finally {
@@ -77,7 +77,7 @@ const CategroiesBord = () => {
   const AddSubCategory = async()=>{
     if (isAddingSubCategory) return; // Prevent spam clicks
     if (!subCategoryName || !genre) {
-      toast.error("SubCategory Name required")
+      toast.error("SubCategory Name required", { id: "categories-subname-required" })
       return
     }
     setIsAddingSubCategory(true);
@@ -98,7 +98,7 @@ const CategroiesBord = () => {
         }
       )
       if (res.status === 201) {
-        toast.success("SubCategory Created successfully")
+        toast.success("SubCategory Created successfully", { id: "categories-subcreate-success" })
         // SetShowSub(false)
         setImages([])
         setImagePreviews([])
@@ -108,7 +108,7 @@ const CategroiesBord = () => {
     } catch (error) {
       console.log(error);
       if (error.response?.status != 201) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "categories-create-error" })
       }
       
     } finally {
@@ -125,7 +125,7 @@ const CategroiesBord = () => {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "categories-create-error" })
       }
       setLoading(false);
     }
@@ -140,7 +140,7 @@ const CategroiesBord = () => {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "categories-create-error" })
       }
       setLoading(false);
     }
@@ -181,7 +181,7 @@ const CategroiesBord = () => {
 
       if (res.status === 200) {
         toast.dismiss(toastId);
-        toast.success("SubCategory deleted successfully!");
+        toast.success("SubCategory deleted successfully!", { id: "categories-subdelete-success" });
         console.log(res);
         
         // FIXED:
@@ -197,7 +197,7 @@ const CategroiesBord = () => {
 
   const deleteCategory = (id) => {
     if (!id) {
-      toast.error("Invalid category ID");
+      toast.error("Invalid category ID", { id: "categories-invalid-id" });
       return;
     }
 
@@ -232,7 +232,7 @@ const CategroiesBord = () => {
       );
       if (res.status === 200) {
         toast.dismiss(toastId);
-        toast.success("Category deleted successfully!");
+        toast.success("Category deleted successfully!", { id: "categories-delete-success" });
         getCategory(); // Refresh the list
       }
     } catch (error) {
@@ -276,7 +276,27 @@ const CategroiesBord = () => {
           </div> 
           <div style={{display:"flex",justifyContent:"space-around",width:"100%",marginTop:"4%"}}>
             <button className='AddCancel' onClick={()=>SetShowModal(false)}>Cancel</button>
-            <button className='AddCancel'onClick={AddCategory} style={{backgroundColor:"green"}}>Add</button>
+            <button 
+              className='AddCancel'
+              onClick={AddCategory}
+              style={{backgroundColor:"green", opacity: isAddingCategory ? 0.7 : 1, cursor: isAddingCategory ? 'not-allowed' : 'pointer'}}
+              disabled={isAddingCategory}
+            >
+              {isAddingCategory ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                  <span style={{
+                    width: '14px',
+                    height: '14px',
+                    border: '2px solid currentColor',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    display: 'inline-block'
+                  }}></span>
+                  Adding...
+                </span>
+              ) : 'Add'}
+            </button>
           </div>
         </div>
       ):('')}
@@ -310,7 +330,27 @@ const CategroiesBord = () => {
         </div>
         <div style={{display:"flex",width:"100%",justifyContent:"flex-end"}}>
           <button className='AddCancel' onClick={()=>(SetShowSub(false),setGenre(''))}>Cancel</button>
-          <button className='AddCancel'onClick={AddSubCategory} style={{backgroundColor:"green"}}>Add</button>
+          <button 
+            className='AddCancel'
+            onClick={AddSubCategory}
+            style={{backgroundColor:"green", opacity: isAddingSubCategory ? 0.7 : 1, cursor: isAddingSubCategory ? 'not-allowed' : 'pointer'}}
+            disabled={isAddingSubCategory}
+          >
+            {isAddingSubCategory ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                <span style={{
+                  width: '14px',
+                  height: '14px',
+                  border: '2px solid currentColor',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  display: 'inline-block'
+                }}></span>
+                Adding...
+              </span>
+            ) : 'Add'}
+          </button>
         </div>
         </div>
       ):('')}

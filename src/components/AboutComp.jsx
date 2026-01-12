@@ -4,6 +4,7 @@ import vd from '../images/vd.mp4'
 import { Shirt, Award, Leaf, Users,Mail,SlidersHorizontal, Eraser, X, Truck, ShieldCheck, RefreshCcw, Sparkles  } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const AboutComp = () => {
   const ref = useRef(null);
@@ -17,10 +18,10 @@ const AboutComp = () => {
   const handleNewsletterSubmit = (event) => {
     event.preventDefault();
     if (!newsletterEmail.trim()) {
-      toast.error('Ajoutez votre email pour rejoindre la prochaine drop.');
+      toast.error('Ajoutez votre email pour rejoindre la prochaine drop.', { id: "about-newsletter-email-required" });
       return;
     }
-    toast.success('Vous êtes sur la liste. Rendez-vous pour la prochaine drop !');
+    toast.success('Vous êtes sur la liste. Rendez-vous pour la prochaine drop !', { id: "about-newsletter-success" });
     setNewsletterEmail('');
   };
   const scrollToTop = () => {

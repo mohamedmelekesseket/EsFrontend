@@ -185,7 +185,7 @@ const ModifyProduct = ({id,setModify}) => {
       setLoading(false);
     } catch (err) {
       console.error('Error fetching product:', err);
-      toast.error('Erreur lors du chargement du produit');
+      toast.error('Erreur lors du chargement du produit', { id: "modifyproduct-load-error" });
       setLoading(false);
     }
   };
@@ -194,7 +194,7 @@ const ModifyProduct = ({id,setModify}) => {
     e.preventDefault();
 
     if (!name || !price || !categoryId || !genre) {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill in all required fields", { id: "modifyproduct-required-fields" });
       return;
     }
 
@@ -244,13 +244,13 @@ const ModifyProduct = ({id,setModify}) => {
       });
       
       if (res.status === 200) {
-        toast.success("Product updated successfully");
+        toast.success("Product updated successfully", { id: "modifyproduct-update-success" });
       setModify(false);
       }
     } catch (error) {
       console.log("Frontend error:", error);
       console.log("Error response:", error.response?.data);
-      toast.error(error.response?.data?.message || 'Server error');
+      toast.error(error.response?.data?.message || 'Server error', { id: "modifyproduct-update-error" });
     } finally {
       setLoading(false);
     }
@@ -268,7 +268,7 @@ const ModifyProduct = ({id,setModify}) => {
       }
     } catch (err) {
       console.error('Error deleting product:', err);
-      toast.error('Erreur lors de la suppression du produit');
+      toast.error('Erreur lors de la suppression du produit', { id: "modifyproduct-delete-error" });
     } finally {
       setIsDeleting(false);
     }
@@ -526,8 +526,24 @@ const ModifyProduct = ({id,setModify}) => {
                 background: "#a50505ff",
                 color: "white",
                 marginRight:"3%",
-                cursor: "pointer"
-              }} onClick={DeleteProduct}>delete</button>
+                cursor: isDeleting ? "not-allowed" : "pointer",
+                opacity: isDeleting ? 0.7 : 1
+              }} onClick={DeleteProduct} disabled={isDeleting}>
+                {isDeleting ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                    <span style={{
+                      width: '16px',
+                      height: '16px',
+                      border: '2px solid #ffffff',
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 0.8s linear infinite',
+                      display: 'inline-block'
+                    }}></span>
+                    Deleting...
+                  </span>
+                ) : 'delete'}
+          </button>
             <button
               type="submit"
               style={{
@@ -536,12 +552,26 @@ const ModifyProduct = ({id,setModify}) => {
                 border: "none",
                 background: "#4CAF50",
                 color: "white",
-                cursor: "pointer"
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1
               }}
               onClick={handleUpdate}
               disabled={loading}
             >
-              {loading ? "Updating..." : "Update Product"}
+              {loading ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid #ffffff',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    display: 'inline-block'
+                  }}></span>
+                  Updating...
+                </span>
+              ) : "Update Product"}
             </button>
             
           </div>

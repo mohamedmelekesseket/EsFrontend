@@ -130,11 +130,11 @@ const DeletePrdCart = async (productToDelete) => {
     });
     if (res.status === 200) {
       getProductCart();
-      toast.success('Produit supprimé du panier');
+      toast.success('Produit supprimé du panier', { id: "cart-delete-success" });
     }
   } catch (error) {
     console.log(error);
-    toast.error('Suppression impossible');
+    toast.error('Suppression impossible', { id: "cart-delete-error" });
   } finally {
     setIsDeleting(false);
   }
@@ -165,7 +165,7 @@ const handleOrder = async () => {
   if (isOrdering) return; // Prevent spam clicks
   
   if (!nom || !prenom || !email || !telephone || !rue || !complement || !ville || !province || !postal) {
-    return toast.error('Information non complet');
+    return toast.error('Information non complet', { id: "order-incomplete-info" });
   }  
   
   setIsOrdering(true);
@@ -188,11 +188,11 @@ const handleOrder = async () => {
       }
     );
 
-    toast.success('Commande envoyée avec succès');
+    toast.success('Commande envoyée avec succès', { id: "order-success" });
     navigate('/order-confirmation', { state: { order: res.data.order } });
   } catch (err) {
     console.error(err);
-    toast.error(err.response?.data?.message || 'Erreur lors de la commande');
+    toast.error(err.response?.data?.message || 'Erreur lors de la commande', { id: "order-error" });
   } finally {
     setIsOrdering(false);
   }
@@ -490,7 +490,6 @@ const total = useMemo(() => {
                 <div style={{ textAlign: "right", minWidth: "100px" }}>
                   <p style={{ marginBottom: "8px" }}><strong>{item.productId?.price} DT</strong></p>
                   <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                    <Edit2 size={18} style={{ cursor: "pointer" }} onClick={() => handleGoToProduct(item)} title="Modifier" />
                     <Trash2 size={18} style={{ cursor: "pointer",color:"red" }} onClick={() => setConfirmDelete(item)} title="Supprimer" />
                   </div>
                 </div>
@@ -509,7 +508,27 @@ const total = useMemo(() => {
         <div className="Continuer">
         <h4>Total {total.toFixed(2)} DT</h4>
           <div className="btC">
-            <button onClick={handleOrder} className="btContinuer">  Continuer la commande</button>
+            <button 
+              onClick={handleOrder} 
+              className="btContinuer"
+              disabled={isOrdering}
+              style={{ opacity: isOrdering ? 0.7 : 1, cursor: isOrdering ? 'not-allowed' : 'pointer' }}
+            >
+              {isOrdering ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid currentColor',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    display: 'inline-block'
+                  }}></span>
+                  Envoi...
+                </span>
+              ) : 'Continuer la commande'}
+            </button>
           </div>
         </div>
       </div>

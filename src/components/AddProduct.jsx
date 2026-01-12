@@ -42,7 +42,7 @@ const AddProduct = () => {
       setLoading(false);
     } catch (error) {
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "addproduct-fetch-category-error" })
       }
       setLoading(false);
     }
@@ -58,7 +58,7 @@ const AddProduct = () => {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "addproduct-fetch-category-error" })
       }
       setLoading(false);
     }
@@ -122,13 +122,13 @@ const removeColorImage = (colorKey, idx) => {
     if (loading) return; // Prevent spam clicks
 
     if (!name || !price || !categoryId || !genre) {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill in all required fields", { id: "addproduct-required-fields" });
       return;
     }
 
     for (const c of color) {
     if (!colorImages[c] || colorImages[c].length === 0) {
-      toast.error(`Please upload images for color: ${c}`);
+      toast.error(`Please upload images for color: ${c}`, { id: `addproduct-missing-images-${c}` });
       return;
     }
   }
@@ -172,7 +172,7 @@ const removeColorImage = (colorKey, idx) => {
         }
       });
       if (res.status === 200) {
-        toast.success("Product created successfully");
+        toast.success("Product created successfully", { id: "addproduct-success" });
       }
 
       // Reset
@@ -191,7 +191,7 @@ const removeColorImage = (colorKey, idx) => {
     } catch (error) {
       console.log("Frontend error:", error);
       console.log("Error response:", error.response?.data);
-        toast.error(error.response?.data?.message || 'Server error');
+        toast.error(error.response?.data?.message || 'Server error', { id: "addproduct-error" });
     } finally {
       setLoading(false);
     }
@@ -426,11 +426,26 @@ const removeColorImage = (colorKey, idx) => {
                 border: "none",
                 background: "#4CAF50",
                 color: "white",
-                cursor: "pointer"
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1
               }}
               onClick={AddProduct}
+              disabled={loading}
             >
-            Create Product
+            {loading ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid #ffffff',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  display: 'inline-block'
+                }}></span>
+                Creating...
+              </span>
+            ) : 'Create Product'}
             </button>
           </div>
       </div>

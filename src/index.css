@@ -174,12 +174,9 @@ body {
 }
 .overflow-2 {
   width: 100%;
-  height: 1000px;
-  position: absolute;
-  margin-top: 80px;
-  top: -20%;
-  left: 0;
-  z-index: 1000;
+  height: 100vh;
+  position: fixed;
+  z-index: 1900;
   background-color: rgba(0, 0, 0, 0.596); /* semi-transparent dark overlay */
 }
 
@@ -399,7 +396,7 @@ body {
 .ShoppingBag {
   height: 92vh;
   background-color: white;
-  position: fixed;
+  position:fixed;
   top:3vh;
   right: 20px;
   transition: all 0.5s;
@@ -451,7 +448,8 @@ body {
   width: 20px;
   height: 20px;
   color: white;
-  border-radius: 50%;
+  margin: 0;
+  margin-left: 4%;
 }
 .PdSb h3{
   display: flex;
@@ -754,6 +752,26 @@ body {
   border-radius: 10px;
   background-color: white;
 }
+.container{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.containerlogo{
+  width: 100px;
+  height: 100px;
+  position: absolute;
+}
+.Ringcontainer{
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 6px solid black;
+  border-left-color: transparent;
+} 
 
 
 
@@ -1183,9 +1201,8 @@ body {
     height: 400px;
     background-color: #000;
   }
-  .overflow-2 {
-    display: none !important;
-  }
+  /* .overflow-2 {
+  } */
 }
 
 /* ==========================================================================
@@ -4021,6 +4038,8 @@ input::placeholder {
 
 /* Error Text Styling */
 .error-text {
+  position: absolute;
+  left: 4%;
     color: #ff4d4f;
     font-size: 12px;
     margin-top: 4px;
@@ -5644,6 +5663,17 @@ input::placeholder {
   display: none;
 }
 /* ===== Overlay (dark + blur) ===== */
+.modal-backdropV2 {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -5753,6 +5783,52 @@ input::placeholder {
 }
 
 
+.connectDiv{
+  position: absolute;
+  right: 2%;
+  top: 13%;
+  height: 480px;
+  width: 28%;
+  background-color:white;
+}
+.connectDiv h3{
+  margin-top: 4%;
+  margin-bottom: 6%;
+  font-weight: 600;
+}
+.connectDiv h2{
+  margin-top: 10%;
+  margin-bottom: 6%;
+  margin-left: 3%;
+  font-weight: 600;
+  font-size: 17px;
+}
+.connectDiv h4{
+  margin: 0;
+  margin-top: 8%;
+  text-align: center;
+  font-weight: 400;
+  width: 100%;
+  font-size: 13px;
+  color: black;
+  text-decoration: underline;
+}
+.connectDiv input{
+  width: 85%;
+  height: 40px;
+  padding-left: 3%;
+  margin-left: 4%;
+}
+.connectDiv button{
+  width: 87%;
+  background-color: #000;
+  color: white;
+  cursor: pointer;
+  height: 40px;
+  margin-left: 6%;
+  margin-top:6%;
+  border: 0;
+}
 
 @keyframes slideLeft {
   0% {

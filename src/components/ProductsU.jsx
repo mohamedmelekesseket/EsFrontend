@@ -44,7 +44,7 @@ const Index = () => {
         const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`);
         setCategories(res.data);
       } catch (error) {
-        toast.error(error.response?.data?.message || "Error fetching categories");
+        toast.error(error.response?.data?.message || "Error fetching categories", { id: "productsu-fetch-categories-error" });
       }
     };
     getCategory();
@@ -58,7 +58,7 @@ const Index = () => {
         const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${parentCategoryId}`);
         setSubcategories(res.data);
       } catch (error) {
-        toast.error(error.response?.data?.message || "Error fetching subcategories");
+        toast.error(error.response?.data?.message || "Error fetching subcategories", { id: "productsu-fetch-subcategories-error" });
       }
     };
     getSubCategory();
@@ -72,7 +72,7 @@ const Index = () => {
         const res = await axios.get(`${API_BASE_URL}/Admin/Get-products`);
         setProducts(res.data);
       } catch (error) {
-        toast.error("Failed to fetch products");
+        toast.error("Failed to fetch products", { id: "productsu-fetch-products-error" });
       }
     };
     getProducts();

@@ -32,7 +32,7 @@ const UserBord = () => {
     } catch (error) {
       console.log(error);
       if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message)
+        toast.error(error.response?.data?.message, { id: "userbord-fetch-error" })
       }
     }
   };
@@ -42,7 +42,7 @@ const UserBord = () => {
     if (isUpdating) return; // Prevent spam clicks
     try {
         if (role == '') {
-          return toast.error('select new role or close')
+          return toast.error('select new role or close', { id: "userbord-role-required" })
         }
       setIsUpdating(true);
       // TODO: Replace hardcoded API URL with environment variable for production
@@ -52,7 +52,7 @@ const UserBord = () => {
         withCredentials: true
       });
       if(res.status === 200) {
-        toast.success('User Updated');
+        toast.success('User Updated', { id: "userbord-update-success" });
         setEditMode(null)
         setRole('')
         getUser();
@@ -100,7 +100,7 @@ const UserBord = () => {
       });
       if (res.status === 200) {
         toast.dismiss(toastId);
-        toast.success("User deleted successfully!");
+        toast.success("User deleted successfully!", { id: "userbord-delete-success" });
         getUser();
       }
     } catch (error) {
@@ -129,9 +129,26 @@ const UserBord = () => {
           </select>
         </td>
         <td>{user.phoneNumber}</td>
-        <td style={{ display: "flex", justifyContent: "space-evenly", fontSize: "large" }}>
-          <Check onClick={() => updateUser(user._id)} style={{ color: "green", cursor: "pointer" }} size={22} />
-          <X  onClick={() => setEditMode(null)} size={22} style={{ cursor: "pointer", color: "red" }} />
+        <td style={{ display: "flex", justifyContent: "space-evenly", fontSize: "large", alignItems:"center", gap:"8px" }}>
+          {isUpdating ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'green' }}>
+              <span style={{
+                width: '14px',
+                height: '14px',
+                border: '2px solid currentColor',
+                borderTop: '2px solid transparent',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+                display: 'inline-block'
+              }}></span>
+              Saving...
+            </span>
+          ) : (
+            <>
+              <Check onClick={() => updateUser(user._id)} style={{ color: "green", cursor: "pointer" }} size={22} />
+              <X  onClick={() => setEditMode(null)} size={22} style={{ cursor: "pointer", color: "red" }} />
+            </>
+          )}
         </td>
       </tr>
       
@@ -142,9 +159,26 @@ const UserBord = () => {
           <td>{user.email}</td>
           <td>{user.role}</td>
           <td>{user.phoneNumber}</td>
-          <td style={{ display: "flex", justifyContent: "space-evenly", fontSize: "large" }}>
-            <Trash size={20} onClick={() => deleteUser(user._id)} style={{ cursor: "pointer" }} />
-            <Pen size={20} onClick={() => { setEditMode(user._id); setRole(user.role); }} style={{ cursor: "pointer" }} />
+          <td style={{ display: "flex", justifyContent: "space-evenly", fontSize: "large", alignItems:"center", gap:"8px" }}>
+            {isDeleting ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'red' }}>
+                <span style={{
+                  width: '14px',
+                  height: '14px',
+                  border: '2px solid currentColor',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  display: 'inline-block'
+                }}></span>
+                Deleting...
+              </span>
+            ) : (
+              <>
+                <Trash size={20} onClick={() => deleteUser(user._id)} style={{ cursor: "pointer" }} />
+                <Pen size={20} onClick={() => { setEditMode(user._id); setRole(user.role); }} style={{ cursor: "pointer" }} />
+              </>
+            )}
           </td>
         </tr>
       );
