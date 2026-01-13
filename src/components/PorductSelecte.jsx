@@ -309,7 +309,8 @@ const ProductSelect = ({ setShowBag }) => {
       return;
     }
     if (!user) {
-      navigate('/Seconnect')
+      setShowModal(true)
+      // navigate('/Seconnect')
       return;
     }
     if (!selectedColor) {
@@ -748,7 +749,7 @@ const ProductSelect = ({ setShowBag }) => {
             />
             {passwordError && <p className="error-text">{passwordError}</p>}
              <Link to='/ResetPassword' style={{ textDecoration: "none", color: "black" }}>
-                <h4 style={{marginLeft:"15%",fontSize:"11px"}}>Have you forgotten your password?</h4>
+                <h4 style={{marginLeft:"18%",fontSize:"11px"}}>Have you forgotten your password?</h4>
             </Link>
             <motion.button 
                 whileHover={{ scale: isLoading ? 1 : 1.02 }}
@@ -776,7 +777,7 @@ const ProductSelect = ({ setShowBag }) => {
                 )}
             </motion.button>
              <Link to='/Seconnect' style={{ textDecoration: "none", color: "black" }}>
-                <h4>You don't have Account? Sign Up</h4>
+                <h4 style={{color:"black"}}>You don't have Account? Sign Up</h4>
             </Link>
           </motion.div>  
         </motion.div>

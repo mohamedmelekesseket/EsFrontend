@@ -1699,6 +1699,9 @@ body {
   z-index: 0;
   opacity: 0.85;
 }
+.drop-announcement__visual-bgV2 {
+  display: none;
+}
 
 .drop-announcement__visual-card {
   position: relative;
@@ -1895,17 +1898,34 @@ body {
   .drop-announcement {
     padding: 0;
     margin: 0rem auto;
-    
+    height: 600px;
   }
   /* #dropvd{
     display: none;
   } */
+  .drop-announcement__visual-bgV2 {
+    display: initial;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(14px);
+    transform: scale(1.1);
+    z-index: 0;
+    opacity: 0.85;
+  }
   .drop-announcement__countdown {
     gap: 1rem;
   }
-
+  .drop__background-video{
+    display: none;
+  }
   .drop-announcement__countdown strong {
     font-size: 1.8rem;
+  }
+  .drop-announcement__visual{
+    display: none;
   }
 }
 
@@ -2049,13 +2069,20 @@ body {
 @media (max-width: 768px) {
   .Subscribe-section {
     padding: 2rem 1rem;
+    background-color: white;
+    background-image: none;
   }
-
+  .Subscribe-section::before {
+    display: none;
+  }
+  
   .Subscribe-content h2 {
+    color:black;
     font-size: 2rem;
   }
-
+  
   .Subscribe-content p {
+    color: black;
     font-size: 1rem;
   }
 
@@ -4109,6 +4136,7 @@ input::placeholder {
   color: black;
   position: relative;
   left: 22%;
+  margin: 0;
 }
 .MobileConnect {
   display: none;
@@ -4217,7 +4245,7 @@ input::placeholder {
   }
   #Resetph4 {
     position: relative;
-    left: 90%;
+    left: 10%;
     margin: 0;
   }
   .MobileConnect p {
@@ -4237,6 +4265,7 @@ input::placeholder {
     border-radius: 8px;
     font-size: 14px;
     outline: none;
+    color: red;
     transition: all 0.2s;
     height: 45px;
     padding-left: 40px !important;
@@ -5810,7 +5839,7 @@ input::placeholder {
   font-weight: 400;
   width: 100%;
   font-size: 13px;
-  color: black;
+  color: gray;
   text-decoration: underline;
 }
 .connectDiv input{
@@ -5832,11 +5861,19 @@ input::placeholder {
 @media (max-width: 480px){
 .connectDiv{
   position: absolute;
-  right: 2%;
-  top: 13%;
-  height: 480px;
-  width:95%;
+  top: 0%;
+  right: 0;
+  height: 100vh;
+  width:100%;
   background-color:white;
+}
+.connectDiv input{
+  width: 85%;
+  height: 50px;
+  padding-left: 3%;
+  margin-top: 4%;
+  border: 1px solid black;
+  margin-left: 4%;
 }
 }
 
@@ -8531,6 +8568,7 @@ footer {
 
 .social-icons {
   display: flex;
+  justify-content: center;
   gap: 15px;
   font-size: 22px;
 }

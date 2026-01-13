@@ -300,8 +300,8 @@ const HomeComp = () => {
       </div>
         
       <div className='HoverDivHome'>
-        <h1>Featured Collection</h1>
-        <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>       
+        {/* <h1>Featured Collection</h1>
+        <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>        */}
         <div className="homediv-0">
             {Products.slice(0,5).map((prod, index) => {
               // Get the URL
@@ -353,7 +353,7 @@ const HomeComp = () => {
         </div>
       </div>  
 
-      <div className='Featured'>
+      {/* <div className='Featured'>
         <h1>Featured Collection</h1>
         <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>
         
@@ -373,7 +373,6 @@ const HomeComp = () => {
                   })
                 }
               >
-                {/* PRECISE FIX BELOW */}
                <img 
                   src={formatImageUrl(prod?.images?.[0]?.urls?.[0])} 
                   alt={prod.name} 
@@ -388,7 +387,7 @@ const HomeComp = () => {
           })}
         </div>
 
-      </div>
+      </div> */}
 
       <div className='someProductHome'>
 
@@ -496,6 +495,7 @@ const HomeComp = () => {
           playsInline
           aria-hidden="true"
         ></video>
+          <img src={Hoodiessoon} alt="Upcoming ES winter drop" style={{zIndex:"-2"}} className="drop-announcement__visual-bgV2" />
           <span className="drop-announcement__label">Exclusive Drop</span>
           <h2>Coming Soon</h2>
           <p>
