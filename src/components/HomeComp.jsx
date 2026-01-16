@@ -576,9 +576,9 @@ const HomeComp = () => {
               <h4>About ES</h4>
               <ul>
                 <Link to='/AboutEs' className='footerLinks' >Our Story</Link>
-                <Link to='/AboutEs' className='footerLinks'>Careers</Link>
+                {/* <Link to='/AboutEs' className='footerLinks'>Careers</Link>
                 <Link to='/AboutEs' className='footerLinks'>Sustainability</Link>
-                <Link to='/AboutEs' className='footerLinks'>Store Locator</Link>
+                <Link to='/AboutEs' className='footerLinks'>Store Locator</Link> */}
               </ul>
             </div>
 
@@ -597,7 +597,7 @@ const HomeComp = () => {
               <ul>
                 <li>New Arrivals</li>
                 <li onClick={() => {
-                    navigate(`/ProductU/Accessories`, {
+                    navigate(`/ProductU/Baggy`, {
                       state: {
                         parentCategoryId: '69160810f85af644092dddb3',
                         subcategoryId: '6916099bf85af644092dddf9',
@@ -606,7 +606,7 @@ const HomeComp = () => {
                     });
                   }} >Baggy</li>
                 <li onClick={() => {
-                    navigate(`/ProductU/Accessories`, {
+                    navigate(`/ProductU/Basketball`, {
                       state: {
                         parentCategoryId: '691607d9f85af644092ddd9f',
                         subcategoryId: '69160937f85af644092dddec',
@@ -615,7 +615,7 @@ const HomeComp = () => {
                     });
                   }} >Basketball</li>
                 <li onClick={() => {
-                    navigate(`/ProductU/Accessories`, {
+                    navigate(`/ProductU/similicuir`, {
                       state: {
                         parentCategoryId: '691607a9f85af644092ddd86',
                         subcategoryId: '691614d6f85af644092de02c',
@@ -626,7 +626,7 @@ const HomeComp = () => {
               </ul>
             </div>
 
-            <div className="footer-col">
+            <div className="footer-col" style={{textAlign:"center"}}>
               <h4>Stay Connected</h4>
 
               <div className="social-icons">
@@ -646,7 +646,7 @@ const HomeComp = () => {
 
           <div className="footer-bottom">
             <p>© 2025 ES. All rights reserved.</p>
-            <div className="footer-links">
+            <div className="footer-links" style={{color:"white"}}>
               <a href="#">Privacy Policy</a>
               <a href="#">Terms of Service</a>
               <a href="#">Cookie Policy</a>

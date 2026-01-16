@@ -95,18 +95,22 @@ const DashBord = () => {
 
         <div className='DashBord-Menu-1'>
           <div className='dashbord-menu-header'>
-            <h3>Orders</h3>
+            <h3>Order</h3>
             <span className='icon-circle'>
               <ClipboardList   size={28} color="#4f8cff" />
             </span>
           </div>
           <h1>14</h1>
-          <div className='dashbord-menu-link'>
-            <span className='icon-arrow'>
-              <SquareArrowRight size={20} color="#4f8cff" />
-            </span>
-            <h5>Go to component</h5>
-          </div>
+          <Link onClick={()=>handleMenuSelect('Order')} 
+            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
+            to='/ManagementDashboard/Order'>  
+            <div className='dashbord-menu-link'>
+              <span className='icon-arrow'>
+                <SquareArrowRight size={20} color="#4f8cff" />
+              </span>
+              <h5>Go to component</h5>
+            </div>
+          </Link>
         </div>
 
         <div className='DashBord-Menu-1'>
@@ -121,11 +125,11 @@ const DashBord = () => {
           style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
           to='/ManagementDashboard/CategroiesBord'>  
             <div className='dashbord-menu-link'>
-          <span className='icon-arrow'>
-            <SquareArrowRight size={20} color="#4f8cff" />
-          </span>
-          <h5>Go to component</h5>
-            </div>
+            <span className='icon-arrow'>
+              <SquareArrowRight size={20} color="#4f8cff" />
+            </span>
+            <h5>Go to component</h5>
+              </div>
           </Link>
         </div>
 
@@ -140,13 +144,13 @@ const DashBord = () => {
           <Link onClick={()=>handleMenuSelect('AllProducts')} 
             style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
             to='/ManagementDashboard/AllProducts'>  
-          <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight size={20} color="#4f8cff" />
-              </span>
-              <h5>Go to component</h5>
-          </div>
-            </Link>
+            <div className='dashbord-menu-link'>
+                <span className='icon-arrow'>
+                  <SquareArrowRight size={20} color="#4f8cff" />
+                </span>
+                <h5>Go to component</h5>
+            </div>
+          </Link>
         </div>
 
         <div id="MobileOnly" className='DashBord-Menu-1'>

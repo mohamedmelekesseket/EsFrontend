@@ -20,6 +20,7 @@ import AboutComp from './components/AboutComp'
 import ChangeComp from './components/ChangeComp'
 import FinalePage from './components/FinalePage'
 import { Toaster } from 'react-hot-toast';
+import OrderBord from './components/OrderBord'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -49,6 +50,7 @@ function App() {
           <Route index element={<Navigate to="DashBord" replace />} />
           <Route path='DashBord' element={<DashBord/>}/>
           <Route path='CategroiesBord' element={<CategroiesBord/>}/>
+          <Route path='Order' element={<OrderBord/>}/>
           <Route path='user' element={<UserBord/>}/>
           <Route path='AddNewProduct' element={<AddProduct/>}/>
           <Route path='AllProducts' element={<AllProducts/>}/>

@@ -21,8 +21,8 @@ const   ManagementDashboard = () => {
       setSelecteMenu('Users');
     } else if (location.pathname.includes('/DashBord')) {
       setSelecteMenu('Dashbord');
-    } else if (location.pathname.includes('/Orders')) {
-      setSelecteMenu('Orders');
+    } else if (location.pathname.includes('/Order')) {
+      setSelecteMenu('Order');
     } else if (location.pathname.includes('/CategroiesBord')) {
       setSelecteMenu('Categories');
     } else if (location.pathname.includes('/AllProducts')) {
@@ -60,7 +60,7 @@ const   ManagementDashboard = () => {
             <h3>Menu</h3>
             <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Dashbord'))} className="LienDash"><LayoutGrid size={20} /> Dashboard</div>
             <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Users'))} className="LienDash"><Users size={20} /> Users</div>
-            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Orders'))} className="LienDash"><ShoppingCart size={20} /> Orders</div>
+            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Order'))} className="LienDash"><ShoppingCart size={20} /> Order</div>
             <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Categories'))} className="LienDash"><Folder size={20} /> Categories</div>
             <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('AllProducts'))} className="LienDash"><Package size={20} /> All Products</div>
             <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('AddNewProduct'))} className="LienDash"><PlusCircle size={20} /> Add New Product</div>
@@ -87,9 +87,11 @@ const   ManagementDashboard = () => {
               </Link>
             </div>
             <div className='h2Dash'>
-              <div className='clickLink' style={{display: selecteMenu === "Orders" ?'':"none"}}></div>
-              <ShoppingCart   style={{marginLeft:"10%",color: selecteMenu === 'Orders'?'white':"gray"}}/>
-              <h3 onClick={()=>handleMenuSelect('Orders')} style={{marginLeft:"5%",fontSize: selecteMenu ==="Orders"?"":"13px",cursor:"pointer",color: selecteMenu === 'Orders'?'white':"gray"}}>Orders</h3>
+              <div className='clickLink' style={{display: selecteMenu === "Order" ?'':"none"}}></div>
+              <ShoppingCart   style={{marginLeft:"10%",color: selecteMenu === 'Order'?'white':"gray"}}/>
+              <Link onClick={()=>handleMenuSelect('Order')} style={{textDecoration:"none"}} to='/ManagementDashboard/Order'>  
+                <h3 onClick={()=>handleMenuSelect('Order')} style={{marginLeft:"5%",fontSize: selecteMenu ==="Order"?"":"13px",cursor:"pointer",color: selecteMenu === 'Order'?'white':"gray"}}>Order</h3>
+              </Link>
             </div>
             <div className='h2Dash'>
               <div className='clickLink' style={{display: selecteMenu === "Categories" ?'':"none"}}></div>
