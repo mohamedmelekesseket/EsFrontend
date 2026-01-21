@@ -15,7 +15,8 @@ const DashBord = () => {
     const [Users, setUsers] = useState([]);
     const [Categorys, setCategorys] = useState([]);
     const [Products, setProducts] = useState([]);
-  
+    const [Orders, setOrders] = useState([]);
+
   const handleMenuSelect = (menu) => {
     setSelecteMenu(menu);
     localStorage.setItem('selecteMenu', menu);
@@ -70,6 +71,23 @@ const DashBord = () => {
       setLoading(false);
     }
   };
+  const getOrders = async () => {
+    try {
+      
+      const res = await axios.get(`${API_BASE_URL}/Admin/Get-Orders`, {
+        withCredentials: true
+      });
+      
+      
+      
+      setOrders(res.data);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || 'Failed to fetch orders');
+    } finally {
+      setLoading(false);
+    }
+  };
   const getProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-products`, {
@@ -85,6 +103,7 @@ const DashBord = () => {
     getUser()
     getCategory()
     getProducts()
+    getOrders()
   }, []);
   return (
     <div className='DashBord'>
@@ -100,7 +119,7 @@ const DashBord = () => {
               <ClipboardList   size={28} color="#4f8cff" />
             </span>
           </div>
-          <h1>14</h1>
+          <h1>{Orders.length}</h1>
           <Link onClick={()=>handleMenuSelect('Order')} 
             style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
             to='/ManagementDashboard/Order'>  

@@ -6387,7 +6387,6 @@ input::placeholder {
   z-index: -1;
   padding-left: 2%;
   overflow: hidden;
-  background-color: #0B111E; /* dark navy background */
 }
 .DashBord-Title {
   width: 90%;
@@ -8660,7 +8659,6 @@ footer {
   z-index: -1;
   padding-bottom: 10%;
   overflow: hidden;
-  background: #0B111E;
 }
 .HeaderOrder{
   width: 97%;
@@ -8723,7 +8721,6 @@ footer {
 
 /* Container styling */
 .table-container {
-  background-color: #0b1120; /* Dark Navy Background */
   padding: 2rem;
   color: #94a3b8; /* Muted text color */
   font-family: 'Inter', sans-serif;

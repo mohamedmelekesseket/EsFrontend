@@ -222,9 +222,14 @@ const ModifyProduct = ({id,setModify}) => {
       });
     });
 
-    // Append existing images
-    Object.entries(existingColorImages).forEach(([colorKey, urls]) => {
-      formData.append(`existingImages[${colorKey}]`, JSON.stringify(urls));
+    // Append existing images for ALL colors in the color array
+    // This ensures all existing images are preserved, even if user didn't interact with them
+    color.forEach(colorKey => {
+      const existingUrls = existingColorImages[colorKey] || [];
+      // Only send if there are existing images to preserve
+      if (existingUrls.length > 0) {
+        formData.append(`existingImages[${colorKey}]`, JSON.stringify(existingUrls));
+      }
     });
 
 
