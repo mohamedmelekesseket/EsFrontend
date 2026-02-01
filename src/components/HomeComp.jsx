@@ -14,7 +14,7 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const DROP_DATE = new Date('2026-01-30T00:00:00Z')
+const DROP_DATE = new Date('2026-02-30T00:00:00Z')
 
 const HomeComp = () => {
   const [selectedCard, setSelectedCard] = useState(null);
