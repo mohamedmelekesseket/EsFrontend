@@ -157,7 +157,7 @@ const Login = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3 }}
             >
-                <House onClick={() => navigate("/")} size={23} strokeWidth={3} className="house-icon" />
+                
                 
                 <motion.h1 layout style={{ marginTop: "4%" }}>
                     {isSignUp ? "Welcome" : "Welcome Back"}
