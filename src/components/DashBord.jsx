@@ -251,21 +251,23 @@ const DashBord = () => {
           </div>
           </div>
         </Link>
-          <div className="DashBord-Menu-2-1">
-            <div className='dashbord-menu-link'>
-              <h3 style={{color:"white"}}>Sales Reports</h3>
-              <span className='icon-circle'>
-                <MessageCircleWarning   size={28} color="#4f8cff" />
-              </span>
+         <Link style={{textDecoration:"none"}} onClick={()=>handleMenuSelect('BugsReports')} to='/ManagementDashboard/BugsReports'>
+            <div className="DashBord-Menu-2-1">
+              <div className='dashbord-menu-link'>
+                <h3 style={{color:"white"}}>Bugs Reports</h3>
+                <span className='icon-circle'>
+                  <MessageCircleWarning   size={28} color="#4f8cff" />
+                </span>
+              </div>
+              <h1>{1}</h1>
+              <div className='dashbord-menu-link'>
+                <span className='icon-arrow'>
+                  <SquareArrowRight size={20} color="#4f8cff" />
+                </span>
+                <h5>Go to component</h5>
             </div>
-            <h1>{Users.length}</h1>
-            <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight size={20} color="#4f8cff" />
-              </span>
-              <h5>Go to component</h5>
-          </div>
-          </div>
+            </div>
+          </Link>
       </div>
     </div>
   )

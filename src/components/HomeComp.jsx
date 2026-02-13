@@ -4,7 +4,7 @@ import { Instagram,Shirt,X ,Smartphone,CircleCheckBig ,Linkedin ,Github ,BookOpe
 import product2 from '../images/chaus.png'
 import Accessories from '../images/hoodie-1-2.png'
 import veste from '../images/vest.png'
-import pontalon from '../images/vetment/pontalon-6-0.png'
+import pontalon from '../images/vetment/pontalon-7-0.png'
 import Hoodiessoon from '../images/houdies.png'
 import { Link, useNavigate } from 'react-router-dom';
 import toast,{Toaster}  from 'react-hot-toast'
@@ -300,8 +300,8 @@ const HomeComp = () => {
       </div>
         
       <div className='HoverDivHome'>
-        {/* <h1>Featured Collection</h1>
-        <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>        */}
+        <h1>Featured Collection</h1>
+        <p>Explore our carefully curated selection of premium streetwear and contemporary fashion</p>       
         <div className="homediv-0">
             {Products.slice(0,5).map((prod, index) => {
               // Get the URL

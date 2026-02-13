@@ -199,7 +199,6 @@ const removeColorImage = (colorKey, idx) => {
 
   return (
     <div className='AddProduct'>
-      <Toaster />
       <div className="imagesadd" style={{ display: "flex", flexWrap: "wrap",width:"50%", gap: "10px", marginTop: "10px" }}>
         {Object.entries(colorImages).length === 0 || Object.values(colorImages).every(files => files.length === 0) ? (
           <div style={{ 

@@ -1,137 +1,140 @@
 import React, { useState, useEffect } from 'react';
-import { AlignStartVertical,UsersRound,BarChart3,Users,PlusCircle,LayoutGrid,Folder,ShoppingCart,Folders,X,Package,PackagePlus,Menu ,MessageCircleWarning  } from 'lucide-react';
-import { Link ,Outlet, useLocation } from 'react-router-dom';
-import DashBord from './DashBord';
-import UserBord from './UserBord';
-import { ScaleLoader } from "react-spinners"; // Import ScaleLoader
+import { 
+  AlignStartVertical, 
+  UsersRound, 
+  BarChart3, 
+  Users, 
+  PlusCircle, 
+  LayoutGrid, 
+  Folder, 
+  ShoppingCart, 
+  Folders, 
+  X, 
+  Package, 
+  PackagePlus, 
+  Menu, 
+  MessageCircleWarning 
+} from 'lucide-react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import { ScaleLoader } from "react-spinners";
 
-const   ManagementDashboard = () => {
+const ManagementDashboard = () => {
   const [selecteMenu, setSelecteMenu] = useState(() => localStorage.getItem('selecteMenu') || 'Dashbord');
+  const [loading, setLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
   const location = useLocation();
-  const [loading, setLoading] = useState(true); // State for loading
-  const[showMenu,setshowMenu]=useState(false)
+
   const handleMenuSelect = (menu) => {
     setSelecteMenu(menu);
     localStorage.setItem('selecteMenu', menu);
+    setShowMenu(false); // Close mobile menu on select
   };
 
+  // Synchronize menu selection with URL path
   useEffect(() => {
-    // Map pathnames to menu names
-    if (location.pathname.includes('/user')) {
-      setSelecteMenu('Users');
-    } else if (location.pathname.includes('/DashBord')) {
-      setSelecteMenu('Dashbord');
-    } else if (location.pathname.includes('/Order')) {
-      setSelecteMenu('Order');
-    } else if (location.pathname.includes('/CategroiesBord')) {
-      setSelecteMenu('Categories');
-    } else if (location.pathname.includes('/AllProducts')) {
-      setSelecteMenu('AllProducts');
-    } else if (location.pathname.includes('/AddNewProduct')) {
-      setSelecteMenu('AddNewProduct');
-    } else if (location.pathname.includes('/SalesReports')) {
-      setSelecteMenu('SalesReports');
-    }
-    
+    const path = location.pathname;
+    if (path.includes('/user')) setSelecteMenu('Users');
+    else if (path.includes('/DashBord')) setSelecteMenu('Dashbord');
+    else if (path.includes('/Order')) setSelecteMenu('Order');
+    else if (path.includes('/CategroiesBord')) setSelecteMenu('Categories');
+    else if (path.includes('/AllProducts')) setSelecteMenu('AllProducts');
+    else if (path.includes('/AddNewProduct')) setSelecteMenu('AddNewProduct');
+    else if (path.includes('/BugsReports')) setSelecteMenu('BugsReports');
   }, [location.pathname]);
 
   useEffect(() => {
-    setTimeout(() => {
-        setLoading(false);
-      }, 4000);
-  },[])
+    const timer = setTimeout(() => setLoading(false), 2000); // Reduced to 2s for better UX
+    return () => clearTimeout(timer);
+  }, []);
 
+  // Menu items configuration for cleaner rendering
+  const menuItems = [
+    { id: 'Dashbord', icon: <AlignStartVertical size={20} />, label: 'Dashboard', path: '/ManagementDashboard/DashBord' },
+    { id: 'Users', icon: <UsersRound size={20} />, label: 'Users', path: '/ManagementDashboard/user' },
+    { id: 'Order', icon: <ShoppingCart size={20} />, label: 'Order', path: '/ManagementDashboard/Order' },
+    { id: 'Categories', icon: <Folders size={20} />, label: 'Categories', path: '/ManagementDashboard/CategroiesBord' },
+    { id: 'AllProducts', icon: <Package size={20} />, label: 'All Products', path: '/ManagementDashboard/AllProducts' },
+    { id: 'AddNewProduct', icon: <PackagePlus size={20} />, label: 'Add New Product', path: '/ManagementDashboard/AddNewProduct' },
+    { id: 'BugsReports', icon: <MessageCircleWarning size={20} />, label: 'Sales Reports', path: '/ManagementDashboard/BugsReports' },
+  ];
 
   return (
     <div className='ManagementDashboard'>
-       
-        <div className='ManagementDashboard-1'>
-          <div className='h2Dash'>
-            {showMenu == true ?(
-              <X onClick={()=>(setshowMenu(!showMenu))}/>
-            ):(
-            <Menu onClick={()=>(setshowMenu(!showMenu))}  style={{ cursor: "pointer"}}/>
-            )}
-            <Link style={{textDecoration:"none",cursor:"pointer"}} >
-              <h2>Es</h2>
-            </Link>
-          </div>
-          <div className='MenuDashbordPhone' style={{left: showMenu === true?'0%':'-90%'}}>
-            <h3>Menu</h3>
-            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Dashbord'))} className="LienDash"><LayoutGrid size={20} /> Dashboard</div>
-            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Users'))} className="LienDash"><Users size={20} /> Users</div>
-            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Order'))} className="LienDash"><ShoppingCart size={20} /> Order</div>
-            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('Categories'))} className="LienDash"><Folder size={20} /> Categories</div>
-            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('AllProducts'))} className="LienDash"><Package size={20} /> All Products</div>
-            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('AddNewProduct'))} className="LienDash"><PlusCircle size={20} /> Add New Product</div>
-            <div onClick={()=>(setshowMenu(!showMenu),handleMenuSelect('SalesReports'))} className="LienDash"><BarChart3 size={20} /> Sales Reports</div>
-          </div>
-          {showMenu && (
-            <div onClick={() => setshowMenu(false)} className='overflowPhone'>
-            </div>
+      {/* Mobile Header & Sidebar Logic */}
+      <div className='ManagementDashboard-1'>
+        <div className='mobile-header'>
+          {showMenu ? (
+            <X onClick={() => setShowMenu(false)} className="menu-icon" />
+          ) : (
+            <Menu onClick={() => setShowMenu(true)} className="menu-icon" />
           )}
-          <div className='MenuDashbord'>
-            <h4>Menu</h4>
-            <div className='h2Dash' >
-              <div className='clickLink' style={{display: selecteMenu === 'Dashbord'?'':"none"}}></div>
-              <AlignStartVertical style={{marginLeft:"10%",color: selecteMenu === 'Dashbord'?'white':"gray"}}/>
-              <Link onClick={()=>handleMenuSelect('Dashbord')} style={{textDecoration:"none"}} to='/ManagementDashboard/DashBord'>  
-                <h3  style={{marginLeft:"5%",fontSize: selecteMenu ==="Dashbord"?"":"13px",cursor:"pointer",color: selecteMenu === 'Dashbord'?'white':"gray"}}>Dashboard</h3>
-              </Link>
-            </div>
-            <div className='h2Dash' >
-              <div className='clickLink' style={{display: selecteMenu === 'Users'?'':"none"}}></div>
-              <UsersRound   style={{marginLeft:"12%",color: selecteMenu === 'Users'?'white':"gray"}}/>
-              <Link onClick={()=>handleMenuSelect('Users')} style={{textDecoration:"none"}} to='/ManagementDashboard/user'>  
-                <h3  style={{marginLeft:"5%",fontSize: selecteMenu ==="Users"?"":"13px",cursor:"pointer",color: selecteMenu === 'Users'?'white':"gray"}}>Users</h3>
-              </Link>
-            </div>
-            <div className='h2Dash'>
-              <div className='clickLink' style={{display: selecteMenu === "Order" ?'':"none"}}></div>
-              <ShoppingCart   style={{marginLeft:"10%",color: selecteMenu === 'Order'?'white':"gray"}}/>
-              <Link onClick={()=>handleMenuSelect('Order')} style={{textDecoration:"none"}} to='/ManagementDashboard/Order'>  
-                <h3 onClick={()=>handleMenuSelect('Order')} style={{marginLeft:"5%",fontSize: selecteMenu ==="Order"?"":"13px",cursor:"pointer",color: selecteMenu === 'Order'?'white':"gray"}}>Order</h3>
-              </Link>
-            </div>
-            <div className='h2Dash'>
-              <div className='clickLink' style={{display: selecteMenu === "Categories" ?'':"none"}}></div>
-              <Folders style={{marginLeft:"10%",color: selecteMenu === 'Categories'?'white':"gray"}}/>
-              <Link onClick={()=>handleMenuSelect('Categories')} style={{textDecoration:"none"}} to='/ManagementDashboard/CategroiesBord'>  
-                <h3    style={{marginLeft:"5%",fontSize: selecteMenu ==="Categories"?"":"13px",cursor:"pointer",color: selecteMenu === 'Categories'?'white':"gray"}}>Categories</h3>
-              </Link>
-            </div>
-            <div className='h2Dash'>
-              <div className='clickLink' style={{display: selecteMenu === "AllProducts" ?'':"none"}}></div>
-              <Package style={{marginLeft:"10%",color: selecteMenu === 'AllProducts'?'white':"gray"}}/>
-              <Link onClick={()=>handleMenuSelect('AllProducts')} style={{textDecoration:"none"}} to='/ManagementDashboard/AllProducts'>  
-                <h3  onClick={()=>handleMenuSelect('AllProducts')} style={{marginLeft:"5%",fontSize: selecteMenu ==="AllProducts"?"":"13px",cursor:"pointer",color: selecteMenu === 'AllProducts'?'white':"gray"}}>AllProducts</h3>
-              </Link>          
-            </div>
-            <div className='h2Dash' >
-              <div className='clickLink' style={{display: selecteMenu === "AddNewProduct" ?'':"none"}}></div>
-              <PackagePlus  style={{marginLeft:"10%",color: selecteMenu === 'AddNewProduct'?'white':"gray"}}/>
-              <Link onClick={()=>handleMenuSelect('AddNewProduct')} style={{textDecoration:"none"}} to='/ManagementDashboard/AddNewProduct'>  
-                <h3 onClick={()=>handleMenuSelect('AddNewProduct')} style={{marginLeft:"0.01%",fontSize: selecteMenu ==="AddNewProduct"?"15px":"13px",cursor:"pointer",color: selecteMenu === 'AddNewProduct'?'white':"gray"}}>Add New Product</h3>
-              </Link>
-            </div>
-            <div className='h2Dash'>
-              <div className='clickLink' style={{display: selecteMenu === "SalesReports" ?'':"none"}}></div>
-              <MessageCircleWarning  style={{marginLeft:"10%",color: selecteMenu === 'SalesReports'?'white':"gray"}}/>
-              <h3  onClick={()=>handleMenuSelect('SalesReports')} style={{marginLeft:"5%",fontSize: selecteMenu ==="SalesReports"?"":"13px",cursor:"pointer",color: selecteMenu === 'SalesReports'?'white':"gray"}}>Sales Reports</h3>
-            </div>
-          </div>
+          <Link to="/" className="logo-link">
+            <h2>Es</h2>
+          </Link>
         </div>
-        {loading ? (
-          <ScaleLoader style={{position:"absolute",top:"40%",marginLeft:"55%",fontSize:"xx-large"}} color="white" />
-      ) :( 
-      <>    
-        <div className='ManagementDashboard-2'>
-          <Outlet />
-        </div>
-      </>
-    )}
-    </div>
-  )
-}
 
-export default ManagementDashboard
+        {/* Mobile Sidebar */}
+        <div className='MenuDashbordPhone' style={{ left: showMenu ? '0%' : '-100%' }}>
+          <h3>Menu</h3>
+          {menuItems.map((item) => (
+            <div 
+              key={item.id} 
+              className={`LienDash ${selecteMenu === item.id ? 'active-mobile' : ''}`}
+              onClick={() => handleMenuSelect(item.id)}
+            >
+              <Link to={item.path} className="mobile-link-inner">
+                {item.icon} <span>{item.label}</span>
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        {showMenu && <div onClick={() => setShowMenu(false)} className='overflowPhone'></div>}
+
+        {/* Desktop Sidebar */}
+        <div className='MenuDashbord'>
+          <h4 className="menu-title">MENU</h4>
+          {menuItems.map((item) => (
+            <div 
+              key={item.id} 
+              className={`h2Dash ${selecteMenu === item.id ? 'active' : ''}`}
+            >
+              {/* Glowing Indicator for active state */}
+              {/* <div className='clickLink' style={{ display: selecteMenu === item.id ? 'block' : 'none' }}></div> */}
+              
+              <div className="icon-box">
+                {React.cloneElement(item.icon, { 
+                  color: selecteMenu === item.id ? 'white' : '#64748b' 
+                })}
+              </div>
+
+              <Link 
+                onClick={() => handleMenuSelect(item.id)} 
+                className="nav-link" 
+                style={{textDecoration:"none"}}
+                to={item.path}
+              >
+                <h3 className={selecteMenu === item.id ? 'text-white' : 'text-gray'}>
+                  {item.label}
+                </h3>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className='ManagementDashboard-2'>
+        {loading ? (
+          <div className="loader-container">
+            <ScaleLoader color="white" height={35} width={4} radius={2} margin={2} />
+          </div>
+        ) : (
+          <Outlet />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ManagementDashboard;

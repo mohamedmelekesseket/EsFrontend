@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { CircleX, Mail, House, Shirt, Lock, Phone, Eye,EyeOff  } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast'
-
+import { useAuth } from "../context/AuthContext";
+import API from "../api/axios";
 import mobile1 from '../images/vetment/pontalon-6-0.png'
 import mobile2 from '../images/vetment/pontalon-5-1.png'
 import mobile3 from '../images/product-32-0.png'
@@ -23,6 +24,7 @@ const Login = () => {
     const navigate = useNavigate()
     const [isSubmitted, setIsSubmitted] = useState(false); // Track attempt to submit
     const [isLoading, setIsLoading] = useState(false); // Loading state for API calls
+    const { setUser } = useAuth();
 
     // Helper to determine border color
     const getBorderStyle = (value, error) => ({
@@ -40,104 +42,60 @@ const Login = () => {
         return pattern.test(phoneNumber);
     }
 
-    const SignUP = async () => {
-        if (isLoading) return; // Prevent spam clicks
-        
-        setIsSubmitted(true);
-        
-        // Reset errors
-        setEmailError('');
-        setphoneNumberError('');
-        setPasswordError('');
+    const SignUp = async () => {
+    if (isLoading) return;
 
-        // 1. Validation with proper RETURNS
-        if (!email || !phoneNumber || !password) {
-            return toast.error("All fields are required", { id: "signup-required-fields" });
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            return setEmailError(<>Invalid Email <CircleX size={15} /></>);
-        }
-
-        if (!isNumber(phoneNumber)) {
-            return setphoneNumberError(<>Invalid Phone Number <CircleX size={15} /></>);
-        }
-
-        if (password.length < 6) {
-            return setPasswordError(<>Password too short <CircleX size={15} /></>);
-        }
-
-        setIsLoading(true);
-        try {
-            // 2. Send request with Credentials
-            const res = await axios.post(
-                `${API_BASE_URL}/SignUp`, 
-                { email, phoneNumber, password },
-                { withCredentials: true }
-            );
-
-            if (res.status === 201) {
-                toast.success('Account created!', { id: "signup-success" });
-                localStorage.setItem('user', JSON.stringify(res.data));
-                
-                navigate("/", { replace: true });
-                // Clean up fields
-                setEmail('');
-                setPassword('');
-                setphoneNumber('');
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || 'Signup failed', { id: "signup-error" });
-        } finally {
-            setIsLoading(false);
-        }
+    if (!email || !phoneNumber || !password) {
+        return toast.error("All fields are required");
     }
 
+    setIsLoading(true);
+
+    try {
+        const res = await API.post("/SignUp", {
+        email,
+        phoneNumber,
+        password
+        });
+
+        toast.success("Account created!");
+
+        setUser(res.data); // backend returns { id, email, role }
+
+        navigate("/", { replace: true });
+
+    } catch (error) {
+        toast.error(error.response?.data?.message || "SignUp failed");
+    } finally {
+        setIsLoading(false);
+    }
+    };
+
+
     const SignIn = async () => {
-        if (isLoading) return; // Prevent spam clicks
-        
-        setIsSubmitted(true);
-        setEmailError('');
-        setPasswordError('');
+    if (isLoading) return;
 
-        // 1. Validation logic (Keep your existing regex check)
-        if (!email || !password) {
-            toast.error("Please fill in all required fields.", { id: "signin-required-fields" });
-            return;
-        }
+    if (!email || !password) {
+        return toast.error("Please fill in all required fields.");
+    }
 
-        setIsLoading(true);
-        try {
-            // 2. Added withCredentials so the browser accepts the cookie
-            const res = await axios.post(
-                `${API_BASE_URL}/SignIn`, 
-                { email, password },
-                { withCredentials: true } 
-            );
+    setIsLoading(true);
 
-            if (res.status === 200) {
-                toast.success('Welcome back!', { id: "signin-success" });
-                
-                // 3. Store ONLY profile info, NOT the token
-                // signIn returns { user: { id, fullName, role } }
-                const userData = res.data.user || res.data;
-                localStorage.setItem('user', JSON.stringify(userData));
+    try {
+        const res = await API.post("/SignIn", { email, password });
 
-                // 4. Update state globally (if using Context) instead of reload
-                // setUser(res.data); 
+        toast.success("Welcome back!");
 
-                setTimeout(() => {
-                    navigate("/", { replace: true });
-                    // window.location.reload(); <-- REMOVE THIS
-                }, 1000);
-            }
-        } catch (error) {
-            const errorMsg = error.response?.data?.message || "Login failed";
-            toast.error(errorMsg, { id: "signin-error" });
-            setPassword(''); 
-        } finally {
-            setIsLoading(false);
-        }
+        // Set global user
+        setUser(res.data.user);
+
+        navigate("/", { replace: true });
+
+    } catch (error) {
+        toast.error(error.response?.data?.message || "Login failed");
+    } finally {
+        setIsLoading(false);
+    }
     };
     const DisplayForm = () => {
         const isSignUp = !from;
@@ -252,7 +210,7 @@ const Login = () => {
                         whileHover={{ scale: isLoading ? 1 : 1.02 }}
                         whileTap={{ scale: isLoading ? 1 : 0.98 }}
                         className='seconnectBt' 
-                        onClick={isSignUp ? SignUP : SignIn}
+                        onClick={isSignUp ? SignUp : SignIn}
                         disabled={isLoading}
                         style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer' }}
                     >

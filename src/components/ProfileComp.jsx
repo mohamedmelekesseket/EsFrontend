@@ -27,24 +27,37 @@ const ProfileComp = () => {
     confirmPassword: ''
   });
 
-  const currentUser = JSON.parse(localStorage.getItem('user'));
 
-  useEffect(() => {
-    if (currentUser) {
-      setUser(currentUser);
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/me`, {
+        withCredentials: true
+      });
+
+      setUser(res.data);
+
       setFormData({
-        firstName: currentUser.firstName || '',
-        lastName: currentUser.lastName || '',
-        email: currentUser.email || '',
-        phoneNumber: currentUser.phoneNumber || '',
-        address: currentUser.address || '',
+        firstName: res.data.firstName || '',
+        lastName: res.data.lastName || '',
+        email: res.data.email || '',
+        phoneNumber: res.data.phoneNumber || '',
+        address: res.data.address || '',
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       });
+
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  };
+
+  fetchUser();
+}, []);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -63,18 +76,16 @@ const ProfileComp = () => {
       }
 
       setIsSavingProfile(true);
-      const res = await axios.put(`${API_BASE_URL}/UpdateProfile/${user.id}`, {
+      const res = await axios.put(`${API_BASE_URL}/update-profile`, {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
         address: formData.address
       }, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        withCredentials: true
       });
+
 
       if (res.status === 200) {
         const updatedUser = { ...user, ...res.data };

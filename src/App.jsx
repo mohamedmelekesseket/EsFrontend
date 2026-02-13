@@ -21,10 +21,14 @@ import ChangeComp from './components/ChangeComp'
 import FinalePage from './components/FinalePage'
 import { Toaster } from 'react-hot-toast';
 import OrderBord from './components/OrderBord'
+import BugsReports from './components/BugsReports'
+import { useAuth } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+import ComingSoon from './components/ComingSoon'
 
 function App() {
-  const [count, setCount] = useState(0)
   const [showBag, setShowBag] = useState(false); // LIFTED STATE
+  const { user } = useAuth();
 
   return (
     <Router>
@@ -43,11 +47,27 @@ function App() {
         <Route path='/ResetPassword' element={<ResetPasword/>}/>
         <Route path='/ProductU/:subcategoryName' element={<ProductsU/>}/>
         <Route path='/Commande' element={<CommandeComp/>}/>
-        <Route path="/profile" element={<ProfileComp />} />
+        <Route path='/Coming' element={<ComingSoon/>}/>
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <ProfileComp />
+            </ProtectedRoute>
+          } 
+        />
         <Route path='/order-confirmation' element={<FinalePage/>}/>
         <Route path="/confirm-subscribe/:token" element={<ConfirmSubscribePage/>}/>
-        <Route path='/ManagementDashboard/*' element={<ManagementDashboard/>}>
+        <Route 
+          path='/ManagementDashboard/*' 
+          element={
+            <ManagementDashboard />
+            // </ProtectedRoute>
+            // <ProtectedRoute adminOnly>
+          }
+        >
           <Route index element={<Navigate to="DashBord" replace />} />
+          <Route path='BugsReports' element={<BugsReports/>}/>
           <Route path='DashBord' element={<DashBord/>}/>
           <Route path='CategroiesBord' element={<CategroiesBord/>}/>
           <Route path='Order' element={<OrderBord/>}/>
@@ -57,7 +77,7 @@ function App() {
         </Route>
       </Routes>
       <Toaster
-        position="bottom-center"
+        position="bottom-right"
         toastOptions={{
           error: {
             style: {

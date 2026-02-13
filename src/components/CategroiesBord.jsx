@@ -21,7 +21,7 @@ const CategroiesBord = () => {
   const [showModals,SetShowModals]=useState(false)
   const [showSub,SetShowSub]=useState(false)
   const fileInputRef = useRef(null); 
-  const [genre, setGenre] = useState('');
+  const [genre, setGenre] = useState('men');
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isAddingSubCategory, setIsAddingSubCategory] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -247,113 +247,96 @@ const CategroiesBord = () => {
 
   return (
     <div className='CategroiesDashBord'>
-      <Toaster/>
 
-      {showModal ?(
-        <div className='Modal'>
-          <h2>Add New Category</h2>
-          <input type="text" onChange={(e)=>setName(e.target.value)} placeholder='Category Name'/>
-          <input type="text"  onChange={(e)=>setIcon(e.target.value)} placeholder='Icon'/>
-          <div>
-            <button type="button" className='ChooseimgCategor' onClick={triggerFileSelect} style={{ marginBottom: '10px' }}>
-              Choose Images
-            </button>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-              onChange={handleImageChange}
-            />
-            {imagePreviews.length > 0 && (
-              <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
-                {imagePreviews.map((preview, index) => (
-                  <img key={index} src={preview} alt={`Preview ${index}`} style={{width: '50px', height: '50px', objectFit: 'cover'}} />
-                ))}
-              </div>
-            )}
-          </div> 
-          <div style={{display:"flex",justifyContent:"space-around",width:"100%",marginTop:"4%"}}>
-            <button className='AddCancel' onClick={()=>SetShowModal(false)}>Cancel</button>
-            <button 
-              className='AddCancel'
-              onClick={AddCategory}
-              style={{backgroundColor:"green", opacity: isAddingCategory ? 0.7 : 1, cursor: isAddingCategory ? 'not-allowed' : 'pointer'}}
-              disabled={isAddingCategory}
-            >
-              {isAddingCategory ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                  <span style={{
-                    width: '14px',
-                    height: '14px',
-                    border: '2px solid currentColor',
-                    borderTop: '2px solid transparent',
-                    borderRadius: '50%',
-                    animation: 'spin 0.8s linear infinite',
-                    display: 'inline-block'
-                  }}></span>
-                  Adding...
-                </span>
-              ) : 'Add'}
-            </button>
+      {showSub ? (
+        <div className="SubModal-Container"> {/* Centering Wrapper */}
+          <div className='SubModal'>
+            <div className="modal-header">
+              <h2>Subcategories</h2>
+              <span className="close-x" onClick={() => {SetShowSub(false); }}>×</span>
+            </div>
+
+            {/* Genre Selector */}
+            <select className='SubMSelecte' value={genre} onChange={(e) => setGenre(e.target.value)}>
+              <option value="">Select genre</option>
+              <option value="men">men</option>
+              <option value="women">women</option>
+            </select>
+
+            {/* Subcategory List */}
+            <div className='ListSub'>
+              {SubCategorys.filter((sub) => sub.genre === genre).map((sub) => (
+                <div className="sub-item-row" key={sub._id}>
+                  <span>{sub.name}</span>
+                  <Trash2 size={16} className="red-trash" onClick={() => deleteUser(sub._id)} />
+                </div>
+              ))}
+            </div>
+
+            <hr className="modal-divider" />
+
+            {/* Add New Section */}
+            <div className='AddSub-Section'>
+              <h3>Add New SubCategory</h3>
+              <input 
+                type="text" 
+                onChange={(e) => setSubCategoryName(e.target.value)} 
+                placeholder='SubCategory Name'
+              />
+              {genre && (
+                <p className="status-text">
+                  This subcategory will be added to: <strong>{genre}</strong>
+                </p>
+              )}
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="modal-footer">
+              <button className='btn-cancel' onClick={() => {SetShowSub(false); setGenre('');}}>Cancel</button>
+              <button 
+                className='btn-add' 
+                onClick={AddSubCategory}
+                disabled={isAddingSubCategory}
+              >
+                {isAddingSubCategory ? 'Adding...' : 'Add'}
+              </button>
+            </div>
           </div>
         </div>
-      ):('')}
-      {showSub ?(
-        <div className='SubModal'>
-        <h3>{name} </h3>
-        <select className='SubMSelecte'   onChange={(e) => setGenre(e.target.value)} name="" id="">
-          <option value="">Select genre</option>
-          <option value="men">men</option>
-          <option value="women">women</option>
-        </select>
-        <div style={{display:"flex"}}>
-          <div className='ListSub'>
-            {SubCategorys.filter((subcategory) => subcategory.genre === genre ).map((subcategory)=>{
-              return <p style={{display:"flex",justifyContent:"space-between"}} onClick={()=>deleteUser(subcategory._id)} key={subcategory._id}>{subcategory.name}  <Trash2 size={15} style={{color:"red",cursor:"pointer",marginRight:"15px"}}/></p>
-            })}
-          </div>  
-          <div className='AddSub'>
-            <h3>Add New SubCategory</h3>
-            <input type="text" onChange={(e)=>setSubCategoryName(e.target.value)} placeholder='SubCategory Name'/>
-            {genre ? (
-              <p style={{ color: '#8bc34a', marginTop: '8px' }}>
-                This subcategory will be added to: <strong>{genre}</strong>
-              </p>
-            ) : (
-              <p style={{ color: '#f44336', marginTop: '8px' }}>
-                Please select a genre to continue
-              </p>
-            )}
+      ) : null}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Add New Category</h3>
+              <button className="close-btn" onClick={() => SetShowModal(false)}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <input 
+                type="text" 
+                placeholder="Category Name" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="modal-input"
+              />
+            </div>
+
+            <div className="modal-footer-actions">
+              <button className="btn-cancel-light" onClick={() => SetShowModal(false)}>
+                Cancel
+              </button>
+              <button 
+                className="btn-add-primary" 
+                onClick={AddCategory}
+                disabled={isAddingCategory}
+              >
+                {isAddingCategory ? 'Adding...' : 'Add'}
+              </button>
+            </div>
           </div>
         </div>
-        <div style={{display:"flex",width:"100%",justifyContent:"flex-end"}}>
-          <button className='AddCancel' onClick={()=>(SetShowSub(false),setGenre(''))}>Cancel</button>
-          <button 
-            className='AddCancel'
-            onClick={AddSubCategory}
-            style={{backgroundColor:"green", opacity: isAddingSubCategory ? 0.7 : 1, cursor: isAddingSubCategory ? 'not-allowed' : 'pointer'}}
-            disabled={isAddingSubCategory}
-          >
-            {isAddingSubCategory ? (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                <span style={{
-                  width: '14px',
-                  height: '14px',
-                  border: '2px solid currentColor',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 0.8s linear infinite',
-                  display: 'inline-block'
-                }}></span>
-                Adding...
-              </span>
-            ) : 'Add'}
-          </button>
-        </div>
-        </div>
-      ):('')}
+      )}
       <div className="HeaderMangment">
           <h2>Categories Mangment Dashbord</h2>
           {/* <div className='recherche-categorie'>
@@ -366,23 +349,37 @@ const CategroiesBord = () => {
         <ScaleLoader style={{position:"absolute",top:"50%",marginLeft:"40%",fontSize:"xx-large"}} color="white" />
         ) :( 
           <div className='div-categories'>
-            {Categorys.map((category) => 
-            <div key={category._id} className='categorie'>
-              <div style={{width:"80%",height:"100%",}}>
-                <h3>{category.name}</h3>
-              </div>
-                <div style={{display:"flex",gap:"6%",width:"100%"}}>
-                  <button className='viewSub' onClick={()=>(getSubCategory(category._id),SetShowSub(true),setIdCategory(category._id),setName(category.name))}>View Subcategories</button>
-                  <Trash2 
+            {Categorys.map((category) => (
+              <div key={category._id} className='categorie'>
+                {/* Background Accent */}
+                <div className="corner-accent"></div>
+
+                <div className="card-header">
+                  <h3 style={{margin:"0",textAlign:"start"}}>{category.name}</h3>
+                  <span className="sub-count">2 subcategories</span>
+                </div>
+
+                <div className='card-footer'>
+                  <button 
+                    className='viewSub' 
                     onClick={() => {
-                      console.log("Attempting to delete category:", category._id);
-                      deleteCategory(category._id);
-                    }} 
-                    style={{color:"red",position:"absolute",cursor:"pointer",right:"5px",bottom:"5px"}} 
-                    size={15}
+                      getSubCategory(category._id);
+                      SetShowSub(true);
+                      setIdCategory(category._id);
+                      setName(category.name);
+                    }}
+                  >
+                    View Subcategories
+                  </button>
+                  
+                  <Trash2 
+                    className="delete-icon"
+                    onClick={() => deleteCategory(category._id)} 
+                    size={18}
                   />
                 </div>
-            </div>)}
+              </div>
+            ))}
           </div>)
       }
     </div>

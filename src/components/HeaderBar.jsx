@@ -5,7 +5,7 @@ import { Link, useNavigate,useLocation  } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
 import EsL from '../images/Es4.png'
-import Es1 from '../images/Es1.png'
+import { useAuth } from '../context/AuthContext';
 import LogContainer from '../../Es1.png'
 
 import axios from 'axios'
@@ -18,13 +18,8 @@ function HeaderBar({showBag,setShowBag}   ) {
   const [showMenu,setShowMenu]=useState(false)
   const [showSearch,setShowSearch]=useState(false)
   const [genre,setGenre]=useState('men')
-  const [user, setUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('user')) || null
-    } catch {
-      return null
-    }
-  })
+  const { user, setUser } = useAuth();
+
   const [ShowUser,setShowUser] =useState(false)
   const [HoverCat,setHoverCat] =useState(null)
   const [HoverSub,setHoverSub] =useState(null)
@@ -128,19 +123,12 @@ function HeaderBar({showBag,setShowBag}   ) {
     }
   };
   const handleLogout = async () => {
-    try {
-      // Call logout endpoint to clear server-side cookie
-      await axios.post(`${API_BASE_URL}/logout`, {}, { withCredentials: true });
-    } catch (error) {
-      // Continue with logout even if endpoint doesn't exist or fails
-      console.log('Logout endpoint not available or failed:', error);
-    }
-    // Clear client-side storage
-    localStorage.clear();
-    setIsDropdownOpen(false);
-    setIsMobileMenuOpen(false);
+    await axios.post(`${API_BASE_URL}/logout`, {}, { withCredentials: true });
+
+    setUser(null);
     navigate('/');
-  };
+};
+
   const getProductCart = async () => {   
     // We still check for user.id to make sure someone is "logged in" 
     // but we don't need the token here anymore.
@@ -316,40 +304,8 @@ const getImageByColor = (product, color) => {
     }
   }, [selectedColor, product]);
   
-  // Listen for changes in localStorage
-  useEffect(() => {
-    const handleStorageChange = () => {
-      try {
-        const newUser = JSON.parse(localStorage.getItem('user')) || null;
-        setUser(newUser);
-      } catch (error) {
-        setUser(null);
-      }
-    }
 
-    // Listen for storage events (when localStorage changes in other tabs)
-    window.addEventListener('storage', handleStorageChange)
-    
-    // Also check for changes when the component mounts or when navigating
-    const checkUser = () => {
-      try {
-        const currentUser = JSON.parse(localStorage.getItem('user')) || null;
-        if (JSON.stringify(currentUser) !== JSON.stringify(user)) {
-          setUser(currentUser);
-        }
-      } catch (error) {
-        setUser(null);
-      }
-    }
 
-    // Check user state periodically
-    const interval = setInterval(checkUser, 1000)
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      clearInterval(interval)
-    }
-  }, [user])
 
   const DeletePrdCart = async (productToDelete) => {
     if (!user?.id || isDeletingCart) return;
@@ -1122,8 +1078,9 @@ const getImageByColor = (product, color) => {
                   </div>
                   
                 </div>
-                <Link to="/profile" onClick={()=>(setIsDropdownOpen(false),setShowUser(false))} className="dropdown-item"><User size={16} /> Mon Profil</Link>
-                {(user?.role === 'Admin' || user?.role === 'Owner') && (
+                <Link to="/Coming" onClick={()=>(setIsDropdownOpen(false),setShowUser(false))} className="dropdown-item"><User size={16} /> Mon Profil</Link>
+                {/* {(user?.role === 'Admin' || user?.role === 'Owner') && (
+                )} */}
                   <Link
                     to="/ManagementDashboard"
                     onClick={() => (setIsDropdownOpen(false),setShowUser(false))}
@@ -1131,7 +1088,6 @@ const getImageByColor = (product, color) => {
                   >
                     <ShieldUser size={16} /> Administration
                   </Link>
-                )}
                   <button onClick={handleLogout} className="dropdown-item"><LogOut size={16} /> Déconnexion</button>
               </div>
             )}

@@ -192,7 +192,6 @@ const UserBord = () => {
   }, []);
   return (
     <div className='UserMangment'>
-      <Toaster/>
       <div className="HeaderMangment">
           <h2>User Mangment Dashbord</h2>
           <div className='recherche-2'>
