@@ -199,74 +199,6 @@ const removeColorImage = (colorKey, idx) => {
 
   return (
     <div className='AddProduct'>
-      <div className="imagesadd" style={{ display: "flex", flexWrap: "wrap",width:"50%", gap: "10px", marginTop: "10px" }}>
-        {Object.entries(colorImages).length === 0 || Object.values(colorImages).every(files => files.length === 0) ? (
-          <div style={{ 
-            display: "flex", 
-            flexDirection: "column",
-            alignItems: "center", 
-            justifyContent: "center", 
-            width: "100%", 
-            marginTop:"30%",
-            height: "300px",
-            borderRadius: "15px",
-            color: "white",
-            gap: "15px"
-          }}>
-            <div style={{
-              width: "80px",
-              height: "80px",
-              borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "40px",
-              color: "rgba(255, 255, 255, 0.6)"
-            }}>
-              📷
-            </div>
-            <div style={{
-              textAlign: "center",
-              fontSize: "20px",
-              fontWeight: "500",
-              color: "rgba(255, 255, 255, 0.8)"
-            }}>
-              Aucune image pour le moment
-            </div>
-            <div style={{
-              textAlign: "center",
-              fontSize: "14px",
-              color: "rgba(255, 255, 255, 0.5)",
-              maxWidth: "250px",
-              lineHeight: "1.4"
-            }}>
-              Ajoutez des couleurs et sélectionnez des images pour voir un aperçu ici
-            </div>
-          </div>
-        ) : (
-          Object.entries(colorImages).map(([color, files]) =>
-            files.map((file, idx) => (
-              <div key={color + idx} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <X onClick={() => removeColorImage(color, idx)} style={{color:"white",position:"relative",left:"40%"}}/>
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={file.name}
-                  style={{
-                    width: "160px",
-                    height: "190px",
-                    objectFit: "cover",
-                    borderRadius: "6px",
-                    border: `2px solid ${color}`,
-                    marginBottom: "4px"
-                  }}
-                />
-                <span style={{ fontSize: "10px", color:"white" }}>{color}</span>
-              </div>
-            ))
-          )
-        )}
-      </div>
       <div className='AddDonner'>
         <h1>Add New Product</h1>
           <div style={{ display: "flex", marginBottom: "4%" }}>
@@ -448,6 +380,75 @@ const removeColorImage = (colorKey, idx) => {
             </button>
           </div>
       </div>
+      <div className="imagesadd" >
+        {Object.entries(colorImages).length === 0 || Object.values(colorImages).every(files => files.length === 0) ? (
+          <div style={{ 
+            display: "flex", 
+            flexDirection: "column",
+            alignItems: "center", 
+            justifyContent: "center", 
+            width: "100%", 
+            marginTop:"30%",
+            height: "300px",
+            borderRadius: "15px",
+            color: "white",
+            gap: "15px"
+          }}>
+            <div style={{
+              width: "80px",
+              height: "80px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "40px",
+              color: "rgba(255, 255, 255, 0.6)"
+            }}>
+              📷
+            </div>
+            <div style={{
+              textAlign: "center",
+              fontSize: "20px",
+              fontWeight: "500",
+              color: "rgba(255, 255, 255, 0.8)"
+            }}>
+              Aucune image pour le moment
+            </div>
+            <div style={{
+              textAlign: "center",
+              fontSize: "14px",
+              color: "rgba(255, 255, 255, 0.5)",
+              maxWidth: "250px",
+              lineHeight: "1.4"
+            }}>
+              Ajoutez des couleurs et sélectionnez des images pour voir un aperçu ici
+            </div>
+          </div>
+        ) : (
+          Object.entries(colorImages).map(([color, files]) =>
+            files.map((file, idx) => (
+              <div key={color + idx} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <X onClick={() => removeColorImage(color, idx)} style={{color:"white",position:"relative",left:"40%"}}/>
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={file.name}
+                  style={{
+                    width: "160px",
+                    height: "190px",
+                    objectFit: "cover",
+                    borderRadius: "6px",
+                    border: `2px solid ${color}`,
+                    marginBottom: "4px"
+                  }}
+                />
+                <span style={{ fontSize: "10px", color:"white" }}>{color}</span>
+              </div>
+            ))
+          )
+        )}
+      </div>
+      
     </div>
   );
 };

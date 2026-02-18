@@ -162,7 +162,7 @@ const BugsReports = () => {
 
           <div className="bug-report-wrapper">
             <div className="bug-report-card">
-              <div style={{ width: '46%' }}>
+              <div className='bug-report-cards' >
                 <div className="form-field">
                   <label>Bug Title</label>
                   <input
@@ -217,7 +217,7 @@ const BugsReports = () => {
                 </div>
               </div>
 
-              <div style={{ width: '46%' }}>
+              <div className='bug-report-cards' >
                 <div className="form-field">
                   <label>Description</label>
                   <textarea
@@ -232,7 +232,7 @@ const BugsReports = () => {
                 </div>
               </div>
 
-              <div style={{ width: "100%" }}>
+              <div className='bug-report-cards' style={{ width: "100%" }}>
                 <div className="notification-hint">
                   <Info size={14} />
                   <span>The developer will receive an email notification.</span>

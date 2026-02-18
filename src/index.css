@@ -6,7 +6,7 @@ body {
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
   background-color: white;
-  font-weight: weight;
+  font-weight: 500;
   overflow-x: hidden;
   font-style: normal;
   margin: 0;
@@ -168,7 +168,7 @@ body {
   margin-top: 80px;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 999;
   background-color: rgba(0, 0, 0, 0.203); /* semi-transparent dark overlay */
   backdrop-filter: blur(20px); /* adjust blur strength */
 }
@@ -265,14 +265,14 @@ body {
   display: inline-block;
   white-space: nowrap;
   padding-left: 100%; /* start outside from right */
-  animation: scroll-left 10s linear infinite;
+  animation: scroll-left-banner 10s linear infinite;
   font-weight: bold;
   color: black;
   font-size: 18px;
   text-align: center;
 }
 
-@keyframes scroll-left {
+@keyframes scroll-left-banner {
   0% {
     transform: translateX(0);
   }
@@ -318,7 +318,7 @@ body {
   color: black;
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
-  font-weight: weight;
+  font-weight: 500;
   font-style: normal;
   display: flex;
   align-items: center;
@@ -399,7 +399,6 @@ body {
   position:fixed;
   top:3vh;
   right: 20px;
-  transition: all 0.5s;
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
   -webkit-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
   -moz-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
@@ -6170,9 +6169,9 @@ input::placeholder {
   top: 0;
   left: 0;
   display: flex;
-  overflow-y: scroll;
+  overflow: hidden;
   z-index: 3000;
-  min-height: 100vh;
+  height: 100vh;
 }
 .ManagementDashboard::-webkit-scrollbar {
   width: 8px;
@@ -6190,14 +6189,16 @@ input::placeholder {
   color: white;
   text-align: center;
   width: 17%;
-  z-index: -1;
+  min-width: 17%;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  /* align-items: center; */
   position: relative;
   gap: 20px;
   border-radius: 5px;
   padding-left: 0.5%;
+  height: 100vh;
+  overflow: hidden;
 }
 .MenuDashbord {
   height: 100vh;
@@ -6274,13 +6275,14 @@ input::placeholder {
   color: grey;
 }
 .ManagementDashboard-2 {
-  width: 86%;
-  z-index: -1;
-  min-height: 80vh;
-  position: relative;
-  /* left: 3%; */
+  width: 83%;
+  flex: 1;
+  z-index: 1;
+  height: 100vh;
+  overflow-y: auto;
   overflow-x: hidden;
   border-radius: 10px;
+  position: relative;
 }
 .ManagementDashboard-2::-webkit-scrollbar {
   width: 8px; /* scrollbar width */
@@ -6320,13 +6322,12 @@ input::placeholder {
     ); /* same as from-black to-gray-900 */
     position: fixed;
     top: 0;
-    overflow-x: hidden;
+    overflow: hidden;
     left: 0;
     display: flex;
     flex-direction: column;
-    overflow-y: hidden;
     z-index: 3000;
-    min-height: 100vh;
+    height: 100vh;
   }
   .MenuDashbord {
     display: none;
@@ -6335,8 +6336,8 @@ input::placeholder {
     color: white;
     width: 97%;
     text-align: center;
-    background-color: #050814; /* Deep navy blue background */
-    height: 80px;
+    height: auto;
+    min-height: unset;
     padding-left: 3%;
     display: flex;
     flex-direction: column;
@@ -6346,7 +6347,7 @@ input::placeholder {
     left: 0;
     border-radius: 0;
     z-index: 12;
-    border-bottom: 1px solid rgb(55, 55, 55);
+    overflow: visible;
   }
   .h2Dash h2 {
     margin: 0;
@@ -6364,11 +6365,10 @@ input::placeholder {
     height: 40px;
   }
   .MenuDashbordPhone {
-    position: absolute;
-    top: 101%;
-    width: 63%;
-    padding-left: 14%;
-    min-height: 90vh;
+    position: fixed;
+    width: 50%;
+    padding-left: 8%;
+    height: 100%;
     z-index: 1;
     background-color: #050814; /* Deep navy blue background */
     left: -90%; /* Start hidden */
@@ -6379,6 +6379,8 @@ input::placeholder {
   }
   .MenuDashbordPhone h3 {
     color: rgb(160, 160, 160);
+    margin-top: 14%;
+    margin-bottom: 12%;
     font-weight: 400;
   }
   .LienDash {
@@ -6399,12 +6401,17 @@ input::placeholder {
     padding-left: 10px;
     margin-bottom: 10px;
   }
+  .LienDash.active {
+    background:#0F1524; /* Glassmorphism background */
+    border-left: 2px solid #435DDD; /* Blue edge */
+    color: #3883F6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+  }
 
   /* Hover and active style */
   .LienDash:hover,
   .LienDash.active {
     background-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
   }
   .overflowPhone {
     position: fixed;
@@ -6415,8 +6422,125 @@ input::placeholder {
   }
   .menu-icon{
     display: initial;
+    cursor: pointer;
+    background-color: #080C16;
+    padding: 8px;
+    border-radius: 10px;
+    position: fixed;
+    left: 10px;
+    top: 12px;
+  }
+  .ManagementDashboard-2 {
+    width: 100%;
+    flex: 1;
+    z-index: 1;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 10px;
+    padding-bottom: 13%;
   }
 }
+
+/* --- Responsiveness Logic --- */
+
+/* Default: Hide mobile view on desktop */
+.mobile-orders-list {
+  display: none;
+  padding: 1rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Tablet & Mobile Breakpoint */
+@media (max-width: 992px) {
+  .desktop-only {
+    display: none; /* Hide the table */
+  }
+
+  .mobile-orders-list {
+    display: flex; /* Show cards */
+  }
+
+  /* Adjust header for small screens */
+  .HeaderOrder {
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+}
+
+/* --- Mobile Card Styling --- */
+.order-mobile-card {
+  background: #1e293b; /* Dark card background */
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #334155;
+  transition: transform 0.2s;
+}
+
+.order-mobile-card:active {
+  transform: scale(0.98);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-header .order-id {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.card-body {
+  margin-bottom: 1.2rem;
+}
+
+.card-body .customer-name {
+  color: #fff;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.card-body .customer-email {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-body .product-summary {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #334155;
+  padding-top: 1rem;
+}
+
+.card-footer .amount {
+  color: #29b883; /* Green price */
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.card-footer .date {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Status Badge Colors (ensure these match your app) */
+.status-badge.pending { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+.status-badge.processing { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.status-badge.completed { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+
 
 /* ==========================================================================
    Dashboard
@@ -6429,13 +6553,13 @@ input::placeholder {
   position: absolute;
   top: 0;
   z-index: -1;
-  padding-left: 2%;
   overflow: hidden;
 }
 .DashBord-Title {
   width: 90%;
   font-size: 30px;
   padding-left: 2%;
+  margin-bottom: 3%;
   height: 50px;
   color: white;
 }
@@ -6445,7 +6569,6 @@ input::placeholder {
 
 .DashBord-Menu {
   width: 100%;
-  height: 200px;
   display: flex;
   flex-wrap: wrap;
   gap: 1%;
@@ -6463,6 +6586,7 @@ input::placeholder {
   height: 160px;
   border-radius: 16px;
   color: #e2e8f0;
+  margin-bottom: 3%;
   background:#0F1729;
   backdrop-filter: blur(102px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -6644,19 +6768,7 @@ input::placeholder {
   }
 
   /* Header */
-  .ManagementDashboard-1 {
-    color: white;
-    background-color: #050814;
-    height: 80px;
-    padding-left: 3%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid rgb(55, 55, 55);
-    position: sticky; /* ✅ keeps header visible while scrolling */
-    top: 0;
-    z-index: 12;
-  }
+
 
   .ManagementDashboard-2 {
     width: 100%;
@@ -6665,12 +6777,12 @@ input::placeholder {
     padding: 0;
     overflow: visible;
     overflow-y: scroll;
+    
   }
 
   /* Dashboard content */
   .DashBord {
     width: 100%;
-    background-color: #0b1320;
     padding: 20px;
     position: absolute;
     left: -16px;
@@ -6844,7 +6956,7 @@ th:last-child {
     height: 100px;
     margin-left: 5%;
     margin-top: 3%;
-    margin-bottom: 13%;
+    margin-bottom: 3%;
     color: white;
     display: flex;
     flex-wrap: wrap;
@@ -6951,8 +7063,10 @@ th:last-child {
    ========================================================================== */
 
 .CategroiesDashBord {
-  width: 100%;
-  height: 90%;
+  min-height: 100vh;
+  position: absolute;
+  overflow-x: hidden;
+  top: 0;
 }
 .ADDCatg{
   position: absolute;
@@ -7307,9 +7421,10 @@ th:last-child {
   .CategroiesDashBord {
     width: 100%;
     min-height: 100vh;
-    padding: 20px 10px;
+    padding: 0;
     display: flex;
     flex-direction: column;
+    padding-bottom: 10%;
   }
 
   /* Add Category Button - Relative to top of screen */
@@ -7317,23 +7432,25 @@ th:last-child {
     position: relative; /* Changed from absolute to prevent overlap */
     margin: 10px auto 20px auto; 
     right: auto;
-    top: auto;
+    top: 5%;
     width: 90%; /* Larger touch target on mobile */
     display: block;
+    border-color: #435DDD;
   }
 
   /* Grid Layout */
   .div-categories {
     display: flex;
     flex-direction: column;
+    padding: 0;
     align-items: center;
-    gap: 15px;
+    margin-top: 7%;
     width: 100%;
   }
 
   /* Category Card */
   .categorie {
-    width: 92%; /* Consistent margin on sides */
+    width: 82%; /* Consistent margin on sides */
     height: auto; /* Let content dictate height */
     min-height: 160px;
     margin: 0;
@@ -7374,7 +7491,7 @@ th:last-child {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); /* Perfect centering */
-    width: 95%;
+    width: 85%;
     height: auto;
     max-height: 90vh;
     padding: 20px;
@@ -7401,6 +7518,10 @@ th:last-child {
     height: auto;
     margin-top: 20px;
   }
+  .AddSub-Section input{
+    width: 90%;
+  }
+  
 }
 
 /* ==========================================================================
@@ -7444,12 +7565,9 @@ th:last-child {
 .FilterDiv {
   width: 90%;
   margin-left: 5%;
-  height: 190px;
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.95) 0%,
-    rgba(15, 23, 42, 0.95) 100%
-  );
+  height: 170px;
+  padding-top: 1%;
+  background: #111827;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
@@ -7460,16 +7578,19 @@ th:last-child {
   margin-top: 1%;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 3%;
 }
 
 .SearchPrd {
   width: 88%;
   padding-left: 2%;
-  margin-left: 5%;
   display: flex;
-  height: 40px;
+  height: 60px;
   border-radius: 10px;
-  background-color: #2c3443;
+  background-color: #172030;
   align-items: center;
   position: relative;
   top: 4%;
@@ -7483,22 +7604,34 @@ th:last-child {
   border: 0;
   padding: 7px;
 }
+.SearchPrd input::placeholder{
+  color: gray;
+}
+.SpanFilter{
+  color: gray;
+  display: flex;
+  align-items: center;
+  margin-top: 3%;
+  font-size: 12px;
+  gap: 1%;
+}
 .Sub-Category {
-  width: 90%;
-  margin-left: 5%;
+  width: 100%;
   color: white;
   display: flex;
   height: 90px;
   margin-top: 2%;
 }
 .Sub-Category select {
-  background-color: #2c3443;
+  background-color: #172030;
   border-radius: 10px;
   cursor: pointer;
-  border: 1px solid gray;
+  border: 1px solid black;
   color: white;
-  width: 90%;
-  padding: 9px;
+  width: 29%;
+  margin-left: 1%;
+  padding: 11px;
+  height: 50px;
   transition: all 0.3s ease;
 }
 
@@ -7526,7 +7659,6 @@ th:last-child {
 }
 
 .product {
-  background: #fff;
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.08),
     0 1.5px 6px rgba(0, 0, 0, 0.04);
@@ -7542,12 +7674,12 @@ th:last-child {
     transform 0.2s;
   position: relative;
   overflow: hidden;
+  color: white;
 }
 .product:hover {
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.16),
     0 3px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-4px) scale(1.03);
 }
 .product img {
   width: 100%;
@@ -7558,20 +7690,18 @@ th:last-child {
   display: block;
 }
 
-.product img:hover {
-  transform: scale(1.5);
-}
+
 
 .product p {
   font-size: 14px;
   font-weight: 500;
-  color: #222;
+  color: white;
   margin: 0 0 8px 0;
   text-align: center;
 }
 .product h3 {
   font-size: 1.2rem;
-  color: #0a7cff;
+  color: white;
   text-align: center;
   font-weight: 700;
   margin: 0 0 12px 0;
@@ -7642,6 +7772,107 @@ th:last-child {
   color: white;
   display: flex;
   flex-direction: column;
+}
+
+@media (max-width:768px) {
+.SearchPrd {
+  width: 88%;
+  padding-left: 2%;
+  display: flex;
+  height: 50px;
+  border-radius: 10px;
+  background-color: #172030;
+  align-items: center;
+  position: relative;
+  top: 4%;
+  color: white;
+}
+.FilterDiv {
+  width: 90%;
+  margin: 0;
+  top: 0;
+  margin-left: 5%;
+  height: 292px;
+  padding-top: 0px;
+    
+}
+.SearchPrd{
+  top: 0;
+  width: 90%;
+}
+.Sub-Category{
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  margin-top: 2%;
+}
+.Sub-Category select {
+  background-color: #172030;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid black;
+  color: white;
+  width: 95%;
+  padding: 11px;
+  margin-left: 0;
+  margin-top: 2%;
+  transition: all 0.3s ease;
+}
+.CardsProducts {
+  width: 96%;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 auto 12%;
+  margin-top: 4%;
+  margin-left: 4%;
+  gap: 2%;
+}
+
+.product {
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.08),
+    0 1.5px 6px rgba(0, 0, 0, 0.04);
+  /* padding: 24px 16px 16px 16px; */
+  cursor: pointer;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  height: 330px;
+  margin-bottom: 2%;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  /* background-color: yellowgreen; */
+}
+.product img {
+  width: 100%;
+  height: 100%;
+  color: black;
+  object-fit: cover;
+  transition: transform 2.16s cubic-bezier(0.22, 0.61, 0.36, 1); /* slower and smoother */
+  display: block;
+}
+.product p{
+  font-size: 12px;
+}
+.product h3{
+  font-size: 12px;
+}
+.product .Colors {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 0;
+}
+.product .color {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid #6c6c6c;
+}
 }
 
 /* ==========================================================================
@@ -7956,16 +8187,16 @@ th:last-child {
    ========================================================================== */
 
 .AddProduct {
-  min-height: 100vh;
+  min-height: 100%;
   width: 100%;
   display: flex;
-  position: absolute;
+  position: relative;
   top: 0;
-  z-index: -1;
+  z-index: 1;
   padding-bottom: 5%;
-  overflow: hidden;
+  overflow: visible;
 }
-.AddImages {
+.imagesadd {
   width: 45%;
   margin-top: 40px;
   height: 500px;
@@ -8076,6 +8307,40 @@ th:last-child {
 .step:hover::after {
   width: 100%;
 }
+@media (max-width: 768px){
+  .AddProduct {
+    min-height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    padding-bottom: 80px;
+    overflow: visible;
+  }
+
+  .imagesadd {
+    width: 100%;
+    margin-top: 40px;
+    min-height: 500px;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .AddDonner {
+    width: 92%;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    min-height: auto;   /* <-- IMPORTANT */
+    gap: 2%;
+    padding: 0 16px 120px; /* extra bottom space */
+  }
+}
+
+
 
 /* ==========================================================================
    Profile
@@ -8812,6 +9077,7 @@ footer {
   padding-left: 7%;
   height: 120px;
   display: flex;
+  flex-wrap: wrap;
   margin-top: 3%;
 }
 .HeaderOrder-Search{
@@ -9304,6 +9570,8 @@ footer {
   .order-modal-footer {
     grid-template-columns: 1fr;
   }
+  .OederBord{
+  }
 }
 
 /* Edit Order Status Modal */
@@ -9498,7 +9766,33 @@ footer {
   .edit-order-footer {
     padding: 20px;
   }
+  .OrderStatus{
+    min-width: 45%;
+  }
+  .HeaderOrder{
+    width: 95%;
+    position: relative;
+    margin-top: 4%;
+    /* background-color: violet; */
+    margin-bottom: 4%;
+    height: auto;
+    display: flex;
+    flex-wrap:wrap;
+  }
+  .HeaderOrder-1{
+    width: 90%;
+  }
+  .HeaderOrder-Search{
+    background-color: #0F1729;
+    width: 90%;
+  }
+  .table-container{
+    display: none;
+  }
 }
+
+
+
 
 /* ////////////////////////////////////////////// */
 /* BugsReports */
@@ -9754,7 +10048,9 @@ footer {
   flex-wrap: wrap;
   gap: 3%;
 }
-
+.bug-report-cards{
+  width: 46%;
+}
 .form-field {
   margin-bottom: 24px;
   display: flex;
@@ -9947,7 +10243,7 @@ footer {
   z-index: 4;
 }
 
-.coming-soon-containerh1 {
+.coming-soon-container h1 {
   font-size: clamp(4rem, 15vw, 9rem); /* Fluid typography for responsiveness */
   font-weight: 900;
   line-height: 0.8;
@@ -9997,8 +10293,18 @@ footer {
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
+  .BugsReports-container{
+    padding-bottom: 10%;
+  }
   .glow-circle {
     width: 400px;
     height: 400px;
+  }
+  .bug-report-cards{
+    width: 90%;
+  }
+  .BugCard{
+    width: 90%;
+    margin-left: 2%;
   }
 }

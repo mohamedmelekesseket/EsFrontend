@@ -273,7 +273,7 @@ const OederBord = () => {
           </div>
         </div>
       </div>
-      <div className='HeaderOrder' style={{paddingLeft:"4%"}}>
+      <div className='HeaderOrder' style={{paddingLeft:"1%"}}>
         {Orderstatus.map((statusItem) => {
           let count = 0;
           if (statusItem.title === "Total Orders") count = orderStats.total;
@@ -299,7 +299,7 @@ const OederBord = () => {
           );
         })}
       </div>
-      <div className="table-container">
+      {/* <div className="table-container">
         <table className="order-table">
           <thead>
             <tr>
@@ -402,8 +402,74 @@ const OederBord = () => {
             ))}
           </tbody>
         </table>
+      </div> */}
+            {/* Desktop Table View (Hidden on Mobile) */}
+      <div className="table-container desktop-only">
+        <table className="order-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Product</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr key={order._id}>
+                {/* ... your existing <td> structure ... */}
+                <td className="order-id">#{order.id}</td>
+                <td>
+                  <div className="customer-info">
+                    <span className="customer-name">{order.customer}</span>
+                    <span className="customer-email">{order.email}</span>
+                  </div>
+                </td>
+                <td>{order.product}</td>
+                <td className="amount">{order.amount}</td>
+                <td>
+                  <span className={`status-badge ${mapStatus(order.status).toLowerCase()}`}>
+                    {mapStatus(order.status)}
+                  </span>
+                </td>
+                <td>{order.date}</td>
+                <td className="actions" style={{ position: 'relative' }}>
+                  <span className="order-menu-trigger" onClick={(e) => toggleMenu(order._id, e)}>•••</span>
+                  {/* ... your AnimatePresence menu code ... */}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
+      {/* Mobile Card View (Shown on Mobile/Tablet) */}
+      <div className="mobile-orders-list">
+        {orders.map((order) => (
+          <div key={order._id} className="order-mobile-card" onClick={() => handleViewDetails(order)}>
+            <div className="card-header">
+              <span className="order-id">#{order.id}</span>
+              <span className={`status-badge ${mapStatus(order.status).toLowerCase()}`}>
+                {mapStatus(order.status)}
+              </span>
+            </div>
+            
+            <div className="card-body">
+              <h3 className="customer-name">{order.customer}</h3>
+              <p className="customer-email">{order.email}</p>
+              <p className="product-summary">{order.product}</p>
+            </div>
+            
+            <div className="card-footer">
+              <span className="amount">{order.amount}</span>
+              <span className="date">{order.date}</span>
+            </div>
+          </div>
+        ))}
+      </div>
       {/* Order Details Modal */}
       <AnimatePresence>
         {selectedOrder && (

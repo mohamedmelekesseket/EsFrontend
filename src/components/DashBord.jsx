@@ -1,276 +1,139 @@
-import React, { useState, useEffect } from "react";
-import { MessageCircleWarning,Package , SquareArrowRight,User,LayoutGrid,ClipboardList,PackagePlus ,Plus     } from 'lucide-react';
-import userI from '../images/user.png'
-import { Link, Outlet } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import {
+  MessageCircleWarning,
+  Package,
+  SquareArrowRight,
+  User,
+  LayoutGrid,
+  ClipboardList,
+  PackagePlus,
+  Plus
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import axios from "axios";
-import {BeatLoader } from 'react-spinner'
-import toast from 'react-hot-toast';
+import { BeatLoader } from "react-spinners";
+import toast from "react-hot-toast";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const DashBord = () => {
-    const [Message, setMessage] = useState([]);
-    const [selecteMenu, setSelecteMenu] = useState(() => localStorage.getItem('selecteMenu') || 'Dashbord');
-    const user = JSON.parse(localStorage.getItem('user'));
-    const [Users, setUsers] = useState([]);
-    const [Categorys, setCategorys] = useState([]);
-    const [Products, setProducts] = useState([]);
-    const [Orders, setOrders] = useState([]);
+const Dashboard = () => {
+  const [users, setUsers] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const handleMenuSelect = (menu) => {
-    setSelecteMenu(menu);
-    localStorage.setItem('selecteMenu', menu);
+    localStorage.setItem("selecteMenu", menu);
   };
-  
-    const getMessage = async () => {  
-    try {
-      const res = await axios.get(`${API_BASE_URL}/Owner/getMessage`,{
-        withCredentials: true
-      });
-      setMessage(res.data);
-      // }, 3000);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  // const displayForm =()=>{
-  //   if (Message.length == 0) {
-  //     return(
-        
-  //     )
-  //   } else {
-      
-  //   }
-  // }
-    const getUser = async () => {  
-    try {
-      // TODO: Replace hardcoded API URL with environment variable for production
-      const res = await axios.get(`${API_BASE_URL}/Owner/getUser  `,{
-        withCredentials: true
-      });
-      setUsers(res.data);      
 
-    } catch (error) {
-      console.log(error);
-      if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message, { id: "dashboard-fetch-user-error" })
-      }
-    }
-  };
-    const getCategory = async () => {  
+  const fetchAll = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`,{
-        withCredentials: true
-      });
-      setCategorys(res.data);      
+      const [usersRes, categoriesRes, productsRes, ordersRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/Owner/getUser`, { withCredentials: true }),
+        axios.get(`${API_BASE_URL}/Admin/Get-category`, { withCredentials: true }),
+        axios.get(`${API_BASE_URL}/Admin/Get-products`, { withCredentials: true }),
+        axios.get(`${API_BASE_URL}/Admin/Get-Orders`, { withCredentials: true }),
+      ]);
+
+      setUsers(usersRes.data);
+      setCategories(categoriesRes.data);
+      setProducts(productsRes.data);
+      setOrders(ordersRes.data);
     } catch (error) {
-      console.log(error);
-      if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message, { id: "dashboard-fetch-user-error" })
-      }
-      setLoading(false);
-    }
-  };
-  const getOrders = async () => {
-    try {
-      
-      const res = await axios.get(`${API_BASE_URL}/Admin/Get-Orders`, {
-        withCredentials: true
-      });
-      
-      
-      
-      setOrders(res.data);
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || 'Failed to fetch orders');
+      toast.error(error.response?.data?.message || "Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
   };
-  const getProducts = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/Admin/Get-products`, {
-        withCredentials: true
-      });
-      setProducts(res.data);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch products", { id: "dashboard-fetch-products-error" });
-    }
-  };
+
   useEffect(() => {
-    getMessage();
-    getUser()
-    getCategory()
-    getProducts()
-    getOrders()
+    fetchAll();
   }, []);
+
+  const Stat = ({ title, count, icon, path, menuKey }) => (
+    <div className="DashBord-Menu-1">
+      <div className="dashbord-menu-header">
+        <h3>{title}</h3>
+        <span className="icon-circle">{icon}</span>
+      </div>
+
+      <h1>
+        {loading ? <BeatLoader size={8} color="#4f8cff" /> : count}
+      </h1>
+
+      <Link
+        to={path}
+        onClick={() => handleMenuSelect(menuKey)}
+        style={{ textDecoration: "none", width: "100%" }}
+      >
+        <div className="dashbord-menu-link">
+          <span className="icon-arrow">
+            <SquareArrowRight size={20} color="#4f8cff" />
+          </span>
+          <h5>Go to component</h5>
+        </div>
+      </Link>
+    </div>
+  );
+
   return (
-    <div className='DashBord'>
-      <div className='DashBord-Title'>
-        <h2>Dashbord</h2>
+    <div className="DashBord">
+      <div className="DashBord-Title">
+        <h2>Dashboard</h2>
       </div>
+
       <div className="DashBord-Menu">
+        <Stat
+          title="Orders"
+          count={orders.length}
+          icon={<ClipboardList size={28} color="#4f8cff" />}
+          path="/ManagementDashboard/Order"
+          menuKey="Order"
+        />
 
-        <div className='DashBord-Menu-1'>
-          <div className='dashbord-menu-header'>
-            <h3>Order</h3>
-            <span className='icon-circle'>
-              <ClipboardList   size={28} color="#4f8cff" />
-            </span>
-          </div>
-          <h1>{Orders.length}</h1>
-          <Link onClick={()=>handleMenuSelect('Order')} 
-            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
-            to='/ManagementDashboard/Order'>  
-            <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight size={20} color="#4f8cff" />
-              </span>
-              <h5>Go to component</h5>
-            </div>
-          </Link>
-        </div>
+        <Stat
+          title="Categories"
+          count={categories.length}
+          icon={<LayoutGrid size={28} color="#4f8cff" />}
+          path="/ManagementDashboard/CategoriesBoard"
+          menuKey="Categories"
+        />
 
-        <div className='DashBord-Menu-1'>
-          <div className='dashbord-menu-header'>
-            <h3>Categories</h3>
-            <span className='icon-circle'>
-              <LayoutGrid  size={28} color="#4f8cff" />
-            </span>
-          </div>
-          <h1>{Categorys.length}</h1>
-          <Link onClick={()=>handleMenuSelect('Categories')} 
-          style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
-          to='/ManagementDashboard/CategroiesBord'>  
-            <div className='dashbord-menu-link'>
-            <span className='icon-arrow'>
-              <SquareArrowRight size={20} color="#4f8cff" />
-            </span>
-            <h5>Go to component</h5>
-              </div>
-          </Link>
-        </div>
+        <Stat
+          title="Products"
+          count={products.length}
+          icon={<Package size={28} color="#4f8cff" />}
+          path="/ManagementDashboard/AllProducts"
+          menuKey="AllProducts"
+        />
 
-        <div className='DashBord-Menu-1'>
-          <div className='dashbord-menu-header'>
-            <h3>Products</h3>
-            <span className='icon-circle'>
-              <Package size={28} color="#4f8cff" />
-            </span>
-          </div>
-          <h1>{Products.length}</h1>
-          <Link onClick={()=>handleMenuSelect('AllProducts')} 
-            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
-            to='/ManagementDashboard/AllProducts'>  
-            <div className='dashbord-menu-link'>
-                <span className='icon-arrow'>
-                  <SquareArrowRight size={20} color="#4f8cff" />
-                </span>
-                <h5>Go to component</h5>
-            </div>
-          </Link>
-        </div>
+        <Stat
+          title="Users"
+          count={users.length}
+          icon={<User size={28} color="#4f8cff" />}
+          path="/ManagementDashboard/user"
+          menuKey="Users"
+        />
 
-        <div id="MobileOnly" className='DashBord-Menu-1'>
-          <div className='dashbord-menu-header'>
-            <h3>Users</h3>
-            <span className='icon-circle'>
-              <Package size={28} color="#4f8cff" />
-            </span>
-          </div>
-          <h1>{Products.length}</h1>
-          <Link onClick={()=>handleMenuSelect('user')} 
-            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
-            to='/ManagementDashboard/user'>  
-          <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight size={20} color="#4f8cff" />
-              </span>
-              <h5>Go to component</h5>
-          </div>
-            </Link>
-        </div>
+        <Stat
+          title="Add New Product"
+          count={<Plus size={30} />}
+          icon={<PackagePlus size={28} color="#4f8cff" />}
+          path="/ManagementDashboard/AddNewProduct"
+          menuKey="AddNewProduct"
+        />
 
-        <div id="MobileOnly" className='DashBord-Menu-1'>
-          <div className='dashbord-menu-header'>
-            <h3>Sales Reports</h3>
-            <span className='icon-circle'>
-              <Package size={28} color="#4f8cff" />
-            </span>
-          </div>
-          <h1>{Products.length}</h1>
-          <Link onClick={()=>handleMenuSelect('AllProducts')} 
-            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
-            to='/ManagementDashboard/AllProducts'>  
-          <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight size={20} color="#4f8cff" />
-              </span>
-              <h5>Go to component</h5>
-          </div>
-            </Link>
-        </div>
-        
-        <div className='DashBord-Menu-1'>
-          <div className='dashbord-menu-header'>
-            <h3>Add New Products</h3>
-            <span className='icon-circle'>
-              <PackagePlus  size={28} color="#4f8cff" />
-            </span>
-          </div>
-          <h1><Plus size={35}/></h1>
-          <Link onClick={()=>handleMenuSelect('AddNewProduct')} 
-            style={{textDecoration:"none",width:"100%",backgroundColor:"wheat"}} 
-            to='/ManagementDashboard/AddNewProduct'>  
-            <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight size={20} color="#4f8cff" />
-              </span>
-              <h5>Go to component</h5>
-            </div>
-          </Link>
-
-        </div>
-      </div>
-      <div className='DashBord-Menu-2'>
-        <Link style={{textDecoration:"none"}} onClick={()=>handleMenuSelect('Users')} to='/ManagementDashboard/user'>  
-          <div className="DashBord-Menu-2-1">
-            <div className='dashbord-menu-link'>
-              <h3 style={{color:"white"}}>user</h3>
-              <span className='icon-circle'>
-                <User   size={28} color="#4f8cff" />
-              </span>
-            </div>
-            <h1>{Users.length}</h1>
-            <div className='dashbord-menu-link'>
-              <span className='icon-arrow'>
-                <SquareArrowRight size={20} color="#4f8cff" />
-              </span>
-              <h5>Go to component</h5>
-          </div>
-          </div>
-        </Link>
-         <Link style={{textDecoration:"none"}} onClick={()=>handleMenuSelect('BugsReports')} to='/ManagementDashboard/BugsReports'>
-            <div className="DashBord-Menu-2-1">
-              <div className='dashbord-menu-link'>
-                <h3 style={{color:"white"}}>Bugs Reports</h3>
-                <span className='icon-circle'>
-                  <MessageCircleWarning   size={28} color="#4f8cff" />
-                </span>
-              </div>
-              <h1>{1}</h1>
-              <div className='dashbord-menu-link'>
-                <span className='icon-arrow'>
-                  <SquareArrowRight size={20} color="#4f8cff" />
-                </span>
-                <h5>Go to component</h5>
-            </div>
-            </div>
-          </Link>
+        <Stat
+          title="Bugs Reports"
+          count={1}
+          icon={<MessageCircleWarning size={28} color="#4f8cff" />}
+          path="/ManagementDashboard/BugsReports"
+          menuKey="BugsReports"
+        />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DashBord
+export default Dashboard;

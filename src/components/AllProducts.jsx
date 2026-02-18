@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { Search,SlidersHorizontal } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import ModifyProduct from './ModifyProduct';
@@ -164,8 +164,9 @@ const getSecondImageByColor = (product, color) => {
   return (
     <div className='AllProduct'>
       <Toaster />
-      <div className="HeaderMangment">
-        <h2>Products Management Dashboard</h2>
+      <div className="HeaderMangment" style={{flexDirection:"column"}}>
+        <h2>Products Management </h2><br />
+        <p style={{color:"gray",fontWeight:"300",fontSize:"14px"}}>{filteredProducts.length}  products found</p>
       </div>
 
       <div className='FilterDiv'>
@@ -173,29 +174,27 @@ const getSecondImageByColor = (product, color) => {
           <Search />
           <input type="text" placeholder='Search By Name' />
         </div>
+        <span className='SpanFilter'>
+          <SlidersHorizontal size={17}/>Filter
+        </span>
 
         <div className='Sub-Category'>
-          <div style={{ width: "33%" }}>
-            <h3>Category</h3>
+            {/* <h3>Category</h3> */}
             <select value={selectedCategory} onChange={handleCategoryChange}>
               <option value="">All Categories</option>
               {Categorys.map((category) => (
                 <option key={category._id} value={category._id}>{category.name}</option>
               ))}
             </select>
-          </div>
 
-          <div style={{ width: "33%" }}>
-            <h3>Genre</h3>
+            {/* <h3>Genre</h3> */}
             <select value={selectedGenre} onChange={handleGenreChange}>
               <option value="">All Genres</option>
               <option value="women">Femme</option>
               <option value="men">Homme</option>
             </select>
-          </div>
 
-          <div style={{ width: "33%" }}>
-            <h3>SubCategory</h3>
+            {/* <h3>SubCategory</h3> */}
             <select
               value={selectedSubCategory}
               onChange={e => setSelectedSubCategory(e.target.value)}
@@ -206,7 +205,6 @@ const getSecondImageByColor = (product, color) => {
                 <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
               ))}
             </select>
-          </div>
         </div>
       </div>
 
@@ -235,7 +233,7 @@ const getSecondImageByColor = (product, color) => {
                 />
                 </div>
               <p>{product.name}</p>
-              <h3 style={{ color: "blue" }}>{product.price}</h3>
+              <h3 style={{ color: "white" }}>{product.price} TND</h3>
               <div className='Colors'>
                 {product.color.map((color, index) => {
                   const imgUrl = getImageByColor(product, color);
