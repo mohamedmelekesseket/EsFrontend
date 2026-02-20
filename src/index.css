@@ -1866,6 +1866,9 @@ body {
   pointer-events: none;
 }
 @media (max-width: 960px) {
+  .HoverDivHome{
+    display: none;
+  }
   .drop-announcement {
     grid-template-columns: 1fr;
     padding: 0;
