@@ -347,17 +347,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 65%;
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.85) 0%,
-    rgba(51, 65, 85, 0.85) 100%
-  );
+  height: 55%;
+  background: #20283C;
   backdrop-filter: blur(4px);
   box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
   -webkit-box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
   -moz-box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
-  margin-left: 20%;
+  margin-left: 30%;
   border-radius: 10px;
 }
 .recherche-2 input {
@@ -366,6 +362,9 @@ body {
   border: 0;
   outline: 0;
   width: 80%;
+}
+.recherche-2 input::placeholder{
+  color: white;
 }
 .HeaderBar-3 {
   height: 100%;
@@ -781,13 +780,13 @@ body {
   z-index: 12000;
   /* opacity: 0; */
   right: 5px;
-  top: 70px;
-  border-radius: 10px;
+  top: 80px;
   background-color: #ffffff;
   display: block;
   box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
   -webkit-box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
   -moz-box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
+  border-radius: 10px;
 }
 .user-header {
   padding: 1.1rem 0rem;
@@ -6846,20 +6845,16 @@ input::placeholder {
   margin-top: 3%;
   color: white;
   display: flex;
+  align-items: center;
   border-bottom: 1px solid #252B37;
 }
 .div-tab {
-  width: 90%;
+  width: 95%;
   /* Remove fixed height for auto-sizing */
   /* height: 80%; */
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.85) 0%,
-    rgba(51, 65, 85, 0.85) 100%
-  );
+  background: #0A0E1A;
   backdrop-filter: blur(4px);
-  margin-left: 5%;
-  border-radius: 20px;
+  margin-left: 1%;
   display: flex;
   flex-direction: column;
   /* margin-bottom: 4%; */
@@ -6867,8 +6862,8 @@ input::placeholder {
   justify-content: flex-start;
   align-items: center;
   overflow-y: scroll;
-  padding-top: 1%;
   height: 340px;
+  border: 0.5px solid #1D2435;
 }
 .div-tab::-webkit-scrollbar {
   width: 8px;
@@ -6886,53 +6881,60 @@ input::placeholder {
 .div-tab {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  /* The dark background container from the image */
+  background-color: #050811; 
+  padding: 10px;
+  border-radius: 12px;
+  width: 94%;
+  border: 1px solid #1a1e2e;
 }
-table {
-  color: #101014;
-  width: 98%;
-  /* Remove fixed height for auto-sizing */
-  /* height: 100%; */
-  background-color: transparent;
-  border-collapse: separate;
-  border-spacing: 0;
-  /* border-radius: 20px; */
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-  /* margin: 0 auto; */
-  font-size: 1rem;
-}
-.div-tab th {
-  padding: 12px 8px;
 
-  color: #fff;
-  background-color: #000000;
+table {
+  width: 100%;
+  border-collapse: collapse; /* Changed to collapse for clean borders */
+  background-color: transparent;
+  font-family: sans-serif;
+}
+
+.div-tab th {
+  padding: 20px 12px;
+  color: #FFFFFF;
   text-align: center;
   font-weight: 600;
-  font-size: 1.05rem;
-}
-td {
-  border: 0;
-  padding: 14px 8px;
   font-size: 1rem;
+  /* Matches the subtle header row in the image */
+  border-bottom: 1px solid #1a1e2e; 
+}
+
+.div-tab td {
+  padding: 18px 12px;
+  font-size: 0.95rem;
   text-align: center;
-  cursor: pointer;
+  color: #94a3b8; /* Dimmed text color for data */
+  vertical-align: middle;
 }
-tr {
-  color: white;
-  transition: all 0.3s;
-  width: 100%;
-  padding: 14px 8px;
+
+.div-tab tr {
+  /* Thin lines between rows like in the image */
+  border-bottom: 1px solid #1a1e2e; 
+  transition: background 0.2s;
 }
+
+.div-tab tr:last-child {
+  border-bottom: none;
+}
+
 .div-tab tr:hover {
-  background: #eaf2ff;
-  color: #000000;
+  background:#0E1525;
+  color: white;
 }
-th:first-child {
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-}
-th:last-child {
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
+
+/* Specific styling for the icons if you use Lucide or FontAwesome */
+.action-icons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  color: #94a3b8;
 }
 .roleselecte {
   padding: 7px 20px;
@@ -9570,8 +9572,7 @@ footer {
   .order-modal-footer {
     grid-template-columns: 1fr;
   }
-  .OederBord{
-  }
+
 }
 
 /* Edit Order Status Modal */

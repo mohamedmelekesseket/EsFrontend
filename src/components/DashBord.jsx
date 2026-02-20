@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [bugs, setBugs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleMenuSelect = (menu) => {
@@ -34,12 +35,14 @@ const Dashboard = () => {
         axios.get(`${API_BASE_URL}/Admin/Get-category`, { withCredentials: true }),
         axios.get(`${API_BASE_URL}/Admin/Get-products`, { withCredentials: true }),
         axios.get(`${API_BASE_URL}/Admin/Get-Orders`, { withCredentials: true }),
+        // axios.get(`${API_BASE_URL}/Admin/bug`, { withCredentials: true }),
       ]);
 
       setUsers(usersRes.data);
       setCategories(categoriesRes.data);
       setProducts(productsRes.data);
       setOrders(ordersRes.data);
+      // setBugs(bugsRes.data);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to load dashboard data");
     } finally {
@@ -125,7 +128,7 @@ const Dashboard = () => {
         />
 
         <Stat
-          title="Bugs Reports"
+          title="Bugs"
           count={1}
           icon={<MessageCircleWarning size={28} color="#4f8cff" />}
           path="/ManagementDashboard/BugsReports"

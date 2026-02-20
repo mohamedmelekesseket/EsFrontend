@@ -190,50 +190,57 @@ const UserBord = () => {
   useEffect(() => {
     getUser();
   }, []);
+// ... (your imports and logic stay the same)
+
   return (
     <div className='UserMangment'>
       <div className="HeaderMangment">
-          <h2>User Mangment Dashbord</h2>
-          <div className='recherche-2'>
-            <input onChange={(e) =>setSearchTerm(e.target.value)} type="text" placeholder='Search with E-mail' />
-            <Search style={{cursor:"pointer",color:"black"}}/>
+        <h2>User Management Dashboard</h2>
+        <div className='recherche-2'>
+          <input 
+            onChange={(e) => setSearchTerm(e.target.value)} 
+            type="text" 
+            placeholder='Search with E-mail' 
+          />
+          <Search style={{ cursor: "pointer", color: "gray" }} size={18} />
         </div>
       </div>
 
-        <div>        
-        <div className='div-tab'>
-          <table border={0}>
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Phone Number</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-                {filteredUsers.map((user) => displayForm(user))}
-            </tbody>
-          </table>
-        </div>
-        <div className="PhoneDisplay">
-          {filteredUsers.map((user) => (
-            <div key={user._id} className="UserCard">
-              <p><strong style={{color:"#70787fff"}}>Email:</strong> <br /> {user.email}</p>
-              <div style={{width:"60%",display:"flex",justifyContent:'space-between'}}>
-                <p><strong style={{color:"#70787fff"}}>Role:</strong> <br /> {user.role}</p>
-                <p><strong style={{color:"#70787fff"}}>Phone:</strong> <br /> {user.phoneNumber}</p>
-              </div>
-              <div className="actions">
-                <Trash size={20} onClick={() => deleteUser(user._id)} />
-                <Pen size={20} onClick={() => { setEditMode(user._id); setRole(user.role); }} />
-              </div>
+      <div className='div-tab'>
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Phone Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* FIX: Call displayForm here so edit mode actually works */}
+            {filteredUsers.map((user) => displayForm(user))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile view logic remains below */}
+      <div className="PhoneDisplay">
+        {filteredUsers.map((user) => (
+          <div key={user._id} className="UserCard">
+            <p><strong style={{ color: "#70787fff" }}>Email:</strong> <br /> {user.email}</p>
+            <div style={{ width: "60%", display: "flex", justifyContent: 'space-between' }}>
+              <p><strong style={{ color: "#70787fff" }}>Role:</strong> <br /> {user.role}</p>
+              <p><strong style={{ color: "#70787fff" }}>Phone:</strong> <br /> {user.phoneNumber}</p>
             </div>
-          ))}
-        </div>
-        </div>
+            <div className="actions">
+              <Trash size={20} onClick={() => deleteUser(user._id)} />
+              <Pen size={20} onClick={() => { setEditMode(user._id); setRole(user.role); }} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
 
 export default UserBord

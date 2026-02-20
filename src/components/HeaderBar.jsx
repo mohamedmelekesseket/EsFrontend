@@ -1068,13 +1068,13 @@ const getImageByColor = (product, color) => {
               <div className="user-menu">
                 <div className='user-header'>
                   <div className="user-info">
-                    <div className="user-name">{user?.firstName} {user?.lastName}</div>
+                    {/* <div className="user-name">{user?.firstName} {user?.lastName}</div> */}
                     <div className="user-email">{user?.email}</div>
-                    <div className="user-role">
+                    {/* <div className="user-role">
                       {user?.role === 'Admin' && 'Administrateur'}
                       {user?.role === 'Technician' && 'Technicien'}
                       {user?.role === 'client' && 'Client'}
-                    </div>
+                    </div> */}
                   </div>
                   
                 </div>

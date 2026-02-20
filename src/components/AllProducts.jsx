@@ -163,7 +163,6 @@ const getSecondImageByColor = (product, color) => {
 
   return (
     <div className='AllProduct'>
-      <Toaster />
       <div className="HeaderMangment" style={{flexDirection:"column"}}>
         <h2>Products Management </h2><br />
         <p style={{color:"gray",fontWeight:"300",fontSize:"14px"}}>{filteredProducts.length}  products found</p>
