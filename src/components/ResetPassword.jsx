@@ -13,48 +13,48 @@ const ResetPasword = () => {
   const [password, setPassword] = useState('')
   const [ConfPassword, setConfPassword] = useState('')
   const [code, setCode] = useState(new Array(6).fill(''))
-  const [serverCode, setServerCode] = useState('') // backend code
+  // BUG 2 FIX: Removed serverCode state — code is now verified server-side only
   const inputsRef = useRef([])
   const navigate = useNavigate()
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isVerifyingCode, setIsVerifyingCode] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
 
-  // ✅ handle typing in code inputs
   const handleChange = (value, index) => {
     if (/^[0-9]?$/.test(value)) {
       const newCode = [...code]
       newCode[index] = value
       setCode(newCode)
-
-      // move to next input automatically
       if (value && index < 5) {
         inputsRef.current[index + 1].focus()
       }
     }
   }
 
-  // ✅ handle backspace navigation
   const handleKeyDown = (e, index) => {
     if (e.key === 'Backspace' && !code[index] && index > 0) {
       inputsRef.current[index - 1].focus()
     }
   }
 
-  // ✅ send email with reset code
+  // BUG 1 FIX: Guard moved before any async work so spam-clicks are fully blocked.
+  // CheckEmail is now inside try/catch so network errors are handled.
   const ResetEmail = async () => {
     if (isSendingEmail) return
     if (!email) return toast.error('Email Required !!', { id: "reset-email-required" })
 
-    const find = await axios.post(`${API_BASE_URL}/CheckEmail`, { email })
-    if (find.status === 204) return toast.error('Email Not exist !!', { id: "reset-email-not-exist" })
-
     setIsSendingEmail(true)
     try {
+      const find = await axios.post(`${API_BASE_URL}/CheckEmail`, { email })
+      if (find.status === 204) {
+        toast.error('Email Not exist !!', { id: "reset-email-not-exist" })
+        return
+      }
+
       const res = await axios.post(`${API_BASE_URL}/ResetEmail`, { email })
-      const { code } = res.data
-      if (code) {
-        setServerCode(code)
+      // BUG 2 FIX: We no longer read or store the code from the response.
+      // The backend keeps it; we only advance the step.
+      if (res.status === 200) {
         setReset('Rest2')
       }
     } catch (error) {
@@ -65,26 +65,41 @@ const ResetPasword = () => {
     }
   }
 
-  // ✅ verify entered code
-  const handleVerify = () => {
-    if (isVerifyingCode) return;
-    setIsVerifyingCode(true);
+  // BUG 2 & 3 FIX: handleVerify is now async and sends the code to the backend
+  // for server-side verification. isVerifyingCode now wraps real async work so
+  // the loading spinner actually renders.
+  const handleVerify = async () => {
+    if (isVerifyingCode) return
     const enteredCode = code.join('')
-    if (enteredCode === serverCode) {
-      toast.success("🔓 Code vérifié avec succès, créez un nouveau mot de passe.", { id: "reset-code-verified" })
-      setReset('Rest3')
-    } else {
-      toast.error("❌ Code incorrect !", { id: "reset-code-incorrect" })
+    if (enteredCode.length < 6) {
+      return toast.error("❌ Veuillez saisir le code complet", { id: "reset-code-incomplete" })
     }
-    setIsVerifyingCode(false);
+
+    setIsVerifyingCode(true)
+    try {
+      const res = await axios.post(`${API_BASE_URL}/VerifyCode`, { email, code: enteredCode })
+      if (res.status === 200) {
+        toast.success("🔓 Code vérifié avec succès, créez un nouveau mot de passe.", { id: "reset-code-verified" })
+        setReset('Rest3')
+      } else {
+        toast.error("❌ Code incorrect !", { id: "reset-code-incorrect" })
+      }
+    } catch (error) {
+      console.error("Error verifying code:", error)
+      toast.error("❌ Code incorrect ou expiré", { id: "reset-code-error" })
+    } finally {
+      setIsVerifyingCode(false)
+    }
   }
 
-  // ✅ set new password
+  // BUG 5 FIX: Added empty and minimum-length password validation
   const NewPassword = async () => {
-    if (isChangingPassword) return;
+    if (isChangingPassword) return
+    if (!password) return toast.error('❌ Password is required', { id: "reset-password-required" })
+    if (password.length < 8) return toast.error('❌ Password must be at least 8 characters', { id: "reset-password-too-short" })
     if (password !== ConfPassword) return toast.error('❌ Password not matched', { id: "reset-password-mismatch" })
 
-    setIsChangingPassword(true);
+    setIsChangingPassword(true)
     try {
       const res = await axios.post(`${API_BASE_URL}/NewPassword`, { password, email })
       if (res.status === 200) {
@@ -97,11 +112,10 @@ const ResetPasword = () => {
       console.error("Error updating password:", error)
       toast.error("❌ Erreur lors du changement du mot de passe", { id: "reset-password-error" })
     } finally {
-      setIsChangingPassword(false);
+      setIsChangingPassword(false)
     }
   }
 
-  // ✅ form rendering
   const displayForm = () => {
     if (Rest === 'Rest1') {
       return (
@@ -115,21 +129,17 @@ const ResetPasword = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder='votreEmail@example.com'
           />
-          <button 
-            onClick={ResetEmail} 
+          <button
+            onClick={ResetEmail}
             disabled={isSendingEmail}
             style={{ opacity: isSendingEmail ? 0.7 : 1, cursor: isSendingEmail ? 'not-allowed' : 'pointer' }}
           >
             {isSendingEmail ? (
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                 <span style={{
-                  width: '16px',
-                  height: '16px',
-                  border: '2px solid currentColor',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 0.8s linear infinite',
-                  display: 'inline-block'
+                  width: '16px', height: '16px',
+                  border: '2px solid currentColor', borderTop: '2px solid transparent',
+                  borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block'
                 }}></span>
                 Sending...
               </span>
@@ -167,20 +177,31 @@ const ResetPasword = () => {
           </div>
 
           <div className="BtnGroup">
-            <button onClick={() => (setReset('Rest1'), setEmail(''))} className="BackBtn" disabled={isVerifyingCode} style={{ opacity: isVerifyingCode ? 0.7 : 1, cursor: isVerifyingCode ? 'not-allowed' : 'pointer' }}>
+            {/* BUG 4 FIX: Reset code array when going back so old digits don't persist */}
+            <button
+              onClick={() => {
+                setReset('Rest1')
+                setEmail('')
+                setCode(new Array(6).fill(''))
+              }}
+              className="BackBtn"
+              disabled={isVerifyingCode}
+              style={{ opacity: isVerifyingCode ? 0.7 : 1, cursor: isVerifyingCode ? 'not-allowed' : 'pointer' }}
+            >
               Retour
             </button>
-            <button onClick={handleVerify} className="VerifyBtn" disabled={isVerifyingCode} style={{ opacity: isVerifyingCode ? 0.7 : 1, cursor: isVerifyingCode ? 'not-allowed' : 'pointer' }}>
+            <button
+              onClick={handleVerify}
+              className="VerifyBtn"
+              disabled={isVerifyingCode}
+              style={{ opacity: isVerifyingCode ? 0.7 : 1, cursor: isVerifyingCode ? 'not-allowed' : 'pointer' }}
+            >
               {isVerifyingCode ? (
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                   <span style={{
-                    width: '16px',
-                    height: '16px',
-                    border: '2px solid currentColor',
-                    borderTop: '2px solid transparent',
-                    borderRadius: '50%',
-                    animation: 'spin 0.8s linear infinite',
-                    display: 'inline-block'
+                    width: '16px', height: '16px',
+                    border: '2px solid currentColor', borderTop: '2px solid transparent',
+                    borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block'
                   }}></span>
                   Vérification...
                 </span>
@@ -216,13 +237,9 @@ const ResetPasword = () => {
             {isChangingPassword ? (
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                 <span style={{
-                  width: '16px',
-                  height: '16px',
-                  border: '2px solid currentColor',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 0.8s linear infinite',
-                  display: 'inline-block'
+                  width: '16px', height: '16px',
+                  border: '2px solid currentColor', borderTop: '2px solid transparent',
+                  borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block'
                 }}></span>
                 Saving...
               </span>
@@ -235,6 +252,8 @@ const ResetPasword = () => {
 
   return (
     <div className='ResetPasword'>
+      {/* BUG 6 FIX: <Toaster /> was imported but never rendered — toasts were silent */}
+      <Toaster />
       <img src={EsL} width={'70px'} height={'70px'} alt="" />
       {displayForm()}
     </div>
