@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { Mail, ArrowLeft } from 'lucide-react'
+import { Mail, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from "react-router-dom"
 import axios from 'axios'
 import { toast, Toaster } from 'react-hot-toast'
@@ -13,7 +13,8 @@ const ResetPasword = () => {
   const [password, setPassword] = useState('')
   const [ConfPassword, setConfPassword] = useState('')
   const [code, setCode] = useState(new Array(6).fill(''))
-  // BUG 2 FIX: Removed serverCode state — code is now verified server-side only
+  const [showPass, setShowPass] = useState(false)
+  const [showConf, setShowConf] = useState(false)
   const inputsRef = useRef([])
   const navigate = useNavigate()
   const [isSendingEmail, setIsSendingEmail] = useState(false)
@@ -37,8 +38,17 @@ const ResetPasword = () => {
     }
   }
 
-  // BUG 1 FIX: Guard moved before any async work so spam-clicks are fully blocked.
-  // CheckEmail is now inside try/catch so network errors are handled.
+  // Paste support: paste 6-digit code and it auto-fills all boxes
+  const handlePaste = (e) => {
+    e.preventDefault()
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+    const newCode = new Array(6).fill('')
+    pasted.split('').forEach((ch, i) => (newCode[i] = ch))
+    setCode(newCode)
+    const nextEmpty = newCode.findIndex(c => !c)
+    inputsRef.current[nextEmpty === -1 ? 5 : nextEmpty]?.focus()
+  }
+
   const ResetEmail = async () => {
     if (isSendingEmail) return
     if (!email) return toast.error('Email Required !!', { id: "reset-email-required" })
@@ -52,27 +62,23 @@ const ResetPasword = () => {
       }
 
       const res = await axios.post(`${API_BASE_URL}/ResetEmail`, { email })
-      // BUG 2 FIX: We no longer read or store the code from the response.
-      // The backend keeps it; we only advance the step.
       if (res.status === 200) {
         setReset('Rest2')
       }
     } catch (error) {
       console.error("Error sending reset email:", error)
-      toast.error("❌ Erreur lors de l'envoi du code", { id: "reset-send-code-error" })
+      const msg = error.response?.data?.message || "Erreur lors de l'envoi du code"
+      toast.error(msg, { id: "reset-send-code-error" })
     } finally {
       setIsSendingEmail(false)
     }
   }
 
-  // BUG 2 & 3 FIX: handleVerify is now async and sends the code to the backend
-  // for server-side verification. isVerifyingCode now wraps real async work so
-  // the loading spinner actually renders.
   const handleVerify = async () => {
     if (isVerifyingCode) return
     const enteredCode = code.join('')
     if (enteredCode.length < 6) {
-      return toast.error("❌ Veuillez saisir le code complet", { id: "reset-code-incomplete" })
+      return toast.error(" Veuillez saisir le code complet", { id: "reset-code-incomplete" })
     }
 
     setIsVerifyingCode(true)
@@ -82,22 +88,21 @@ const ResetPasword = () => {
         toast.success("🔓 Code vérifié avec succès, créez un nouveau mot de passe.", { id: "reset-code-verified" })
         setReset('Rest3')
       } else {
-        toast.error("❌ Code incorrect !", { id: "reset-code-incorrect" })
+        toast.error(" Code incorrect !", { id: "reset-code-incorrect" })
       }
     } catch (error) {
       console.error("Error verifying code:", error)
-      toast.error("❌ Code incorrect ou expiré", { id: "reset-code-error" })
+      toast.error(" Code incorrect ou expiré", { id: "reset-code-error" })
     } finally {
       setIsVerifyingCode(false)
     }
   }
 
-  // BUG 5 FIX: Added empty and minimum-length password validation
   const NewPassword = async () => {
     if (isChangingPassword) return
-    if (!password) return toast.error('❌ Password is required', { id: "reset-password-required" })
-    if (password.length < 8) return toast.error('❌ Password must be at least 8 characters', { id: "reset-password-too-short" })
-    if (password !== ConfPassword) return toast.error('❌ Password not matched', { id: "reset-password-mismatch" })
+    if (!password) return toast.error(' Password is required', { id: "reset-password-required" })
+    if (password.length < 8) return toast.error(' Password must be at least 8 characters', { id: "reset-password-too-short" })
+    if (password !== ConfPassword) return toast.error(' Password not matched', { id: "reset-password-mismatch" })
 
     setIsChangingPassword(true)
     try {
@@ -106,11 +111,11 @@ const ResetPasword = () => {
         toast.success("✅ Password changed successfully", { id: "reset-password-success" })
         setTimeout(() => navigate("/"), 1000)
       } else if (res.status === 204) {
-        toast.error("❌ Email Not Found", { id: "reset-email-not-found" })
+        toast.error(" Email Not Found", { id: "reset-email-not-found" })
       }
     } catch (error) {
       console.error("Error updating password:", error)
-      toast.error("❌ Erreur lors du changement du mot de passe", { id: "reset-password-error" })
+      toast.error(" Erreur lors du changement du mot de passe", { id: "reset-password-error" })
     } finally {
       setIsChangingPassword(false)
     }
@@ -126,7 +131,9 @@ const ResetPasword = () => {
           <h4>Adresse email</h4>
           <input
             type="email"
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && ResetEmail()}
             placeholder='votreEmail@example.com'
           />
           <button
@@ -157,8 +164,8 @@ const ResetPasword = () => {
         <div id='ResetP2' className='ResetP'>
           <h1>Vérification en deux étapes</h1>
           <p>
-            Un code de vérification a été envoyé à votre email <br />
-            <span style={{ color: "#03F7EB" }}>{email}</span>.<br />
+            Un code de vérification a été envoyé à votre email <br /><br />
+            <span style={{ color: "#03F7EB" }}>{email}</span>.<br /><br />
             Veuillez saisir ce code, il expirera dans 15 minutes.
           </p>
 
@@ -168,16 +175,17 @@ const ResetPasword = () => {
                 key={index}
                 ref={(el) => (inputsRef.current[index] = el)}
                 type="text"
+                inputMode="numeric"
                 maxLength="1"
                 value={digit}
                 onChange={(e) => handleChange(e.target.value, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
+                onPaste={handlePaste}
               />
             ))}
           </div>
 
           <div className="BtnGroup">
-            {/* BUG 4 FIX: Reset code array when going back so old digits don't persist */}
             <button
               onClick={() => {
                 setReset('Rest1')
@@ -216,18 +224,48 @@ const ResetPasword = () => {
       return (
         <div id='ResetP' className='ResetP'>
           <h1>Créer un nouveau mot de passe</h1>
-          <input
-            style={{ marginTop: "50px" }}
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Nouveau mot de passe"
-          />
-          <input
-            style={{ marginTop: "20px" }}
-            type="password"
-            onChange={(e) => setConfPassword(e.target.value)}
-            placeholder="Confirmer le mot de passe"
-          />
+          <div style={{ position: 'relative', marginTop: '50px' }}>
+            <input
+              type={showPass ? 'text' : 'password'}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nouveau mot de passe"
+              style={{ paddingRight: '42px' }}
+            />
+            <button
+              onClick={() => setShowPass(p => !p)}
+              style={{
+                position: 'absolute', right: '12px', top: '50%',
+                transform: 'translateY(-50%)', background: 'none',
+                border: 'none', color: '#6b7280', cursor: 'pointer',
+                padding: 0, display: 'flex', alignItems: 'center',
+                width: 'auto', height: 'auto'
+              }}
+              tabIndex={-1}
+            >
+              {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          <div style={{ position: 'relative', marginTop: '20px' }}>
+            <input
+              type={showConf ? 'text' : 'password'}
+              onChange={(e) => setConfPassword(e.target.value)}
+              placeholder="Confirmer le mot de passe"
+              style={{ paddingRight: '42px' }}
+            />
+            <button
+              onClick={() => setShowConf(p => !p)}
+              style={{
+                position: 'absolute', right: '12px', top: '50%',
+                transform: 'translateY(-50%)', background: 'none',
+                border: 'none', color: '#6b7280', cursor: 'pointer',
+                padding: 0, display: 'flex', alignItems: 'center',
+                width: 'auto', height: 'auto'
+              }}
+              tabIndex={-1}
+            >
+              {showConf ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           <button
             style={{ marginTop: "20px", opacity: isChangingPassword ? 0.7 : 1, cursor: isChangingPassword ? 'not-allowed' : 'pointer' }}
             className="VerifyBtn"
@@ -252,8 +290,6 @@ const ResetPasword = () => {
 
   return (
     <div className='ResetPasword'>
-      {/* BUG 6 FIX: <Toaster /> was imported but never rendered — toasts were silent */}
-      <Toaster />
       <img src={EsL} width={'70px'} height={'70px'} alt="" />
       {displayForm()}
     </div>

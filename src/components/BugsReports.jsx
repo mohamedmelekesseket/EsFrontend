@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Bug, Clock, CircleX , ArrowRight, ChevronDown, Info, Send, Check, Code2 } from 'lucide-react';
+import { Bug, Clock, CircleX, ArrowRight, ChevronDown, Info, Send, Check, Code2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
-import axios from "axios";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const devKey = import.meta.env.VITE_DEV_KEY;
 
 const bugData = [
@@ -16,7 +16,7 @@ const bugData = [
     user: 'Melek Esseket',
     priority: 'High',
     date: 'Feb 5, 10:12 PM',
-    comments: 3
+    comments: 3,
   },
   {
     id: '99993287',
@@ -26,14 +26,14 @@ const bugData = [
     user: 'John Doe',
     priority: 'Medium',
     date: 'Feb 4, 3:45 PM',
-    comments: 7
-  }
+    comments: 7,
+  },
 ];
 
 const PRIORITIES = [
-  { id: 'low', label: 'Low', color: '#0ea5e9' },
-  { id: 'medium', label: 'Medium', color: '#f59e0b' },
-  { id: 'high', label: 'High', color: '#ef4444' },
+  { id: 'low',      label: 'Low',      color: '#0ea5e9' },
+  { id: 'medium',   label: 'Medium',   color: '#f59e0b' },
+  { id: 'high',     label: 'High',     color: '#ef4444' },
   { id: 'critical', label: 'Critical', color: '#dc2626' },
 ];
 
@@ -49,23 +49,21 @@ const BugsReports = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [titleError, setTitleError] = useState('');
   const [descError, setDescError] = useState('');
-  const isTitleInvalid = isSubmitted && (title.length < 5);
-  const isDescInvalid = isSubmitted && (desc.length < 10);
+
+  const isTitleInvalid = isSubmitted && title.length < 5;
+  const isDescInvalid = isSubmitted && desc.length < 10;
 
   const handleAccess = (e) => {
     e.stopPropagation();
-    
-    // Debugging: check both values in console
-    console.log("Input Key:", key);
-    console.log("Environment Key:", devKey);
-
     if (key === devKey) {
       setShowDevForm(false);
       setShowDevTasks(true);
+      setKey('');
     } else {
-      toast.error("Invalid Access Code");
+      toast.error('Invalid Access Code', { id: 'dev-invalid-key' });
     }
   };
+
   const sendBugReport = async () => {
     if (isLoading) return;
 
@@ -74,82 +72,79 @@ const BugsReports = () => {
     setDescError('');
 
     if (!title || !desc) {
-      return toast.error("All fields are required", { id: "bug-required" });
+      return toast.error('All fields are required', { id: 'bug-required' });
     }
-
     if (title.length < 5) {
       return setTitleError(<>Title too short <CircleX size={14} /></>);
     }
-
     if (desc.length < 10) {
       return setDescError(<>Description too short <CircleX size={14} /></>);
     }
 
     setIsLoading(true);
-
     try {
       const res = await axios.post(
         `${API_BASE_URL}/Admin/bug`,
-        {
-          title,
-          description: desc,
-          priority: selected.label,
-        },
+        { title, description: desc, priority: selected.label },
         { withCredentials: true }
       );
 
       if (res.status === 201) {
-        toast.success("Bug report sent 🚀");
-
+        toast.success('Bug report sent 🚀', { id: 'bug-sent' });
         setTitle('');
         setDesc('');
         setSelected(PRIORITIES[1]);
         setIsSubmitted(false);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to send bug");
+      toast.error(err.response?.data?.message || 'Failed to send bug', { id: 'bug-error' });
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <div className='BugsReports-container' onClick={() => setShowDevForm(false)}>
-      
-      {/* Developer Toggle Button */}
+
       {!showDevTasks && (
-        <div className='BugsReportsDevBt' onClick={(e) => { e.stopPropagation(); setShowDevForm(true); }}>
-          <span style={{ color: "#F59E0B", fontSize: "12px", marginRight: '5px' }}>{'</>'}</span>
+        <div className='BugsReportsDevBt' onClick={e => { e.stopPropagation(); setShowDevForm(true); }}>
+          <span style={{ color: '#F59E0B', fontSize: '12px', marginRight: '5px' }}>{'</>'}</span>
           Developer
         </div>
       )}
 
-      {/* Access Form */}
       <AnimatePresence>
         {showDevForm && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className='BugsReportsDeForm' 
-            onClick={(e) => e.stopPropagation()}
+            className='BugsReportsDeForm'
+            onClick={e => e.stopPropagation()}
           >
-            <div className='BugsReports-Header' style={{ width: "100%", color: "white", cursor: "default" }}>
+            <div className='BugsReports-Header' style={{ width: '100%', color: 'white', cursor: 'default' }}>
               <div className='icon-container'>👨‍💻</div>
               <div>
-                <h2 style={{ fontSize: "15px", margin: 0 }}>Dev Task Access</h2>
-                <p style={{ fontSize: "10px", color: 'gray', margin: 0 }}>Enter your access code</p>
+                <h2 style={{ fontSize: '15px', margin: 0 }}>Dev Task Access</h2>
+                <p style={{ fontSize: '10px', color: 'gray', margin: 0 }}>Enter your access code</p>
               </div>
             </div>
-            <input className='input-glass' type="password" onChange={(e)=>setKey(e.target.value)} placeholder='Enter your access code' />
+            <input
+              className='input-glass'
+              type="password"
+              value={key}
+              onChange={e => setKey(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAccess(e)}
+              placeholder='Enter your access code'
+            />
             <button className='btn-primary' onClick={handleAccess}>
               Access <ArrowRight size={19} />
             </button>
-            <p style={{ margin: "0", color: "gray", fontSize: "11px" }}>Authorized developers only</p>
+            <p style={{ margin: '0', color: 'gray', fontSize: '11px' }}>Authorized developers only</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* --- FORM SECTION (Standard User) --- */}
       {!showDevTasks && (
         <>
           <div className='BugsReports-Header'>
@@ -162,18 +157,18 @@ const BugsReports = () => {
 
           <div className="bug-report-wrapper">
             <div className="bug-report-card">
-              <div className='bug-report-cards' >
+              <div className='bug-report-cards'>
                 <div className="form-field">
                   <label>Bug Title</label>
                   <input
                     type="text"
                     value={title}
                     placeholder="Brief description..."
-                    className={`premium-input ${isTitleInvalid ? "input-error" : ""}`}
-                    onChange={(e) => setTitle(e.target.value)}
+                    className={`premium-input ${isTitleInvalid ? 'input-error' : ''}`}
+                    onChange={e => setTitle(e.target.value)}
+                    maxLength={100}
                   />
-
-
+                  {titleError && <div className="error-hint">{titleError}</div>}
                   <div className="field-footer">{title.length}/100</div>
                 </div>
 
@@ -182,10 +177,10 @@ const BugsReports = () => {
                   <div className="dropdown-container">
                     <div
                       className={`dropdown-trigger ${isOpen ? 'active-trigger' : ''}`}
-                      onClick={() => setIsOpen(!isOpen)}
+                      onClick={() => setIsOpen(prev => !prev)}
                     >
                       <div className="selected-item">
-                        <span className="prio-dot" style={{ background: selected.color }}></span>
+                        <span className="prio-dot" style={{ background: selected.color }} />
                         <span style={{ color: selected.color }}>{selected.label}</span>
                       </div>
                       <ChevronDown size={18} className={`chevron ${isOpen ? 'rotate' : ''}`} />
@@ -199,14 +194,14 @@ const BugsReports = () => {
                           exit={{ opacity: 0, y: 10 }}
                           className="dropdown-menu"
                         >
-                          {PRIORITIES.map((prio) => (
+                          {PRIORITIES.map(prio => (
                             <div
                               key={prio.id}
                               className={`menu-item ${selected.id === prio.id ? 'is-selected' : ''}`}
                               onClick={() => { setSelected(prio); setIsOpen(false); }}
                             >
                               {selected.id === prio.id && <Check size={14} className="check-mark" />}
-                              <span className="prio-dot" style={{ background: prio.color }}></span>
+                              <span className="prio-dot" style={{ background: prio.color }} />
                               <span>{prio.label}</span>
                             </div>
                           ))}
@@ -217,22 +212,22 @@ const BugsReports = () => {
                 </div>
               </div>
 
-              <div className='bug-report-cards' >
+              <div className='bug-report-cards'>
                 <div className="form-field">
                   <label>Description</label>
                   <textarea
                     value={desc}
                     placeholder="Describe the bug in detail..."
-                    className={`premium-input textarea ${isDescInvalid ? "input-error" : ""}`}
-                    onChange={(e) => setDesc(e.target.value)}
+                    className={`premium-input textarea ${isDescInvalid ? 'input-error' : ''}`}
+                    onChange={e => setDesc(e.target.value)}
+                    maxLength={1000}
                   />
-
-
+                  {descError && <div className="error-hint">{descError}</div>}
                   <div className="field-footer">{desc.length}/1000</div>
                 </div>
               </div>
 
-              <div className='bug-report-cards' style={{ width: "100%" }}>
+              <div className='bug-report-cards' style={{ width: '100%' }}>
                 <div className="notification-hint">
                   <Info size={14} />
                   <span>The developer will receive an email notification.</span>
@@ -245,19 +240,17 @@ const BugsReports = () => {
                   className="submit-button"
                 >
                   <Send size={18} />
-                  <span>{isLoading ? "Sending..." : "Submit Bug Report"}</span>
+                  <span>{isLoading ? 'Sending...' : 'Submit Bug Report'}</span>
                 </motion.button>
-
               </div>
             </div>
           </div>
         </>
       )}
 
-      {/* --- TASK BOARD SECTION (Developer Only) --- */}
       {showDevTasks && (
         <div className="developer-dashboard">
-           <button onClick={() => setShowDevTasks(false)} className="btn-back">← Back to Reporting</button>
+          <button onClick={() => setShowDevTasks(false)} className="btn-back">← Back to Reporting</button>
           <div className='BugsReports-Header'>
             <div className='icon-container'>👨‍💻</div>
             <div>
@@ -265,7 +258,7 @@ const BugsReports = () => {
               <p>Manage and resolve reported issues</p>
             </div>
           </div>
-          
+
           <div className='BugsReports-grid'>
             {bugData.map((bug, index) => (
               <motion.div
@@ -279,26 +272,20 @@ const BugsReports = () => {
                 <span className={`StatusBadge ${bug.status.replace(/\s+/g, '').toLowerCase()}`}>
                   {bug.status}
                 </span>
-
                 <div className='CardTitle'>
                   <Code2 size={18} className="code-icon" />
                   <h3>{bug.title}</h3>
                 </div>
-
                 <p className='CardDesc'>{bug.desc}</p>
-
                 <div className='CardUserInfo'>
                   <span className='UserName'>{bug.user}</span>
                   <span className='UserID'>#{bug.id}</span>
                 </div>
-
                 <div className={`PriorityBadge ${bug.priority.toLowerCase()}`}>
-                  <div className='dot'></div>
+                  <div className='dot' />
                   {bug.priority}
                 </div>
-
                 <hr className='divider' />
-
                 <div className='CardFooter'>
                   <div className='FooterItem'>
                     <Clock size={14} />
