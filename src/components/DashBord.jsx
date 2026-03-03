@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  MessageCircleWarning,
-  Package,
-  SquareArrowRight,
-  User,
-  LayoutGrid,
-  ClipboardList,
-  PackagePlus,
-  Plus
-} from "lucide-react";
+import { MessageCircleWarning, Package, SquareArrowRight, User, LayoutGrid, ClipboardList, PackagePlus, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
@@ -21,12 +12,9 @@ const Dashboard = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [bugs, setBugs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const handleMenuSelect = (menu) => {
-    localStorage.setItem("selecteMenu", menu);
-  };
+  const handleMenuSelect = (menu) => localStorage.setItem("selecteMenu", menu);
 
   const fetchAll = async () => {
     try {
@@ -35,24 +23,27 @@ const Dashboard = () => {
         axios.get(`${API_BASE_URL}/Admin/Get-category`, { withCredentials: true }),
         axios.get(`${API_BASE_URL}/Admin/Get-products`, { withCredentials: true }),
         axios.get(`${API_BASE_URL}/Admin/Get-Orders`, { withCredentials: true }),
-        // axios.get(`${API_BASE_URL}/Admin/bug`, { withCredentials: true }),
       ]);
 
-      setUsers(usersRes.data);
-      setCategories(categoriesRes.data);
-      setProducts(productsRes.data);
-      setOrders(ordersRes.data);
-      // setBugs(bugsRes.data);
+      // ✅ Handle { success, data: [...] } shape for all endpoints
+      const unwrap = (res) => {
+        const d = res.data.data || res.data;
+        return Array.isArray(d) ? d : [];
+      };
+
+      setUsers(unwrap(usersRes));
+      setCategories(unwrap(categoriesRes));
+      setProducts(unwrap(productsRes));
+      setOrders(unwrap(ordersRes));
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to load dashboard data");
+      console.error("[fetchAll]", error);
+      toast.error(error.response?.data?.message || "Failed to load dashboard data.", { id: "dashboard-fetch-error" });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
+  useEffect(() => { fetchAll(); }, []);
 
   const Stat = ({ title, count, icon, path, menuKey }) => (
     <div className="DashBord-Menu-1">
@@ -60,20 +51,10 @@ const Dashboard = () => {
         <h3>{title}</h3>
         <span className="icon-circle">{icon}</span>
       </div>
-
-      <h1>
-        {loading ? <BeatLoader size={8} color="#4f8cff" /> : count}
-      </h1>
-
-      <Link
-        to={path}
-        onClick={() => handleMenuSelect(menuKey)}
-        style={{ textDecoration: "none", width: "100%" }}
-      >
+      <h1>{loading ? <BeatLoader size={8} color="#4f8cff" /> : count}</h1>
+      <Link to={path} onClick={() => handleMenuSelect(menuKey)} style={{ textDecoration: "none", width: "100%" }}>
         <div className="dashbord-menu-link">
-          <span className="icon-arrow">
-            <SquareArrowRight size={20} color="#4f8cff" />
-          </span>
+          <span className="icon-arrow"><SquareArrowRight size={20} color="#4f8cff" /></span>
           <h5>Go to component</h5>
         </div>
       </Link>
@@ -82,58 +63,14 @@ const Dashboard = () => {
 
   return (
     <div className="DashBord">
-      <div className="DashBord-Title">
-        <h2>Dashboard</h2>
-      </div>
-
+      <div className="DashBord-Title"><h2>Dashboard</h2></div>
       <div className="DashBord-Menu">
-        <Stat
-          title="Orders"
-          count={orders.length}
-          icon={<ClipboardList size={28} color="#4f8cff" />}
-          path="/ManagementDashboard/Order"
-          menuKey="Order"
-        />
-
-        <Stat
-          title="Categories"
-          count={categories.length}
-          icon={<LayoutGrid size={28} color="#4f8cff" />}
-          path="/ManagementDashboard/CategoriesBoard"
-          menuKey="Categories"
-        />
-
-        <Stat
-          title="Products"
-          count={products.length}
-          icon={<Package size={28} color="#4f8cff" />}
-          path="/ManagementDashboard/AllProducts"
-          menuKey="AllProducts"
-        />
-
-        <Stat
-          title="Users"
-          count={users.length}
-          icon={<User size={28} color="#4f8cff" />}
-          path="/ManagementDashboard/user"
-          menuKey="Users"
-        />
-
-        <Stat
-          title="Add New Product"
-          count={<Plus size={30} />}
-          icon={<PackagePlus size={28} color="#4f8cff" />}
-          path="/ManagementDashboard/AddNewProduct"
-          menuKey="AddNewProduct"
-        />
-
-        <Stat
-          title="Bugs"
-          count={1}
-          icon={<MessageCircleWarning size={28} color="#4f8cff" />}
-          path="/ManagementDashboard/BugsReports"
-          menuKey="BugsReports"
-        />
+        <Stat title="Orders" count={orders.length} icon={<ClipboardList size={28} color="#4f8cff" />} path="/ManagementDashboard/Order" menuKey="Order" />
+        <Stat title="Categories" count={categories.length} icon={<LayoutGrid size={28} color="#4f8cff" />} path="/ManagementDashboard/CategoriesBoard" menuKey="Categories" />
+        <Stat title="Products" count={products.length} icon={<Package size={28} color="#4f8cff" />} path="/ManagementDashboard/AllProducts" menuKey="AllProducts" />
+        <Stat title="Users" count={users.length} icon={<User size={28} color="#4f8cff" />} path="/ManagementDashboard/user" menuKey="Users" />
+        <Stat title="Add New Product" count={<Plus size={30} />} icon={<PackagePlus size={28} color="#4f8cff" />} path="/ManagementDashboard/AddNewProduct" menuKey="AddNewProduct" />
+        <Stat title="Bugs" count={1} icon={<MessageCircleWarning size={28} color="#4f8cff" />} path="/ManagementDashboard/BugsReports" menuKey="BugsReports" />
       </div>
     </div>
   );

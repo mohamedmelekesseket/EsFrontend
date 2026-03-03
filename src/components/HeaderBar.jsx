@@ -7,12 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import EsL from '../images/Es4.png'
 import { useAuth } from '../context/AuthContext';
 import LogContainer from '../../Es1.png'
-
 import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-function HeaderBar({showBag,setShowBag}   ) {
+function HeaderBar({showBag,setShowBag}) {
   const [categorySelected,setCategorySelected]=useState('')
   const [categorySelectedName,setCategorySelectedName]=useState('')
   const [showMenu,setShowMenu]=useState(false)
@@ -49,20 +48,13 @@ function HeaderBar({showBag,setShowBag}   ) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // BUG 3 FIX: Separate refs for mobile and desktop subcategory scroll containers
   const subcategoriesScrollRef = useRef(null);
   const desktopSubcatScrollRef = useRef(null);
   const [isDeletingCart, setIsDeletingCart] = useState(false);
   const [isUpdatingCart, setIsUpdatingCart] = useState(false);
   const [bagLoading, setBagLoading] = useState(false);
 
-
-  const icons = {
-    Shirt,
-    ShoppingBag,
-    Footprints,
-    Smartphone
-  };
+  const icons = { Shirt, ShoppingBag, Footprints, Smartphone };
 
   const total = useMemo(() => {
     if (!productCart?.cart?.products) return 0;
@@ -86,34 +78,32 @@ function HeaderBar({showBag,setShowBag}   ) {
 
   useEffect(() => {
     window.addEventListener("scroll", controlHeader);
-    return () => {
-      window.removeEventListener("scroll", controlHeader);
-    };
+    return () => window.removeEventListener("scroll", controlHeader);
   }, [lastScrollY]);
 
-  
   const getProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/GetProduct`);
-      setAllProducts(res.data)
-      const featuredProducts = res.data
+      const products = res.data.data || res.data;
+      setAllProducts(Array.isArray(products) ? products : []);
+      const featuredProducts = (Array.isArray(products) ? products : [])
         .filter(p => p.isFeatured)
         .slice(0, 4);
       setProducts(featuredProducts);
     } catch (error) {
-      console.log(error);
+      console.error("[getProducts]", error);
       toast.error(error.response?.data?.message || "Failed to fetch products", { id: "headerbar-fetch-products-error" });
     }
   };
 
-  const getCategory = async () => {  
+  const getCategory = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`,{});
-      setCategories(res.data);            
+      const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`, {});
+      const data = res.data.data || res.data;
+      setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" })
-      }
+      console.error("[getCategory]", error);
+      toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" });
     }
   };
 
@@ -123,47 +113,44 @@ function HeaderBar({showBag,setShowBag}   ) {
     navigate('/');
   };
 
-  const getProductCart = async () => {   
-    if (!user?.id) return; 
+  const getProductCart = async () => {
+    if (!user?.id) return;
     try {
       const res = await axios.get(`${API_BASE_URL}/GetProductCart/${user.id}`, {
-        withCredentials: true 
+        withCredentials: true
       });
-      setProductCart(res.data);
+      const data = res.data.data || res.data;
+      setProductCart(data);
     } catch (error) {
-      // BUG 6 FIX: await handleLogout so logout completes before continuing
       if (error.response?.status === 401) {
         await handleLogout();
       }
-      console.log(error);
+      console.error("[getProductCart]", error);
     }
   };
 
-  const getAllSubCategory = async () => {  
+  const getAllSubCategory = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/getAllSubCategory`);
-      setAllSubcategories(res.data);     
+      const data = res.data.data || res.data;
+      setAllSubcategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.log(error);
-      if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" })
-      }
+      console.error("[getAllSubCategory]", error);
+      toast.error(error.response?.data?.message, { id: "headerbar-fetch-subcategory-error" });
     }
   };
 
-  const getSubCategory = async (id) => {  
+  const getSubCategory = async (id) => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${id}`);
-      setSubcategories(res.data);     
+      const data = res.data.data || res.data;
+      setSubcategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.log(error);
-      if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" })
-      }
+      console.error("[getSubCategory]", error);
+      toast.error(error.response?.data?.message, { id: "headerbar-fetch-subcategory-error" });
     }
   };
 
-  // BUG 3 FIX: scrollSubcategories now accepts a ref parameter so each panel controls its own scroll
   const scrollSubcategories = (direction, ref) => {
     if (!ref?.current) return;
     const container = ref.current;
@@ -174,42 +161,37 @@ function HeaderBar({showBag,setShowBag}   ) {
     });
   };
 
-  const GetPById = async (id) => {  
+  const GetPById = async (id) => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/Admin/Get-product/${id}`);     
-      setName(res.data.name)
-      setProduct(res.data)  
-      setColors(Array.isArray(res.data.color) ? res.data.color : []);
+      const res = await axios.get(`${API_BASE_URL}/Admin/Get-product/${id}`);
+      const data = res.data.data || res.data;
+      setName(data.name);
+      setProduct(data);
+      setColors(Array.isArray(data.color) ? data.color : []);
       setSizes(() => {
         try {
-          const raw = Array.isArray(res.data.size) ? res.data.size[0] : res.data.size;
+          const raw = Array.isArray(data.size) ? data.size[0] : data.size;
           return JSON.parse(raw);
         } catch {
           return [];
         }
       });
-      setImages(res.data.images || []);
-      if (Array.isArray(res.data.color) && res.data.color.length > 0) {
-        setSelectedColor(res.data.color[0]);
-      }
-      if (Array.isArray(res.data.color) && res.data.color.length > 0) {
-        const initialImage = getImageByColor(res.data, res.data.color[0]);
+      setImages(data.images || []);
+      if (Array.isArray(data.color) && data.color.length > 0) {
+        setSelectedColor(data.color[0]);
+        const initialImage = getImageByColor(data, data.color[0]);
         setImage(initialImage);
       }
     } catch (error) {
-      console.log(error);
-      if (error.response?.status !== 200) {
-        toast.error(error.response?.data?.message, { id: "headerbar-fetch-category-error" })
-      }
+      console.error("[GetPById]", error);
+      toast.error(error.response?.data?.message, { id: "headerbar-fetch-product-error" });
     }
   };
 
   const formatImageUrl = (path) => {
     if (!path) return null;
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal 
-      ? 'http://localhost:2025' 
-      : 'https://esseket.duckdns.org';
+    const base = isLocal ? 'http://localhost:2025' : 'https://esseket.duckdns.org';
     const fileName = path.split('/').pop().split('\\').pop();
     return `${base}/uploads/${fileName}`;
   };
@@ -219,34 +201,25 @@ function HeaderBar({showBag,setShowBag}   ) {
     const match = product.images.find(
       img => img.color?.toLowerCase() === color?.toLowerCase()
     );
-    if (match?.urls?.[0]) {
-      return formatImageUrl(match.urls[0]);
-    }
+    if (match?.urls?.[0]) return formatImageUrl(match.urls[0]);
     const fallback = product.images[0];
-    if (fallback?.urls?.[0]) {
-      return formatImageUrl(fallback.urls[0]);
-    }
+    if (fallback?.urls?.[0]) return formatImageUrl(fallback.urls[0]);
     return '';
   };
 
   useEffect(() => {
     getCategory();
-    getAllSubCategory()
+    getAllSubCategory();
   }, []);
 
-  // BUG 2 FIX: Only fetch cart when the bag is opened, not on every toggle
   useEffect(() => {
-    if (showBag) {
-      getProductCart();
-    }
+    if (showBag) getProductCart();
   }, [showBag, user?.id]);
 
   useEffect(() => {
     if (showBag) {
       setBagLoading(true);
-      const timer = setTimeout(() => {
-        setBagLoading(false);
-      }, 1000);
+      const timer = setTimeout(() => setBagLoading(false), 1000);
       return () => clearTimeout(timer);
     } else {
       setBagLoading(false);
@@ -254,7 +227,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   }, [showBag]);
 
   useEffect(() => {
-    getProducts()
+    getProducts();
   }, []);
 
   useEffect(() => {
@@ -263,15 +236,13 @@ function HeaderBar({showBag,setShowBag}   ) {
     } else {
       document.body.style.overflow = 'auto';
     }
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
+    return () => { document.body.style.overflow = 'auto'; };
   }, [showBag, showBagEdit, showMenu, showSearch, SearchMobile]);
 
   useEffect(() => {
-    setHoverCat('')
-    setHoverSub('')
-    setCategorySelected('')
+    setHoverCat('');
+    setHoverSub('');
+    setCategorySelected('');
   }, [showMenu]);
 
   useEffect(() => {
@@ -294,11 +265,10 @@ function HeaderBar({showBag,setShowBag}   ) {
         },
         withCredentials: true
       });
-      if (res.status === 200) {
-        getProductCart();
-      }
+      if (res.status === 200) getProductCart();
     } catch (error) {
-      console.log(error);
+      console.error("[DeletePrdCart]", error);
+      toast.error(error.response?.data?.message || "Failed to remove item from cart", { id: "headerbar-delete-cart-error" });
     } finally {
       setIsDeletingCart(false);
     }
@@ -317,9 +287,7 @@ function HeaderBar({showBag,setShowBag}   ) {
         color: selectedColor,
         originalSize: originalSize,
         originalColor: originalColor
-      }, {
-        withCredentials: true
-      });
+      }, { withCredentials: true });
       if (res.status === 200) {
         getProductCart();
         setShowBagEdit(false);
@@ -328,7 +296,7 @@ function HeaderBar({showBag,setShowBag}   ) {
         setOriginalColor('');
       }
     } catch (error) {
-      console.log(error);
+      console.error("[updateCartItem]", error);
       toast.error(error.response?.data?.message || "Failed to update cart item", { id: "headerbar-update-cart-error" });
     } finally {
       setIsUpdatingCart(false);
@@ -338,6 +306,7 @@ function HeaderBar({showBag,setShowBag}   ) {
   const filteredProducts = AllProducts.filter(product =>
     product.name.toLowerCase().includes(searchInput.toLowerCase())
   );
+
   const filteredSubcategory = Allsubcategories.filter(subc =>
     subc.name.toLowerCase().includes(searchInput.toLowerCase())
   );
@@ -349,9 +318,8 @@ function HeaderBar({showBag,setShowBag}   ) {
     { icon: <Truck size={18} style={{ marginRight: "6px" }} />, text: "Livraison gratuite à partir de 120 DT" }
   ];
 
-
   return (
-    <div >
+    <div>
       <AnimatePresence>
         {showBag && (
           <motion.div
@@ -390,20 +358,16 @@ function HeaderBar({showBag,setShowBag}   ) {
                       <motion.div
                         className='Ringcontainer'
                         animate={{ rotate: 360 }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1,
-                          ease: "linear"
-                        }}
+                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                       />
                     </div>
                   ) : (
                     <AnimatePresence mode="wait">
                       {!showBagEdit ? (
-                        <motion.div 
+                        <motion.div
                           key="cart-list-view"
-                          initial={{ opacity: 0 }} 
-                          animate={{ opacity: 1 }} 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                         >
                           {productCart.cart?.products?.length === 0 || !user ? (
@@ -420,28 +384,30 @@ function HeaderBar({showBag,setShowBag}   ) {
                                 <div className='ShoppingBagProducts'>
                                   <h2>You should like this</h2>
                                   <div className='ShoppingBagProducts-cards'>
-                                    {AllProducts.map((prod, index) => {
-                                      return (
-                                        <div key={prod._id || index} className='ShoppingBagProducts-card'
-                                          onClick={() => (navigate(`/PorductSelecte/${prod._id}`, {
+                                    {AllProducts.map((prod, index) => (
+                                      <div
+                                        key={prod._id || index}
+                                        className='ShoppingBagProducts-card'
+                                        onClick={() => {
+                                          navigate(`/PorductSelecte/${prod._id}`, {
                                             state: {
                                               parentCategoryId: prod.categoryId,
                                               subcategoryId: prod.subcategoryId,
                                               genre: prod.genre,
                                             }
-                                          }), setSearchMobile(false))}>
-                                          <img
-                                            src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
-                                            alt={prod.name}
-                                            onError={(e) => {
-                                              e.target.src = 'https://via.placeholder.com/150?text=No+Image';
-                                            }}
-                                          />
-                                          <h2>{prod.name?.substring(0, 9)}...</h2>
-                                          <h3>{prod.price}.00 TND</h3>
-                                        </div>
-                                      )
-                                    })}
+                                          });
+                                          setSearchMobile(false);
+                                        }}
+                                      >
+                                        <img
+                                          src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
+                                          alt={prod.name}
+                                          onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                                        />
+                                        <h2>{prod.name?.substring(0, 9)}...</h2>
+                                        <h3>{prod.price}.00 TND</h3>
+                                      </div>
+                                    ))}
                                   </div>
                                 </div>
                               </div>
@@ -456,30 +422,21 @@ function HeaderBar({showBag,setShowBag}   ) {
                               <div className='PdSb-1'>
                                 <AnimatePresence>
                                   {productCart?.cart?.products?.map((product, index) => {
-                                    // BUG 1 FIX: Removed erroneous third argument (0) from getImageByColor
                                     const imageUrl = getImageByColor(product.productId, product.color);
                                     return (
-                                      <motion.div 
-                                        className='PdSp-2' 
+                                      <motion.div
+                                        className='PdSp-2'
                                         key={product._id || `${product.productId?._id}-${product.size}-${product.color}`}
                                         initial={{ opacity: 0, y: -20, height: "auto" }}
-                                        animate={{ 
-                                          opacity: 1, 
-                                          y: 0,
-                                          height: "auto",
-                                          transition: { duration: 0.2 }
-                                        }}
-                                        exit={{ 
-                                          opacity: 0, 
+                                        animate={{ opacity: 1, y: 0, height: "auto", transition: { duration: 0.2 } }}
+                                        exit={{
+                                          opacity: 0,
                                           x: -300,
                                           height: 0,
                                           marginBottom: 0,
                                           paddingTop: 0,
                                           paddingBottom: 0,
-                                          transition: { 
-                                            duration: 0.4, 
-                                            ease: [0.4, 0, 0.2, 1]
-                                          } 
+                                          transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
                                         }}
                                         transition={{ duration: 0.2 }}
                                       >
@@ -493,14 +450,18 @@ function HeaderBar({showBag,setShowBag}   ) {
                                             <span style={{ color: "black", fontWeight: "600" }}></span> {product.quantity} unit
                                           </p>
                                           <div className='PdSp-4'>
-                                            <Edit2 size={19} onClick={() => {
-                                              setEditingCartItem(product);
-                                              setquantity(product.quantity);
-                                              setSelectedSize(product.size);
-                                              setSelectedColor(product.color);
-                                              GetPById(product.productId._id);
-                                              setShowBagEdit(true);
-                                            }} style={{ cursor: "pointer" }} />
+                                            <Edit2
+                                              size={19}
+                                              onClick={() => {
+                                                setEditingCartItem(product);
+                                                setquantity(product.quantity);
+                                                setSelectedSize(product.size);
+                                                setSelectedColor(product.color);
+                                                GetPById(product.productId._id);
+                                                setShowBagEdit(true);
+                                              }}
+                                              style={{ cursor: "pointer" }}
+                                            />
                                             <Trash2 size={19} style={{ cursor: "pointer" }} onClick={() => DeletePrdCart(product)} />
                                           </div>
                                         </div>
@@ -512,47 +473,53 @@ function HeaderBar({showBag,setShowBag}   ) {
                                 <div className='ShoppingBagProducts'>
                                   <h2>You should like this</h2>
                                   <div className='ShoppingBagProducts-cards'>
-                                    {AllProducts.map((prod, index) => {
-                                      return (
-                                        <div key={prod._id || index} className='ShoppingBagProducts-card'
-                                          onClick={() => (navigate(`/PorductSelecte/${prod._id}`, {
+                                    {AllProducts.map((prod, index) => (
+                                      <div
+                                        key={prod._id || index}
+                                        className='ShoppingBagProducts-card'
+                                        onClick={() => {
+                                          navigate(`/PorductSelecte/${prod._id}`, {
                                             state: {
                                               parentCategoryId: prod.categoryId,
                                               subcategoryId: prod.subcategoryId,
                                               genre: prod.genre,
                                             }
-                                          }), setShowBag(false))}>
-                                          <img
-                                            src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
-                                            alt={prod.name}
-                                            onError={(e) => {
-                                              e.target.src = 'https://via.placeholder.com/150?text=No+Image';
-                                            }}
-                                          />
-                                          <h2>{prod.name?.substring(0, 9)}...</h2>
-                                          <h3>{prod.price}.00 TND</h3>
-                                        </div>
-                                      )
-                                    })}
+                                          });
+                                          setShowBag(false);
+                                        }}
+                                      >
+                                        <img
+                                          src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
+                                          alt={prod.name}
+                                          onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                                        />
+                                        <h2>{prod.name?.substring(0, 9)}...</h2>
+                                        <h3>{prod.price}.00 TND</h3>
+                                      </div>
+                                    ))}
                                   </div>
                                 </div>
                               </div>
+
                               <div className='detailsTotal'>
                                 <div className='total'>
-                                  <h2 style={{ color: "black", fontWeight: "500", fontSize: "15px" }}>Total <span style={{ color: "gray", fontSize: "11px" }}>TVA comprise </span></h2>
+                                  <h2 style={{ color: "black", fontWeight: "500", fontSize: "15px" }}>
+                                    Total <span style={{ color: "gray", fontSize: "11px" }}>TVA comprise</span>
+                                  </h2>
                                   <h2 style={{ fontWeight: "600", color: "black" }}>{total + 9.9} TND</h2>
                                 </div>
-                                <button className='PdSb-bt' onClick={() => (navigate('/Commande'), setShowBag(false))}>Passer Commande</button>
+                                <button className='PdSb-bt' onClick={() => { navigate('/Commande'); setShowBag(false); }}>Passer Commande</button>
                               </div>
                             </div>
                           )}
                         </motion.div>
                       ) : (
-                        <motion.div key="edit-product-view"
-                          initial={{ opacity: 0, x: 50 }} 
-                          animate={{ opacity: 1, x: 0 }} 
+                        <motion.div
+                          key="edit-product-view"
+                          initial={{ opacity: 0, x: 50 }}
+                          animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 50 }}
-                          className="ShoppingBag-Edit" 
+                          className="ShoppingBag-Edit"
                         >
                           <div style={{ padding: "10px", display: "flex", alignItems: "center" }}>
                             <ArrowLeft onClick={() => setShowBagEdit(false)} style={{ cursor: "pointer" }} />
@@ -581,7 +548,11 @@ function HeaderBar({showBag,setShowBag}   ) {
                                 <button
                                   key={idx}
                                   onClick={() => setSelectedSize(size)}
-                                  style={{ backgroundColor: selectedSize === size ? 'black' : '', width: "30px", height: "30px", color: selectedSize === size ? 'white' : '' }}
+                                  style={{
+                                    backgroundColor: selectedSize === size ? 'black' : '',
+                                    width: "30px", height: "30px",
+                                    color: selectedSize === size ? 'white' : ''
+                                  }}
                                   className="sizeBtn"
                                 >
                                   {size}
@@ -608,14 +579,12 @@ function HeaderBar({showBag,setShowBag}   ) {
                   )}
                 </motion.div>
               )}
-            </AnimatePresence> 
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {showSearch && showMenu && (
-        <div className='overflow'></div>
-      )}
+      {showSearch && showMenu && <div className='overflow'></div>}
 
       {location.pathname === "/" && (
         <div className='SearchMobile' onClick={() => setSearchMobile(true)}>
@@ -628,7 +597,6 @@ function HeaderBar({showBag,setShowBag}   ) {
         <div className='SearchMobileComp'>
           <div className='FetchMobile'>
             <Search style={{ cursor: "pointer", position: "absolute", left: "2%" }} />
-            {/* BUG 4 FIX: Added onChange handler so mobile search actually filters results */}
             <input
               id="FetchMobile"
               type="text"
@@ -636,42 +604,22 @@ function HeaderBar({showBag,setShowBag}   ) {
               onChange={(e) => setSearchInput(e.target.value)}
             />
           </div>
-          {/* BUG 5 FIX: Clear searchInput when closing mobile search */}
           <X
             style={{ position: 'absolute', right: "10px", cursor: "pointer" }}
             onClick={() => { setSearchMobile(false); setSearchInput(''); }}
             size={20}
           />
-          <div
-            className='SearchMobileCompGenre'
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginTop: '16px'
-            }}
-          >
-            {/* BUG 3 FIX: Pass subcategoriesScrollRef (mobile ref) explicitly */}
-            <MoveLeft
-              size={22}
-              onClick={() => scrollSubcategories('left', subcategoriesScrollRef)}
-              style={{ cursor: 'pointer' }}
-            />
+          <div className='SearchMobileCompGenre' style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
+            <MoveLeft size={22} onClick={() => scrollSubcategories('left', subcategoriesScrollRef)} style={{ cursor: 'pointer' }} />
             <div
               ref={subcategoriesScrollRef}
               className='SearchMobileCompGenreList'
               style={{
-                display: 'flex',
-                overflowX: 'auto',
-                gap: '0px',
-                padding: '4px 0',
-                paddingRight: '24px',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
+                display: 'flex', overflowX: 'auto', gap: '0px', padding: '4px 0',
+                paddingRight: '24px', scrollbarWidth: 'none', msOverflowStyle: 'none',
                 WebkitOverflowScrolling: 'touch'
               }}
             >
-              {/* BUG 7 FIX: Show all subcategories regardless of genre since genre toggle is removed */}
               {Allsubcategories.map((subcategory, index) => (
                 <h4
                   key={subcategory._id || index}
@@ -690,61 +638,55 @@ function HeaderBar({showBag,setShowBag}   ) {
                     setSearchInput('');
                   }}
                   style={{
-                    flex: '0 0 auto',
-                    minWidth: '100px',
-                    margin: '0',
-                    padding: '6px 12px',
-                    borderRadius: '16px',
-                    color: '#303030',
-                    whiteSpace: 'nowrap',
-                    cursor: 'pointer',
-                    textAlign: 'center'
+                    flex: '0 0 auto', minWidth: '100px', margin: '0', padding: '6px 12px',
+                    borderRadius: '16px', color: '#303030', whiteSpace: 'nowrap',
+                    cursor: 'pointer', textAlign: 'center'
                   }}
                 >
                   {subcategory.name}
                 </h4>
               ))}
             </div>
-            <MoveRight
-              size={22}
-              onClick={() => scrollSubcategories('right', subcategoriesScrollRef)}
-              style={{ cursor: 'pointer' }}
-            />
+            <MoveRight size={22} onClick={() => scrollSubcategories('right', subcategoriesScrollRef)} style={{ cursor: 'pointer' }} />
           </div>
+
           <h1>You might be interested in</h1>
 
           <div className='SearchMobileProductS'>
-            {/* BUG 4 FIX: Use filteredProducts so mobile search actually filters */}
-            {filteredProducts.map((prod, index) => {
-              return (
-                <div key={prod._id || index} id='FeaturedProductCard' className='FeaturedProductCard'
-                  onClick={() => (navigate(`/PorductSelecte/${prod._id}`, {
+            {filteredProducts.map((prod, index) => (
+              <div
+                key={prod._id || index}
+                id='FeaturedProductCard'
+                className='FeaturedProductCard'
+                onClick={() => {
+                  navigate(`/PorductSelecte/${prod._id}`, {
                     state: {
                       parentCategoryId: prod.categoryId,
                       subcategoryId: prod.subcategoryId,
                       genre: prod.genre,
                     }
-                  }), setSearchMobile(false), setSearchInput(''))}>
-                  <img
-                    src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
-                    alt={prod.name}
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/150?text=No+Image';
-                    }}
-                  />
-                  <h2>{prod.name}</h2>
-                  <h3>{prod.price} TND</h3>
-                </div>
-              )
-            })}
+                  });
+                  setSearchMobile(false);
+                  setSearchInput('');
+                }}
+              >
+                <img
+                  src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
+                  alt={prod.name}
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                />
+                <h2>{prod.name}</h2>
+                <h3>{prod.price} TND</h3>
+              </div>
+            ))}
           </div>
-        </div>  
+        </div>
       )}
 
       <div className={`Search ${showSearch ? "open" : ""}`}>
         <div className='divshowSearch'>
           <Search style={{ cursor: "pointer", position: "absolute", left: "2%", color: "black" }} />
-          <input 
+          <input
             id="SearchDesktop"
             type="text"
             className="SearchInput"
@@ -757,46 +699,21 @@ function HeaderBar({showBag,setShowBag}   ) {
             }}
           />
         </div>
-        {/* BUG 5 FIX: Clear searchInput when closing desktop search */}
-        <X 
-          style={{
-            position: 'absolute',
-            right: "10px",
-            top: "20px",
-            cursor: "pointer",
-            color: "black"
-          }} 
-          onClick={() => { setShowSearch(false); setSearchInput(''); }} 
+        <X
+          style={{ position: 'absolute', right: "10px", top: "20px", cursor: "pointer", color: "black" }}
+          onClick={() => { setShowSearch(false); setSearchInput(''); }}
           size={20}
         />
         {showSearch && (
           <>
-            <div
-              className='SearchMobileCompGenre'
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginTop: '16px'
-              }}
-            >
-              {/* BUG 3 FIX: Pass desktopSubcatScrollRef (desktop ref) explicitly */}
-              <MoveLeft
-                size={22}
-                onClick={() => scrollSubcategories('left', desktopSubcatScrollRef)}
-                style={{ cursor: 'pointer' }}
-              />
+            <div className='SearchMobileCompGenre' style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
+              <MoveLeft size={22} onClick={() => scrollSubcategories('left', desktopSubcatScrollRef)} style={{ cursor: 'pointer' }} />
               <div
                 ref={desktopSubcatScrollRef}
                 className='SearchMobileCompGenreList'
                 style={{
-                  display: 'flex',
-                  overflowX: 'auto',
-                  gap: '0px',
-                  padding: '4px 0',
-                  paddingRight: '24px',
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none',
+                  display: 'flex', overflowX: 'auto', gap: '0px', padding: '4px 0',
+                  paddingRight: '24px', scrollbarWidth: 'none', msOverflowStyle: 'none',
                   WebkitOverflowScrolling: 'touch'
                 }}
               >
@@ -818,57 +735,49 @@ function HeaderBar({showBag,setShowBag}   ) {
                       setSearchInput('');
                     }}
                     style={{
-                      flex: '0 0 auto',
-                      minWidth: '100px',
-                      margin: '0',
-                      padding: '6px 12px',
-                      borderRadius: '16px',
-                      color: '#303030',
-                      whiteSpace: 'nowrap',
-                      cursor: 'pointer',
-                      textAlign: 'center'
+                      flex: '0 0 auto', minWidth: '100px', margin: '0', padding: '6px 12px',
+                      borderRadius: '16px', color: '#303030', whiteSpace: 'nowrap',
+                      cursor: 'pointer', textAlign: 'center'
                     }}
                   >
                     {subcategory.name}
                   </h4>
                 ))}
               </div>
-              <MoveRight
-                size={22}
-                onClick={() => scrollSubcategories('right', desktopSubcatScrollRef)}
-                style={{ cursor: 'pointer' }}
-              />
+              <MoveRight size={22} onClick={() => scrollSubcategories('right', desktopSubcatScrollRef)} style={{ cursor: 'pointer' }} />
             </div>
-            <h1 style={{
-              fontSize: '19px',
-              fontWeight: 400,
-              marginTop: '7%',
-              marginLeft: '2%'
-            }}>You might be interested in</h1>
+
+            <h1 style={{ fontSize: '19px', fontWeight: 400, marginTop: '7%', marginLeft: '2%' }}>
+              You might be interested in
+            </h1>
 
             <div className='SearchMobileProductS'>
-              {filteredProducts.map((prod, index) => {
-                return (
-                  <div key={prod._id || index} id='FeaturedProductCard' className='FeaturedProductCard'
-                    onClick={() => (navigate(`/PorductSelecte/${prod._id}`, {
+              {filteredProducts.map((prod, index) => (
+                <div
+                  key={prod._id || index}
+                  id='FeaturedProductCard'
+                  className='FeaturedProductCard'
+                  onClick={() => {
+                    navigate(`/PorductSelecte/${prod._id}`, {
                       state: {
                         parentCategoryId: prod.categoryId,
                         subcategoryId: prod.subcategoryId,
                         genre: prod.genre,
                       }
-                    }), setShowSearch(false), setSearchInput(''))}>
-                    <img
-                      src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
-                      alt={prod.name}
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/150?text=No+Image';
-                      }}
-                    />
-                    <h2>{prod.name}</h2>
-                    <h3 style={{ fontWeight: "700" }}>{prod.price}.00 TND</h3>
-                  </div>
-                )
-              })}
+                    });
+                    setShowSearch(false);
+                    setSearchInput('');
+                  }}
+                >
+                  <img
+                    src={formatImageUrl(prod.images?.[0]?.urls?.[3])}
+                    alt={prod.name}
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                  />
+                  <h2>{prod.name}</h2>
+                  <h3 style={{ fontWeight: "700" }}>{prod.price}.00 TND</h3>
+                </div>
+              ))}
             </div>
           </>
         )}
@@ -876,34 +785,48 @@ function HeaderBar({showBag,setShowBag}   ) {
 
       <div className='HeaderBar slide-down'>
         <div className='HeaderBar-1'>
-          <Menu className='IconMenuHead' onClick={() => (setShowMenu(!showMenu), setShowUser(false), setShowBag(false))} size={25} strokeWidth={3} style={{ color: "white", cursor: "pointer", backgroundColor: "transparent" }} />
+          <Menu
+            className='IconMenuHead'
+            onClick={() => { setShowMenu(!showMenu); setShowUser(false); setShowBag(false); }}
+            size={25}
+            strokeWidth={3}
+            style={{ color: "white", cursor: "pointer", backgroundColor: "transparent" }}
+          />
           <Link className='esLogoHead' to='/' style={{ textDecoration: "none", color: "white" }}>
-            <img src={EsL} onClick={() => (setShowMenu(false), setShowBag(false))} alt="" />
+            <img src={EsL} onClick={() => { setShowMenu(false); setShowBag(false); }} alt="" />
           </Link>
-          <div className='HeaderBar-3'> 
+          <div className='HeaderBar-3'>
             <div className='HeaderIcons'>
               <div className="HeaderBar-4">
                 {user ? (
-                  <User onClick={() => (setShowMenu(false), setShowUser(!ShowUser), setIsDropdownOpen(true), setShowBag(false))} style={{ cursor: "pointer", color: "white" }} /> 
+                  <User
+                    onClick={() => { setShowMenu(false); setShowUser(!ShowUser); setIsDropdownOpen(true); setShowBag(false); }}
+                    style={{ cursor: "pointer", color: "white" }}
+                  />
                 ) : (
-                  <Link to='/Seconnect' onClick={() => (setShowMenu(false), setShowBag(false))}>
+                  <Link to='/Seconnect' onClick={() => { setShowMenu(false); setShowBag(false); }}>
                     <button>Sign In <UserRound size={15} style={{ position: "relative", left: "5px", top: "2px" }} /></button>
                   </Link>
                 )}
               </div>
-              <Search className='SearchX' onClick={() => (setShowSearch(!showSearch))} style={{ color: "white", cursor: "pointer" }} />
-              <ShoppingBag onClick={() => (setShowMenu(false), setShowUser(false), setShowBag(!showBag))} style={{ cursor: "pointer", color: "white" }} />
-              {
-                productCart.cart?.products?.length === 0 ? (
-                  ''
-                ) : (
-                  <div className='CountPCart' style={{ display: !user ? 'none' : '' }} onClick={() => (setShowMenu(false), setShowBag(!showBag))}>{productCart.cart?.products?.length}</div>
-                )
-              }  
+              <Search className='SearchX' onClick={() => setShowSearch(!showSearch)} style={{ color: "white", cursor: "pointer" }} />
+              <ShoppingBag
+                onClick={() => { setShowMenu(false); setShowUser(false); setShowBag(!showBag); }}
+                style={{ cursor: "pointer", color: "white" }}
+              />
+              {productCart.cart?.products?.length > 0 && (
+                <div
+                  className='CountPCart'
+                  style={{ display: !user ? 'none' : '' }}
+                  onClick={() => { setShowMenu(false); setShowBag(!showBag); }}
+                >
+                  {productCart.cart?.products?.length}
+                </div>
+              )}
             </div>
           </div>
-        </div> 
-        
+        </div>
+
         <AnimatePresence>
           {showMenu && (
             <motion.div
@@ -915,10 +838,7 @@ function HeaderBar({showBag,setShowBag}   ) {
                 height: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
                 opacity: { duration: 0.3, ease: "easeOut" }
               }}
-              style={{
-                paddingBottom: "2%",
-                overflow: "hidden"
-              }}
+              style={{ paddingBottom: "2%", overflow: "hidden" }}
             >
               <div>
                 <X onClick={() => setShowMenu(false)} style={{ display: showMenu ? "" : "none", cursor: "pointer", marginLeft: "90%" }} />
@@ -935,18 +855,15 @@ function HeaderBar({showBag,setShowBag}   ) {
                         transition={{ duration: 0.4 }}
                       >
                         {categories.map((category, index) => {
-                          const iconName = typeof category.icon === 'string' ? category.icon.trim() : ''
+                          const iconName = typeof category.icon === 'string' ? category.icon.trim() : '';
                           const IconComponent = LucideIcons[iconName] || LucideIcons.Dot;
-
                           return (
                             <motion.span
                               key={category._id}
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05, duration: 0.3, ease: "easeOut" }}
-                              style={{
-                                display: showMenu === false ? "none" : "",
-                              }}
+                              style={{ display: showMenu === false ? "none" : "" }}
                               className="SpanList"
                             >
                               {HoverCat === category._id ? (
@@ -955,9 +872,7 @@ function HeaderBar({showBag,setShowBag}   ) {
                                 IconComponent && <IconComponent size={19} />
                               )}
                               <h2
-                                style={{
-                                  fontWeight: category._id === categorySelected ? "700" : "",
-                                }}
+                                style={{ fontWeight: category._id === categorySelected ? "700" : "" }}
                                 onMouseEnter={() => setHoverCat(category._id)}
                                 onMouseLeave={() => setHoverCat(null)}
                                 onClick={() => {
@@ -989,15 +904,11 @@ function HeaderBar({showBag,setShowBag}   ) {
                           >
                             <MoveLeft
                               style={{ cursor: "pointer", color: "#FBCA00" }}
-                              onClick={() => {
-                                setCategorySelected("");
-                                setHoverCat("");
-                              }}
+                              onClick={() => { setCategorySelected(""); setHoverCat(""); }}
                             />
                             <h3 style={{ margin: "0", marginLeft: "5%", color: "#FBCA00" }}>{categorySelectedName}</h3>
                           </span>
 
-                          {/* BUG 7 FIX: Show all subcategories since genre toggle UI is removed */}
                           {subcategories.map((subcategory) => {
                             const parentCategory = categories.find((cat) => cat._id === subcategory.categoryId);
                             return (
@@ -1046,20 +957,20 @@ function HeaderBar({showBag,setShowBag}   ) {
                 <div className="user-email">{user?.email}</div>
               </div>
             </div>
-            <Link to="/Coming" onClick={() => (setIsDropdownOpen(false), setShowUser(false))} className="dropdown-item"><User size={16} /> Mon Profil</Link>
-            <Link
-              to="/ManagementDashboard"
-              onClick={() => (setIsDropdownOpen(false), setShowUser(false))}
-              className="dropdown-item"
-            >
+            <Link to="/Coming" onClick={() => { setIsDropdownOpen(false); setShowUser(false); }} className="dropdown-item">
+              <User size={16} /> Mon Profil
+            </Link>
+            <Link to="/ManagementDashboard" onClick={() => { setIsDropdownOpen(false); setShowUser(false); }} className="dropdown-item">
               <ShieldUser size={16} /> Administration
             </Link>
-            <button onClick={handleLogout} className="dropdown-item"><LogOut size={16} /> Déconnexion</button>
+            <button onClick={handleLogout} className="dropdown-item">
+              <LogOut size={16} /> Déconnexion
+            </button>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default HeaderBar
+export default HeaderBar;

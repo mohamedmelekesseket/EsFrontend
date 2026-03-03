@@ -91,15 +91,23 @@ const ProductSelect = ({ setShowBag }) => {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${API_BASE_URL}/Admin/Get-products`);
-      const filtered = data.filter(p => p.subcategoryId === subcategoryId && p.genre === genre);
+      const res = await axios.get(`${API_BASE_URL}/Admin/Get-products`);
+      // ✅ Handle both { success, data: [...] } and plain array responses
+      const allData = Array.isArray(res.data) ? res.data : (res.data.data || []);
+
+      const filtered = allData.filter(p => p.subcategoryId === subcategoryId && p.genre === genre);
 
       setAllProducts(filtered);
       setRelatedProducts(filtered.filter(p => p._id !== id));
 
-      const selectedProduct = filtered.find(p => p._id === id);
+      // ✅ Try to find product in filtered list first, fall back to all products
+      let selectedProduct = filtered.find(p => p._id === id);
       if (!selectedProduct) {
-        toast.error('Product not found');
+        selectedProduct = allData.find(p => p._id === id);
+      }
+
+      if (!selectedProduct) {
+        toast.error('Product not found', { id: 'product-not-found' });
         return;
       }
 
@@ -116,20 +124,23 @@ const ProductSelect = ({ setShowBag }) => {
 
       if (productColors.length > 0) {
         setSelectedColor(productColors[0]);
-        const firstColorImages = productImages.find(img => img.color?.toLowerCase() === productColors[0]?.toLowerCase());
+        const firstColorImages = productImages.find(
+          img => img.color?.toLowerCase() === productColors[0]?.toLowerCase()
+        );
         if (firstColorImages?.urls?.[0]) setImage(formatImageUrl(firstColorImages.urls[0]));
       }
 
       setCurrentImageIndex(0);
-    } catch {
-      toast.error('Failed to load product');
+    } catch (error) {
+      console.error('[fetchProducts]', error);
+      toast.error('Failed to load product', { id: 'productselect-fetch-error' });
     } finally {
       setTimeout(() => setLoading(false), 300);
     }
   }, [id, subcategoryId, genre]);
 
   useEffect(() => {
-    if (subcategoryId && genre) fetchProducts();
+    fetchProducts();
     setSelectedSize('');
   }, [subcategoryId, genre, id]);
 
@@ -167,7 +178,10 @@ const ProductSelect = ({ setShowBag }) => {
     try {
       const res = await axios.post(
         `${API_BASE_URL}/AddToCart`,
-        { userId: user.id || user._id, products: [{ productId: id, quantity: 1, size: selectedSize, color: selectedColor }] },
+        {
+          userId: user.id || user._id,
+          products: [{ productId: id, quantity: 1, size: selectedSize, color: selectedColor }]
+        },
         { withCredentials: true, headers: { 'Content-Type': 'application/json' } }
       );
       if (res.status === 200 || res.status === 201) {
@@ -175,6 +189,7 @@ const ProductSelect = ({ setShowBag }) => {
         setShowBag(true);
       }
     } catch (error) {
+      console.error('[handleAddToCart]', error);
       toast.error(error.response?.data?.message || 'Failed to add product to cart', { id: 'productselect-add-cart-error' });
     } finally {
       setAddingToCart(false);
@@ -192,15 +207,20 @@ const ProductSelect = ({ setShowBag }) => {
 
     setIsLoading(true);
     try {
-      const res = await axios.post(`${API_BASE_URL}/SignIn`, { email, password }, { withCredentials: true });
+      const res = await axios.post(
+        `${API_BASE_URL}/SignIn`,
+        { email, password },
+        { withCredentials: true }
+      );
       if (res.status === 200) {
         toast.success('Welcome back!', { id: 'productselect-signin-success' });
-        const userData = res.data.user || res.data;
+        const userData = res.data.data || res.data.user || res.data;
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         setShowModal(false);
       }
     } catch (error) {
+      console.error('[SignIn]', error);
       toast.error(error.response?.data?.message || 'Login failed', { id: 'productselect-signin-error' });
       setPassword('');
     } finally {
@@ -210,7 +230,10 @@ const ProductSelect = ({ setShowBag }) => {
 
   const scrollSubcategories = (direction) => {
     if (!subcategoriesScrollRef.current) return;
-    subcategoriesScrollRef.current.scrollBy({ left: direction === 'left' ? -180 : 180, behavior: 'smooth' });
+    subcategoriesScrollRef.current.scrollBy({
+      left: direction === 'left' ? -180 : 180,
+      behavior: 'smooth'
+    });
   };
 
   const handleTouchStart = (e) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX); };
@@ -230,14 +253,22 @@ const ProductSelect = ({ setShowBag }) => {
 
   const navigateToProduct = (prod) => {
     navigate(`/PorductSelecte/${prod._id}`, {
-      state: { parentCategoryId: prod.categoryId, subcategoryId: prod.subcategoryId, genre: prod.genre },
+      state: {
+        parentCategoryId: prod.categoryId,
+        subcategoryId: prod.subcategoryId,
+        genre: prod.genre
+      },
     });
     window.scrollTo({ top: 100, behavior: 'smooth' });
   };
 
   const SpinnerBtn = ({ label }) => (
     <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-      <span style={{ width: '16px', height: '16px', border: '2px solid #ffffff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+      <span style={{
+        width: '16px', height: '16px',
+        border: '2px solid #ffffff', borderTop: '2px solid transparent',
+        borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block'
+      }} />
       {label}
     </span>
   );
@@ -289,7 +320,12 @@ const ProductSelect = ({ setShowBag }) => {
                     key={index}
                     className='color'
                     onClick={() => setSelectedColor(color)}
-                    style={{ width: '24px', height: '24px', margin: '5px', borderRadius: '50%', cursor: 'pointer', border: '2px solid black', backgroundColor: color, backgroundPosition: 'center', backgroundRepeat: 'no-repeat', boxShadow: '0 0 0 2px #fff inset' }}
+                    style={{
+                      width: '24px', height: '24px', margin: '5px', borderRadius: '50%',
+                      cursor: 'pointer', border: '2px solid black', backgroundColor: color,
+                      backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+                      boxShadow: '0 0 0 2px #fff inset'
+                    }}
                     title={color}
                   />
                 ))}
@@ -303,7 +339,10 @@ const ProductSelect = ({ setShowBag }) => {
                   <button
                     key={idx}
                     onClick={() => setSelectedSize(size)}
-                    style={{ backgroundColor: selectedSize === size ? 'black' : '', color: selectedSize === size ? 'white' : '' }}
+                    style={{
+                      backgroundColor: selectedSize === size ? 'black' : '',
+                      color: selectedSize === size ? 'white' : ''
+                    }}
                     className="sizeBtn"
                   >
                     {size}
@@ -318,7 +357,10 @@ const ProductSelect = ({ setShowBag }) => {
               disabled={addingToCart}
               style={{ opacity: addingToCart ? 0.7 : 1, cursor: addingToCart ? 'not-allowed' : 'pointer' }}
             >
-              {addingToCart ? <SpinnerBtn label="Ajout en cours..." /> : <><span>AJOUTER AU PANIER</span> <ShoppingBag size={18} /></>}
+              {addingToCart
+                ? <SpinnerBtn label="Ajout en cours..." />
+                : <><span>AJOUTER AU PANIER</span> <ShoppingBag size={18} /></>
+              }
             </button>
 
             <h4 className='PDH4'>✓ Livraison gratuite à partir de 200 TND</h4>
@@ -357,7 +399,11 @@ const ProductSelect = ({ setShowBag }) => {
         {product && (
           <>
             <div className="mobile-image-container">
-              <button className="favorite-btn" onClick={() => setIsFavorite(prev => !prev)} aria-label="Add to favorites">
+              <button
+                className="favorite-btn"
+                onClick={() => setIsFavorite(prev => !prev)}
+                aria-label="Add to favorites"
+              >
                 <Heart className={isFavorite ? 'filled' : ''} />
               </button>
 
@@ -410,7 +456,10 @@ const ProductSelect = ({ setShowBag }) => {
                       key={index}
                       className={`mobile-color-option ${color === selectedColor ? 'selected' : ''}`}
                       onClick={() => setSelectedColor(color)}
-                      style={{ backgroundColor: color, backgroundImage: safeImgUrl ? `url(${safeImgUrl})` : undefined }}
+                      style={{
+                        backgroundColor: color,
+                        backgroundImage: safeImgUrl ? `url(${safeImgUrl})` : undefined
+                      }}
                     />
                   );
                 })}

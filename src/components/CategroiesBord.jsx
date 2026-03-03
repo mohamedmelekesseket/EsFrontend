@@ -23,21 +23,19 @@ const CategroiesBord = () => {
 
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    getCategory();
-  }, []);
+  useEffect(() => { getCategory(); }, []);
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImages(files);
-  };
+  const handleImageChange = (e) => setImages(Array.from(e.target.files));
 
   const getCategory = useCallback(async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`, { withCredentials: true });
-      setCategorys(res.data);
+      // ✅ Handle { success, data: [...] } shape
+      const data = res.data.data || res.data;
+      setCategorys(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch categories', { id: 'categories-create-error' });
+      console.error("[getCategory]", error);
+      toast.error(error.response?.data?.message || 'Failed to fetch categories.', { id: 'categories-fetch-error' });
     } finally {
       setLoading(false);
     }
@@ -46,35 +44,36 @@ const CategroiesBord = () => {
   const getSubCategory = useCallback(async (id) => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${id}`, { withCredentials: true });
-      setSubCategorys(res.data);
+      // ✅ Handle { success, data: [...] } shape
+      const data = res.data.data || res.data;
+      setSubCategorys(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch subcategories', { id: 'categories-create-error' });
+      console.error("[getSubCategory]", error);
+      toast.error(error.response?.data?.message || 'Failed to fetch subcategories.', { id: 'subcategories-fetch-error' });
     }
   }, []);
 
   const AddCategory = async () => {
     if (isAddingCategory) return;
-    if (!name.trim()) {
-      toast.error('Category Name required', { id: 'categories-name-required' });
-      return;
-    }
-    setIsAddingCategory(true);
+    if (!name.trim()) return toast.error('Category name is required.', { id: 'categories-name-required' });
 
+    setIsAddingCategory(true);
     const formData = new FormData();
     formData.append('name', name);
     images.forEach(image => formData.append('images', image));
 
     try {
       const res = await axios.post(`${API_BASE_URL}/Admin/Add-Category`, formData, { withCredentials: true });
-      if (res.status === 200) {
-        toast.success('Category Created successfully', { id: 'categories-create-success' });
+      if (res.status === 200 || res.status === 201) {
+        toast.success('Category created successfully.', { id: 'categories-create-success' });
         SetShowModal(false);
         setImages([]);
         setName('');
         getCategory();
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create category', { id: 'categories-create-error' });
+      console.error("[AddCategory]", error);
+      toast.error(error.response?.data?.message || 'Failed to create category.', { id: 'categories-create-error' });
     } finally {
       setIsAddingCategory(false);
     }
@@ -82,12 +81,9 @@ const CategroiesBord = () => {
 
   const AddSubCategory = async () => {
     if (isAddingSubCategory) return;
-    if (!subCategoryName.trim() || !genre) {
-      toast.error('SubCategory Name required', { id: 'categories-subname-required' });
-      return;
-    }
-    setIsAddingSubCategory(true);
+    if (!subCategoryName.trim() || !genre) return toast.error('Subcategory name and genre are required.', { id: 'categories-subname-required' });
 
+    setIsAddingSubCategory(true);
     const formData = new FormData();
     formData.append('name', subCategoryName);
     formData.append('genre', genre);
@@ -97,13 +93,14 @@ const CategroiesBord = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/Admin/Add-CategorySub`, formData, { withCredentials: true });
       if (res.status === 201) {
-        toast.success('SubCategory Created successfully', { id: 'categories-subcreate-success' });
+        toast.success('Subcategory created successfully.', { id: 'categories-subcreate-success' });
         setImages([]);
         setSubCategoryName('');
         getSubCategory(categoryId);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create subcategory', { id: 'categories-create-error' });
+      console.error("[AddSubCategory]", error);
+      toast.error(error.response?.data?.message || 'Failed to create subcategory.', { id: 'categories-create-error' });
     } finally {
       setIsAddingSubCategory(false);
     }
@@ -111,8 +108,8 @@ const CategroiesBord = () => {
 
   const deleteUser = (id) => {
     toast(t => (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'white' }}>
-        <p>Are you sure you want to delete this SubCategory?</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <p>Are you sure you want to delete this subcategory?</p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
           <button onClick={() => confirmDelete(id, t.id)} style={{ background: 'red', color: 'white', padding: '5px 10px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Yes</button>
           <button onClick={() => toast.dismiss(t.id)} style={{ background: 'gray', color: 'white', padding: '5px 10px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>No</button>
@@ -128,24 +125,22 @@ const CategroiesBord = () => {
       const res = await axios.delete(`${API_BASE_URL}/Admin/Delete-SubCategory/${id}`, { withCredentials: true });
       if (res.status === 200) {
         toast.dismiss(toastId);
-        toast.success('SubCategory deleted successfully!', { id: 'categories-subdelete-success' });
+        toast.success('Subcategory deleted successfully.', { id: 'categories-subdelete-success' });
         getSubCategory(categoryId);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Server error occurred', { id: 'categories-subdelete-error' });
+      console.error("[confirmDelete]", error);
+      toast.error(error.response?.data?.message || 'Failed to delete subcategory.', { id: 'categories-subdelete-error' });
     } finally {
       setIsDeleting(false);
     }
   };
 
   const deleteCategory = (id) => {
-    if (!id) {
-      toast.error('Invalid category ID', { id: 'categories-invalid-id' });
-      return;
-    }
+    if (!id) return toast.error('Invalid category ID.', { id: 'categories-invalid-id' });
     toast(t => (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'white' }}>
-        <p>Are you sure you want to delete this Category?</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <p>Are you sure you want to delete this category?</p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
           <button onClick={() => confirmDeleteCategory(id, t.id)} style={{ background: 'red', color: 'white', padding: '5px 10px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Yes</button>
           <button onClick={() => toast.dismiss(t.id)} style={{ background: 'gray', color: 'white', padding: '5px 10px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>No</button>
@@ -161,12 +156,13 @@ const CategroiesBord = () => {
       const res = await axios.delete(`${API_BASE_URL}/Admin/Delete-category/${id}`, { withCredentials: true });
       if (res.status === 200) {
         toast.dismiss(toastId);
-        toast.success('Category deleted successfully!', { id: 'categories-delete-success' });
+        toast.success('Category deleted successfully.', { id: 'categories-delete-success' });
         getCategory();
       }
     } catch (error) {
+      console.error("[confirmDeleteCategory]", error);
       toast.dismiss(toastId);
-      toast.error(error.response?.data?.message || 'Server error occurred', { id: 'categories-delete-error' });
+      toast.error(error.response?.data?.message || 'Failed to delete category.', { id: 'categories-delete-error' });
     } finally {
       setIsDeleting(false);
     }
@@ -174,7 +170,6 @@ const CategroiesBord = () => {
 
   return (
     <div className='CategroiesDashBord'>
-
       {showSub && (
         <div className="SubModal-Container">
           <div className='SubModal'>
@@ -182,13 +177,11 @@ const CategroiesBord = () => {
               <h2>Subcategories</h2>
               <span className="close-x" onClick={() => SetShowSub(false)}>×</span>
             </div>
-
             <select className='SubMSelecte' value={genre} onChange={e => setGenre(e.target.value)}>
               <option value="">Select genre</option>
               <option value="men">men</option>
               <option value="women">women</option>
             </select>
-
             <div className='ListSub'>
               {SubCategorys.filter(sub => sub.genre === genre).map(sub => (
                 <div className="sub-item-row" key={sub._id}>
@@ -197,29 +190,15 @@ const CategroiesBord = () => {
                 </div>
               ))}
             </div>
-
             <hr className="modal-divider" />
-
             <div className='AddSub-Section'>
               <h3>Add New SubCategory</h3>
-              <input
-                type="text"
-                value={subCategoryName}
-                onChange={e => setSubCategoryName(e.target.value)}
-                placeholder='SubCategory Name'
-              />
-              {genre && (
-                <p className="status-text">
-                  This subcategory will be added to: <strong>{genre}</strong>
-                </p>
-              )}
+              <input type="text" value={subCategoryName} onChange={e => setSubCategoryName(e.target.value)} placeholder='SubCategory Name' />
+              {genre && <p className="status-text">This subcategory will be added to: <strong>{genre}</strong></p>}
             </div>
-
             <div className="modal-footer">
               <button className='btn-cancel' onClick={() => { SetShowSub(false); setGenre(''); }}>Cancel</button>
-              <button className='btn-add' onClick={AddSubCategory} disabled={isAddingSubCategory}>
-                {isAddingSubCategory ? 'Adding...' : 'Add'}
-              </button>
+              <button className='btn-add' onClick={AddSubCategory} disabled={isAddingSubCategory}>{isAddingSubCategory ? 'Adding...' : 'Add'}</button>
             </div>
           </div>
         </div>
@@ -233,28 +212,19 @@ const CategroiesBord = () => {
               <button className="close-btn" onClick={() => SetShowModal(false)}>×</button>
             </div>
             <div className="modal-body">
-              <input
-                type="text"
-                placeholder="Category Name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                className="modal-input"
-                onKeyDown={e => e.key === 'Enter' && AddCategory()}
-              />
+              <input type="text" placeholder="Category Name" value={name} onChange={e => setName(e.target.value)} className="modal-input" onKeyDown={e => e.key === 'Enter' && AddCategory()} />
             </div>
             <div className="modal-footer-actions">
               <button className="btn-cancel-light" onClick={() => SetShowModal(false)}>Cancel</button>
-              <button className="btn-add-primary" onClick={AddCategory} disabled={isAddingCategory}>
-                {isAddingCategory ? 'Adding...' : 'Add'}
-              </button>
+              <button className="btn-add-primary" onClick={AddCategory} disabled={isAddingCategory}>{isAddingCategory ? 'Adding...' : 'Add'}</button>
             </div>
           </div>
         </div>
       )}
 
       <div className="HeaderMangment">
-        <h2>Categories Mangment Dashbord</h2>
-        <button className='ADDCatg' onClick={() => SetShowModal(true)}>Add Categoie</button>
+        <h2>Categories Management Dashboard</h2>
+        <button className='ADDCatg' onClick={() => SetShowModal(true)}>Add Category</button>
       </div>
 
       {loading ? (
@@ -269,15 +239,7 @@ const CategroiesBord = () => {
                 <span className="sub-count">2 subcategories</span>
               </div>
               <div className='card-footer'>
-                <button
-                  className='viewSub'
-                  onClick={() => {
-                    getSubCategory(category._id);
-                    SetShowSub(true);
-                    setIdCategory(category._id);
-                    setName(category.name);
-                  }}
-                >
+                <button className='viewSub' onClick={() => { getSubCategory(category._id); SetShowSub(true); setIdCategory(category._id); setName(category.name); }}>
                   View Subcategories
                 </button>
                 <Trash2 className="delete-icon" onClick={() => deleteCategory(category._id)} size={18} />

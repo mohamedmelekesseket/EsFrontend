@@ -46,34 +46,45 @@ const AllProducts = () => {
   const getCategory = useCallback(async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`, { withCredentials: true });
-      setCategorys(res.data);
+      // ✅ Handle { success, data: [...] } shape
+      const data = res.data.data || res.data;
+      setCategorys(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch categories', { id: 'allproducts-fetch-categories-error' });
+      console.error("[getCategory]", error);
+      toast.error(error.response?.data?.message || 'Failed to fetch categories.', { id: 'allproducts-fetch-categories-error' });
     }
   }, []);
 
   const getSubCategory = useCallback(async (id) => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${id}`, { withCredentials: true });
-      setSubCategorys(res.data);
+      // ✅ Handle { success, data: [...] } shape
+      const data = res.data.data || res.data;
+      setSubCategorys(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch subcategories', { id: 'allproducts-fetch-subcategories-error' });
+      console.error("[getSubCategory]", error);
+      toast.error(error.response?.data?.message || 'Failed to fetch subcategories.', { id: 'allproducts-fetch-subcategories-error' });
     }
   }, []);
 
   const getProducts = useCallback(async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-products`, { withCredentials: true });
-      setProducts(res.data);
-      setFilteredProducts(res.data);
+      // ✅ Handle { success, data: [...] } shape
+      const data = res.data.data || res.data;
+      const list = Array.isArray(data) ? data : [];
+
+      setProducts(list);
+      setFilteredProducts(list);
 
       const initialColors = {};
-      res.data.forEach(product => {
+      list.forEach(product => {
         initialColors[product._id] = Array.isArray(product.color) ? product.color[0] : '';
       });
       setSelectedColors(initialColors);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch products', { id: 'allproducts-fetch-products-error' });
+      console.error("[getProducts]", error);
+      toast.error(error.response?.data?.message || 'Failed to fetch products.', { id: 'allproducts-fetch-products-error' });
     }
   }, []);
 
@@ -84,32 +95,24 @@ const AllProducts = () => {
 
   useEffect(() => {
     if (SubCategorys.length > 0) {
-      const filtered = selectedGenre
-        ? SubCategorys.filter(sub => sub.genre === selectedGenre)
-        : SubCategorys;
-      setFilteredSubCategorys(filtered);
+      setFilteredSubCategorys(selectedGenre ? SubCategorys.filter(sub => sub.genre === selectedGenre) : SubCategorys);
     }
   }, [SubCategorys, selectedGenre]);
 
   useEffect(() => {
     let filtered = Products;
-
     if (selectedCategory) filtered = filtered.filter(p => p.categoryId === selectedCategory);
     if (selectedSubCategory) filtered = filtered.filter(p => p.subcategoryId === selectedSubCategory);
     if (selectedGenre) filtered = filtered.filter(p => p.genre === selectedGenre);
     if (searchQuery.trim()) filtered = filtered.filter(p => p.name?.toLowerCase().includes(searchQuery.toLowerCase()));
-
     setFilteredProducts(filtered);
   }, [Products, selectedCategory, selectedSubCategory, selectedGenre, searchQuery]);
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
     setSelectedSubCategory('');
-    if (e.target.value) {
-      getSubCategory(e.target.value);
-    } else {
-      setSubCategorys([]);
-    }
+    if (e.target.value) getSubCategory(e.target.value);
+    else setSubCategorys([]);
   };
 
   const handleGenreChange = (e) => {
@@ -127,40 +130,22 @@ const AllProducts = () => {
       <div className='FilterDiv'>
         <div className='SearchPrd'>
           <Search />
-          <input
-            type="text"
-            placeholder='Search By Name'
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
+          <input type="text" placeholder='Search By Name' value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </div>
-        <span className='SpanFilter'>
-          <SlidersHorizontal size={17} /> Filter
-        </span>
-
+        <span className='SpanFilter'><SlidersHorizontal size={17} /> Filter</span>
         <div className='Sub-Category'>
           <select value={selectedCategory} onChange={handleCategoryChange}>
             <option value="">All Categories</option>
-            {Categorys.map(category => (
-              <option key={category._id} value={category._id}>{category.name}</option>
-            ))}
+            {Categorys.map(category => <option key={category._id} value={category._id}>{category.name}</option>)}
           </select>
-
           <select value={selectedGenre} onChange={handleGenreChange}>
             <option value="">All Genres</option>
             <option value="women">Femme</option>
             <option value="men">Homme</option>
           </select>
-
-          <select
-            value={selectedSubCategory}
-            onChange={e => setSelectedSubCategory(e.target.value)}
-            disabled={!selectedCategory}
-          >
+          <select value={selectedSubCategory} onChange={e => setSelectedSubCategory(e.target.value)} disabled={!selectedCategory}>
             <option value="">All SubCategories</option>
-            {filteredSubCategorys.map(subcategory => (
-              <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>
-            ))}
+            {filteredSubCategorys.map(subcategory => <option key={subcategory._id} value={subcategory._id}>{subcategory.name}</option>)}
           </select>
         </div>
       </div>
@@ -179,7 +164,6 @@ const AllProducts = () => {
           const mainImg = getImageByColor(product, color);
           const secondImg = getSecondImageByColor(product, color);
           const isHovered = hoveredProductId === product._id;
-
           return (
             <div
               key={product._id}
@@ -189,33 +173,20 @@ const AllProducts = () => {
               onMouseLeave={() => setHoveredProductId(null)}
             >
               <div style={{ overflow: 'hidden', position: 'relative', height: '80%' }}>
-                <img
-                  src={isHovered && secondImg ? secondImg : mainImg}
-                  alt={product.name}
-                />
+                <img src={isHovered && secondImg ? secondImg : mainImg} alt={product.name} />
               </div>
               <p>{product.name}</p>
               <h3 style={{ color: 'white' }}>{product.price} TND</h3>
               <div className='Colors'>
-                {product.color.map((c, index) => {
+                {(Array.isArray(product.color) ? product.color : []).map((c, index) => {
                   const imgUrl = getImageByColor(product, c);
                   const safeImgUrl = imgUrl ? imgUrl.replace(/\\/g, '/') : undefined;
                   return (
                     <div
                       key={index}
                       className='color'
-                      onClick={e => {
-                        e.stopPropagation();
-                        setSelectedColors(prev => ({ ...prev, [product._id]: c }));
-                      }}
-                      style={{
-                        width: '24px', height: '24px', margin: '5px',
-                        borderRadius: '50%', cursor: 'pointer',
-                        border: '1px solid black', backgroundColor: c,
-                        backgroundImage: safeImgUrl ? `url(${safeImgUrl})` : undefined,
-                        backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
-                        boxShadow: '0 0 0 2px #fff inset',
-                      }}
+                      onClick={e => { e.stopPropagation(); setSelectedColors(prev => ({ ...prev, [product._id]: c })); }}
+                      style={{ width: '24px', height: '24px', margin: '5px', borderRadius: '50%', cursor: 'pointer', border: '1px solid black', backgroundColor: c, backgroundImage: safeImgUrl ? `url(${safeImgUrl})` : undefined, backgroundPosition: 'center', backgroundRepeat: 'no-repeat', boxShadow: '0 0 0 2px #fff inset' }}
                       title={c}
                     />
                   );

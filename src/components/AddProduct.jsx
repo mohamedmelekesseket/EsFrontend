@@ -25,39 +25,39 @@ const AddProduct = () => {
 
   const fileInputRefs = useRef({});
 
-  useEffect(() => {
-    getCategory();
-  }, []);
+  useEffect(() => { getCategory(); }, []);
 
   useEffect(() => {
-    const filtered = subcategories.filter(sub => sub.genre === genre);
-    setFilteredSubcategories(filtered);
+    setFilteredSubcategories(subcategories.filter(sub => sub.genre === genre));
   }, [genre, subcategories]);
 
   const getCategory = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-category`, { withCredentials: true });
-      setCategories(res.data);
+      // ✅ Handle { success, data: [...] } shape
+      const data = res.data.data || res.data;
+      setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch categories', { id: 'addproduct-fetch-category-error' });
+      console.error("[getCategory]", error);
+      toast.error(error.response?.data?.message || 'Failed to fetch categories.', { id: 'addproduct-fetch-category-error' });
     }
   };
 
   const getSubCategory = async (id) => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Admin/Get-Subcategory/${id}`, { withCredentials: true });
-      setSubcategories(res.data);
+      // ✅ Handle { success, data: [...] } shape
+      const data = res.data.data || res.data;
+      setSubcategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to fetch subcategories', { id: 'addproduct-fetch-subcategory-error' });
+      console.error("[getSubCategory]", error);
+      toast.error(error.response?.data?.message || 'Failed to fetch subcategories.', { id: 'addproduct-fetch-subcategory-error' });
     }
   };
 
   const handleColorImageChange = (colorKey, e) => {
     const files = Array.from(e.target.files);
-    setColorImages(prev => ({
-      ...prev,
-      [colorKey]: [...(prev[colorKey] || []), ...files],
-    }));
+    setColorImages(prev => ({ ...prev, [colorKey]: [...(prev[colorKey] || []), ...files] }));
   };
 
   const addSize = () => {
@@ -81,33 +81,18 @@ const AddProduct = () => {
 
   const removeColor = (c) => {
     setColor(prev => prev.filter(item => item !== c));
-    setColorImages(prev => {
-      const updated = { ...prev };
-      delete updated[c];
-      return updated;
-    });
+    setColorImages(prev => { const updated = { ...prev }; delete updated[c]; return updated; });
   };
 
   const removeColorImage = (colorKey, idx) => {
-    setColorImages(prev => ({
-      ...prev,
-      [colorKey]: prev[colorKey].filter((_, i) => i !== idx),
-    }));
+    setColorImages(prev => ({ ...prev, [colorKey]: prev[colorKey].filter((_, i) => i !== idx) }));
   };
 
   const resetForm = () => {
-    setName('');
-    setPrice('');
-    setCategoryId('');
-    setSubcategoryId('');
-    setGenre('');
-    setStock(0);
-    setIsFeatured(false);
-    setSize([]);
-    setColor([]);
-    setColorImages({});
-    setSizeInput('');
-    setColorInput('');
+    setName(''); setPrice(''); setCategoryId(''); setSubcategoryId('');
+    setGenre(''); setStock(0); setIsFeatured(false);
+    setSize([]); setColor([]); setColorImages({});
+    setSizeInput(''); setColorInput('');
   };
 
   const handleSubmit = async (e) => {
@@ -115,10 +100,9 @@ const AddProduct = () => {
     if (loading) return;
 
     if (!name || !price || !categoryId || !genre) {
-      toast.error('Please fill in all required fields', { id: 'addproduct-required-fields' });
+      toast.error('Please fill in all required fields.', { id: 'addproduct-required-fields' });
       return;
     }
-
     for (const c of color) {
       if (!colorImages[c] || colorImages[c].length === 0) {
         toast.error(`Please upload at least one image for color: ${c}`, { id: `addproduct-missing-images-${c}` });
@@ -127,7 +111,6 @@ const AddProduct = () => {
     }
 
     setLoading(true);
-
     const formData = new FormData();
     formData.append('name', name);
     formData.append('price', price);
@@ -138,7 +121,6 @@ const AddProduct = () => {
     if (subcategoryId) formData.append('subcategoryId', subcategoryId);
     if (size.length) formData.append('size', JSON.stringify(size));
     if (color.length) formData.append('color', JSON.stringify(color));
-
     Object.entries(colorImages).forEach(([colorKey, files]) => {
       files.forEach(file => formData.append(`images[${colorKey}][]`, file));
     });
@@ -148,12 +130,13 @@ const AddProduct = () => {
         withCredentials: true,
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      if (res.status === 200) {
-        toast.success('Product created successfully', { id: 'addproduct-success' });
+      if (res.status === 200 || res.status === 201) {
+        toast.success('Product created successfully.', { id: 'addproduct-success' });
         resetForm();
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Server error', { id: 'addproduct-error' });
+      console.error("[handleSubmit]", error);
+      toast.error(error.response?.data?.message || 'Failed to create product.', { id: 'addproduct-error' });
     } finally {
       setLoading(false);
     }
@@ -180,15 +163,9 @@ const AddProduct = () => {
         <div style={{ display: 'flex', marginBottom: '4%' }}>
           <div className='donner'>
             <p>Category *</p>
-            <select value={categoryId} onChange={e => {
-              setCategoryId(e.target.value);
-              setSubcategoryId('');
-              getSubCategory(e.target.value);
-            }}>
+            <select value={categoryId} onChange={e => { setCategoryId(e.target.value); setSubcategoryId(''); getSubCategory(e.target.value); }}>
               <option value="">Select Category</option>
-              {categories.map(cat => (
-                <option key={cat._id} value={cat._id}>{cat.name}</option>
-              ))}
+              {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
             </select>
           </div>
           <div className='donner'>
@@ -206,9 +183,7 @@ const AddProduct = () => {
             <p>SubCategory</p>
             <select value={subcategoryId} onChange={e => setSubcategoryId(e.target.value)} disabled={!categoryId || !genre}>
               <option value="">Select SubCategory</option>
-              {filteredSubcategories.map(sub => (
-                <option key={sub._id} value={sub._id}>{sub.name}</option>
-              ))}
+              {filteredSubcategories.map(sub => <option key={sub._id} value={sub._id}>{sub.name}</option>)}
             </select>
           </div>
           <div className='donner'>
@@ -266,12 +241,8 @@ const AddProduct = () => {
                       style={{ display: 'none' }}
                       onChange={e => handleColorImageChange(c, e)}
                     />
-                    <button type="button" className="BtAddImg" onClick={() => fileInputRefs.current[c]?.click()}>
-                      Choose Images
-                    </button>
-                    <button type="button" style={{ cursor: 'pointer' }} onClick={() => removeColor(c)}>
-                      X
-                    </button>
+                    <button type="button" className="BtAddImg" onClick={() => fileInputRefs.current[c]?.click()}>Choose Images</button>
+                    <button type="button" style={{ cursor: 'pointer' }} onClick={() => removeColor(c)}>X</button>
                   </div>
                 ))}
               </div>
@@ -282,12 +253,7 @@ const AddProduct = () => {
         <div style={{ display: 'flex', marginBottom: '4%' }}>
           <div className='donner' style={{ display: 'flex' }}>
             <p>Featured Product</p>
-            <input
-              type="checkbox"
-              checked={isFeatured}
-              onChange={e => setIsFeatured(e.target.checked)}
-              style={{ marginTop: '10px' }}
-            />
+            <input type="checkbox" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} style={{ marginTop: '10px' }} />
           </div>
         </div>
 
@@ -296,23 +262,11 @@ const AddProduct = () => {
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '8px',
-              border: 'none',
-              background: '#4CAF50',
-              color: 'white',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1,
-            }}
+            style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#4CAF50', color: 'white', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
           >
             {loading ? (
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{
-                  width: '16px', height: '16px',
-                  border: '2px solid #ffffff', borderTop: '2px solid transparent',
-                  borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block',
-                }} />
+                <span style={{ width: '16px', height: '16px', border: '2px solid #ffffff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
                 Creating...
               </span>
             ) : 'Create Product'}
@@ -323,15 +277,9 @@ const AddProduct = () => {
       <div className="imagesadd">
         {!hasImages ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', marginTop: '30%', height: '300px', borderRadius: '15px', color: 'white', gap: '15px' }}>
-            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', color: 'rgba(255,255,255,0.6)' }}>
-              📷
-            </div>
-            <div style={{ textAlign: 'center', fontSize: '20px', fontWeight: '500', color: 'rgba(255,255,255,0.8)' }}>
-              Aucune image pour le moment
-            </div>
-            <div style={{ textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.5)', maxWidth: '250px', lineHeight: '1.4' }}>
-              Ajoutez des couleurs et sélectionnez des images pour voir un aperçu ici
-            </div>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', color: 'rgba(255,255,255,0.6)' }}>📷</div>
+            <div style={{ textAlign: 'center', fontSize: '20px', fontWeight: '500', color: 'rgba(255,255,255,0.8)' }}>Aucune image pour le moment</div>
+            <div style={{ textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.5)', maxWidth: '250px', lineHeight: '1.4' }}>Ajoutez des couleurs et sélectionnez des images pour voir un aperçu ici</div>
           </div>
         ) : (
           Object.entries(colorImages).map(([colorKey, files]) =>
