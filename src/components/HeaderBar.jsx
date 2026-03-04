@@ -113,21 +113,23 @@ function HeaderBar({showBag,setShowBag}) {
     navigate('/');
   };
 
-  const getProductCart = async () => {
-    if (!user?.id) return;
-    try {
-      const res = await axios.get(`${API_BASE_URL}/GetProductCart/${user.id}`, {
-        withCredentials: true
-      });
-      const data = res.data.data || res.data;
-      setProductCart(data);
-    } catch (error) {
-      if (error.response?.status === 401) {
-        await handleLogout();
-      }
-      console.error("[getProductCart]", error);
-    }
-  };
+const getProductCart = async () => {
+  if (!user?.id) return;
+  try {
+    const res = await axios.get(`${API_BASE_URL}/GetProductCart/${user.id}`, {
+      withCredentials: true
+    });
+    
+    const data = res.data.data || res.data;
+    // ✅ Backend returns { _id, userId, products: [...] } with no .cart wrapper
+    // JSX expects productCart.cart.products, so we wrap it manually
+    setProductCart({ cart: data });
+    
+  } catch (error) {
+    if (error.response?.status === 401) await handleLogout();
+    console.error("[getProductCart]", error);
+  }
+};
 
   const getAllSubCategory = async () => {
     try {

@@ -74,9 +74,13 @@ const CommandeComp = () => {
     if (!user?.id) return;
     try {
       const res = await axios.get(`${API_BASE_URL}/GetProductCart/${user.id}`, { withCredentials: true });
-      setProductCart(res.data?.cart?.products || []);
+      // ✅ Backend returns { _id, userId, products: [...] } inside data
+      // so unwrap and read .products directly
+      const cartData = res.data.data || res.data;
+      setProductCart(Array.isArray(cartData.products) ? cartData.products : []);
     } catch (error) {
-      console.error('Failed to fetch cart:', error);
+      console.error('[getProductCart]', error);
+      toast.error('Impossible de charger le panier.', { id: 'commande-fetch-cart-error' });
     }
   };
 
@@ -144,11 +148,12 @@ const CommandeComp = () => {
         withCredentials: true,
       });
       if (res.status === 200) {
-        getProductCart();
-        toast.success('Produit supprimé du panier', { id: 'cart-delete-success' });
+        await getProductCart();
+        toast.success('Produit supprimé du panier.', { id: 'cart-delete-success' });
       }
     } catch (error) {
-      toast.error('Suppression impossible', { id: 'cart-delete-error' });
+      console.error('[DeletePrdCart]', error);
+      toast.error('Suppression impossible.', { id: 'cart-delete-error' });
     } finally {
       setIsDeleting(false);
     }
@@ -163,7 +168,7 @@ const CommandeComp = () => {
   const handleOrder = async () => {
     if (isOrdering) return;
     if (!nom || !prenom || !email || !telephone || !rue || !complement || !ville || !province || !postal) {
-      return toast.error('Information non complet', { id: 'order-incomplete-info' });
+      return toast.error('Information non complet.', { id: 'order-incomplete-info' });
     }
     setIsOrdering(true);
     try {
@@ -172,10 +177,13 @@ const CommandeComp = () => {
         { nom, prenom, email, telephone, rue, complement, ville, province, postal },
         { withCredentials: true }
       );
-      toast.success('Commande envoyée avec succès', { id: 'order-success' });
-      navigate('/order-confirmation', { state: { order: res.data.order } });
+      toast.success('Commande envoyée avec succès.', { id: 'order-success' });
+      // ✅ Handle { success, data: { order: {...} } } shape
+      const orderData = res.data.data || res.data;
+      navigate('/order-confirmation', { state: { order: orderData.order || orderData } });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Erreur lors de la commande', { id: 'order-error' });
+      console.error('[handleOrder]', err);
+      toast.error(err.response?.data?.message || 'Erreur lors de la commande.', { id: 'order-error' });
     } finally {
       setIsOrdering(false);
     }
@@ -232,9 +240,7 @@ const CommandeComp = () => {
                       onChange={e => setProvince(e.target.value)}
                     />
                     {filteredProvinces.map((prov, i) => (
-                      <div key={i} className="dropdown-item" onClick={() => handleSelect(prov)}>
-                        {prov}
-                      </div>
+                      <div key={i} className="dropdown-item" onClick={() => handleSelect(prov)}>{prov}</div>
                     ))}
                   </div>
                 )}
@@ -285,7 +291,19 @@ const CommandeComp = () => {
         <div id='facturation-2' className="facturation-2">
           <h3>Résumé de l'achat ({productCart.length})</h3>
           <div className="Continuer">
-            <h4>Total {total.toFixed(2)} DT</h4>
+            {/* ✅ Clear breakdown: subtotal + delivery + total */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <h4 style={{ margin: 0, fontWeight: 400, color: 'gray', fontSize: '14px' }}>Sous-total</h4>
+              <h4 style={{ margin: 0, fontSize: '14px' }}>{total.toFixed(2)} DT</h4>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <h4 style={{ margin: 0, fontWeight: 400, color: 'gray', fontSize: '14px' }}>Livraison</h4>
+              <h4 style={{ margin: 0, fontSize: '14px' }}>9.90 DT</h4>
+            </div>
+            <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
+              <h4 style={{ margin: 0 }}>Total</h4>
+              <h4 style={{ margin: 0 }}>{(total + 9.9).toFixed(2)} DT</h4>
+            </div>
             <div className="btC">
               <button
                 onClick={handleOrder}
@@ -322,12 +340,9 @@ const CommandeComp = () => {
 
       <footer className="footer-2">
         <div className="footer-links">
-          <a href="#">Conditions générales d'achat</a>
-          <span>•</span>
-          <a href="#">Conditions générales de #esbeandstyle</a>
-          <span>•</span>
-          <a href="#">Politique de confidentialité</a>
-          <span>•</span>
+          <a href="#">Conditions générales d'achat</a><span>•</span>
+          <a href="#">Conditions générales de #esbeandstyle</a><span>•</span>
+          <a href="#">Politique de confidentialité</a><span>•</span>
           <a href="#">Politique de cookies</a>
         </div>
         <div className="footer-copy">© 2025 ESBEAND CLOTHES</div>
