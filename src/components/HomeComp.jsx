@@ -351,7 +351,6 @@ const HomeComp = () => {
           </div>
           <div className="drop-announcement__actions">
             <button type="button" className="drop-announcement__secondary" onClick={() => setShowContact(true)}>Notify Me</button>
-            <button type="button" className="drop-announcement__secondary" onClick={() => navigate('/ProductU/Hoodies')}>Explore</button>
           </div>
         </div>
       </section>

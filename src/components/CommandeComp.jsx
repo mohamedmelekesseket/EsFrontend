@@ -254,33 +254,40 @@ const CommandeComp = () => {
             <h3>Produits dans votre panier</h3>
             <div className="cart-list">
               {productCart.map((item, index) => (
-                <div
-                  key={index}
-                  className="cart-item"
-                  style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ddd', padding: '10px 0' }}
-                >
-                  <div style={{ flex: 1, cursor: item.productId?._id ? 'pointer' : 'default' }} onClick={() => handleGoToProduct(item)}>
+                <div key={index} className="cart-item">
+                  <div
+                    className={`cart-info ${item.productId?._id ? "clickable" : ""}`}
+                    onClick={() => handleGoToProduct(item)}
+                  >
                     <p><strong>Nom :</strong> {item.productId?.name}</p>
                     <p><strong>Taille :</strong> {item.size}</p>
                     <p><strong>Couleur :</strong> {item.color}</p>
                     <p><strong>Quantité :</strong> {item.quantity}</p>
                   </div>
-                  <div style={{ flex: 0, minWidth: '130px', textAlign: 'center' }} onClick={() => handleGoToProduct(item)}>
+
+                  <div className="cart-image" onClick={() => handleGoToProduct(item)}>
                     {(() => {
                       const src = getImageByColor(item.productId, item.color, 0);
                       return src ? (
                         <img
                           src={src}
-                          alt={item.productId?.name || 'product'}
-                          style={{ width: '110px', height: '130px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer' }}
-                          onError={e => { e.currentTarget.style.display = 'none'; }}
+                          alt={item.productId?.name || "product"}
+                          className="cart-product-img"
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
                         />
                       ) : null;
                     })()}
                   </div>
-                  <div style={{ textAlign: 'right', minWidth: '100px' }}>
-                    <p style={{ marginBottom: '8px' }}><strong>{item.productId?.price} DT</strong></p>
-                    <Trash2 size={18} style={{ cursor: 'pointer', color: 'red' }} onClick={() => setConfirmDelete(item)} title="Supprimer" />
+
+                  <div className="cart-price">
+                    <p className="cart-price-text"><strong>{item.productId?.price} DT</strong></p>
+                    <Trash2
+                      strokeWidth={2}
+                      size={18}
+                      className="cart-delete"
+                      onClick={() => setConfirmDelete(item)}
+                      title="Supprimer"
+                    />
                   </div>
                 </div>
               ))}
@@ -290,20 +297,26 @@ const CommandeComp = () => {
 
         <div id='facturation-2' className="facturation-2">
           <h3>Résumé de l'achat ({productCart.length})</h3>
+          <div style={{height:"1px",width:"100%",backgroundColor:"gray",marginTop:"2%",marginBottom:"1%"}}></div>
+          <div className='phoneCommmande'>
+
           <div className="Continuer">
             {/* ✅ Clear breakdown: subtotal + delivery + total */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <h4 style={{ margin: 0, fontWeight: 400, color: 'gray', fontSize: '14px' }}>Sous-total</h4>
-              <h4 style={{ margin: 0, fontSize: '14px' }}>{total.toFixed(2)} DT</h4>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <h4 style={{ margin: 0, fontWeight: 400, color: 'gray', fontSize: '14px' }}>Livraison</h4>
-              <h4 style={{ margin: 0, fontSize: '14px' }}>9.90 DT</h4>
-            </div>
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '10px', display: 'flex', justifyContent: 'space-between' }}>
-              <h4 style={{ margin: 0 }}>Total</h4>
-              <h4 style={{ margin: 0 }}>{(total + 9.9).toFixed(2)} DT</h4>
-            </div>
+              <div className="price-row">
+                <h4 className="price-label" style={{color:"#BFD0E0"}}>Sous-total</h4>
+                <h4 className="price-value"style={{color:"white"}}>{total.toFixed(2)} DT</h4>
+              </div>
+
+              <div className="price-row shipping">
+                <h4 className="price-label" style={{color:"#BFD0E0"}}>Livraison</h4>
+                <h4 className="price-value" style={{color:"white"}}>9.90 DT</h4>
+              </div>
+
+              <div className="price-row totalp">
+                <h4 className="price-label total-label" style={{color:"#BFD0E0"}}>Total</h4>
+                <h4 className="price-value total-value" style={{color:"white"}}>{(total + 9.9).toFixed(2)} DT</h4>
+              </div>
+          </div>
             <div className="btC">
               <button
                 onClick={handleOrder}
@@ -320,25 +333,26 @@ const CommandeComp = () => {
               </button>
             </div>
           </div>
+
         </div>
       </div>
 
       {confirmDelete && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'white', borderRadius: '8px', padding: '18px 20px', width: '92%', maxWidth: '380px', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'gray', borderRadius: '8px', padding: '18px 20px', width: '92%', maxWidth: '380px', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
             <h3 style={{ marginTop: 0, marginBottom: '8px' }}>Supprimer l'article</h3>
             <p style={{ marginTop: 0, color: '#555' }}>
               Voulez-vous vraiment supprimer <strong>{confirmDelete?.productId?.name}</strong> du panier ?
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '14px' }}>
               <button onClick={() => setConfirmDelete(null)} style={{ padding: '8px 12px', background: '#eee', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Annuler</button>
-              <button onClick={confirmDeleteItem} style={{ padding: '8px 12px', background: '#e53935', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Supprimer</button>
+              <button onClick={confirmDeleteItem} style={{ padding: '8px 12px', background: '#e53935', color: 'gray', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Supprimer</button>
             </div>
           </div>
         </div>
       )}
 
-      <footer className="footer-2">
+      {/* <footer className="footer-2">
         <div className="footer-links">
           <a href="#">Conditions générales d'achat</a><span>•</span>
           <a href="#">Conditions générales de #esbeandstyle</a><span>•</span>
@@ -346,7 +360,7 @@ const CommandeComp = () => {
           <a href="#">Politique de cookies</a>
         </div>
         <div className="footer-copy">© 2025 ESBEAND CLOTHES</div>
-      </footer>
+      </footer> */}
     </div>
   );
 };

@@ -376,6 +376,7 @@ const Index = () => {
                 </div>
                 <motion.p initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>{product.name}</motion.p>
                 <motion.h3 initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>{product.price} TND</motion.h3>
+                <motion.p style={{color:"gray",fontSize:"9px"}} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>+{product.color.length-1} Colors</motion.p>
               </motion.div>
             );
           })

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, ShoppingBag, Mail, Instagram, Twitter, Youtube, Heart } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ShoppingBag, Lock, Eye, Twitter, EyeOff, Heart } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import Loader from './Loader';
@@ -60,6 +60,7 @@ const ProductSelect = ({ setShowBag }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [showpassword, setShowPassword] = useState(false)
 
   // Auth modal state
   const [showModal, setShowModal] = useState(false);
@@ -547,14 +548,19 @@ const ProductSelect = ({ setShowBag }) => {
                 placeholder="E-mail"
               />
               {emailError && <p className="error-text">{emailError}</p>}
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && SignIn()}
-                placeholder="Password"
-                style={{ marginTop: '7%' }}
-              />
+               <div style={{ position: "relative", width: "100%",top:"3%" }}>
+                <input
+                  type={showpassword ? "text" : "password"}
+                  value={password}
+                  placeholder="*********"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                {showpassword ? (
+                  <EyeOff  onClick={() => setShowPassword(!showpassword)} size={19} className="connectDiv-Eye" />
+                ) : (
+                  <Eye  onClick={() => setShowPassword(!showpassword)} size={19} className="connectDiv-Eye" />
+                )}
+              </div>
               {passwordError && <p className="error-text">{passwordError}</p>}
               <Link to='/ResetPassword' style={{ textDecoration: 'none', color: 'black' }}>
                 <h4 style={{ marginLeft: '18%', fontSize: '11px' }}>Have you forgotten your password?</h4>
