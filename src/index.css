@@ -6034,7 +6034,7 @@ input::placeholder {
 }
 .connectDiv-Eye{
   position: absolute;
-  top: 25%;
+  top: 29%;
   right: 10%;
   cursor: pointer;
 }
@@ -6091,6 +6091,12 @@ input::placeholder {
   }
 }
 @media (max-width: 768px) {
+  .connectDiv-Eye{
+    position: absolute;
+    top: 45%;
+    right: 10%;
+    cursor: pointer;
+  }
   .gallery {
     display: none;
   }

@@ -11,7 +11,7 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-function HeaderBar({showBag,setShowBag}) {
+function HeaderBar({ showBag, setShowBag }) {
   const [categorySelected,setCategorySelected]=useState('')
   const [categorySelectedName,setCategorySelectedName]=useState('')
   const [showMenu,setShowMenu]=useState(false)
@@ -53,6 +53,7 @@ function HeaderBar({showBag,setShowBag}) {
   const [isDeletingCart, setIsDeletingCart] = useState(false);
   const [isUpdatingCart, setIsUpdatingCart] = useState(false);
   const [bagLoading, setBagLoading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const icons = { Shirt, ShoppingBag, Footprints, Smartphone };
 
@@ -276,6 +277,12 @@ const getProductCart = async () => {
     }
   };
 
+  const confirmDeleteItem = async () => {
+    if (!confirmDelete) return;
+    await DeletePrdCart(confirmDelete);
+    setConfirmDelete(null);
+  };
+
   const updateCartItem = async () => {
     if (!user?.id || !editingCartItem || isUpdatingCart) return;
     setIsUpdatingCart(true);
@@ -398,7 +405,7 @@ const getProductCart = async () => {
                                               genre: prod.genre,
                                             }
                                           });
-                                          setSearchMobile(false);
+                                          setShowBag(false);
                                         }}
                                       >
                                         <img
@@ -464,7 +471,11 @@ const getProductCart = async () => {
                                               }}
                                               style={{ cursor: "pointer" }}
                                             />
-                                            <Trash2 size={19} style={{ cursor: "pointer" }} onClick={() => DeletePrdCart(product)} />
+                                            <Trash2
+                                              size={19}
+                                              style={{ cursor: "pointer" }}
+                                              onClick={() => setConfirmDelete(product)}
+                                            />
                                           </div>
                                         </div>
                                       </motion.div>
@@ -968,6 +979,70 @@ const getProductCart = async () => {
             <button onClick={handleLogout} className="dropdown-item">
               <LogOut size={16} /> Déconnexion
             </button>
+          </div>
+        )}
+        {confirmDelete && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                background: 'white',
+                borderRadius: '8px',
+                padding: '18px 20px',
+                width: '92%',
+                maxWidth: '380px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+              }}
+            >
+              <h3 style={{ marginTop: 0, marginBottom: '8px' }}>Supprimer l'article</h3>
+              <p style={{ marginTop: 0, color: '#555' }}>
+                Voulez-vous vraiment supprimer{' '}
+                <strong>{confirmDelete?.productId?.name}</strong> du panier ?
+              </p>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '10px',
+                  marginTop: '14px',
+                }}
+              >
+                <button
+                  onClick={() => setConfirmDelete(null)}
+                  style={{
+                    padding: '8px 12px',
+                    background: '#eee',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmDeleteItem}
+                  style={{
+                    padding: '8px 12px',
+                    background: '#e53935',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Supprimer
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
