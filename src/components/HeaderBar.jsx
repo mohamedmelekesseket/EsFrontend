@@ -474,7 +474,7 @@ const getProductCart = async () => {
                                             <Trash2
                                               size={19}
                                               style={{ cursor: "pointer" }}
-                                              onClick={() => setConfirmDelete(product)}
+                                              onClick={() => DeletePrdCart(product)}
                                             />
                                           </div>
                                         </div>
